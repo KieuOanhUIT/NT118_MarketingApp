@@ -29,12 +29,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- 🆕 Màn hình thông báo -->
         <activity
             android:name=".NotificationActivity"
             android:exported="true" />
         <activity
             android:name=".ReviewContentActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ContentListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".NotificationDetailActivity"
             android:exported="true" />
     </application>
 </manifest>

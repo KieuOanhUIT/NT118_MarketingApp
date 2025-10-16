@@ -1,12 +1,12 @@
 package com.example.nt118_marketingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -14,12 +14,12 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-// ✅ Thêm class này ngay trong file
+// Model thông báo — để gọn trong file cũng được
 class Notification {
-    private String title;
-    private String message;
-    private String time;
-    private int iconResId;
+    private final String title;
+    private final String message;
+    private final String time;
+    private final int iconResId;
     private boolean isRead;
 
     public Notification(String title, String message, String time, int iconResId, boolean isRead) {
@@ -54,6 +54,7 @@ public class NotificationActivity extends AppCompatActivity {
         displayNotifications();
     }
 
+    // ✅ Dữ liệu mẫu
     private void generateSampleNotifications() {
         notifications = new ArrayList<>();
 
@@ -82,6 +83,7 @@ public class NotificationActivity extends AppCompatActivity {
         ));
     }
 
+    // Hiển thị danh sách thông báo
     private void displayNotifications() {
         LayoutInflater inflater = LayoutInflater.from(this);
         notificationList.removeAllViews();
@@ -99,6 +101,7 @@ public class NotificationActivity extends AppCompatActivity {
             message.setText(n.getMessage());
             time.setText(n.getTime());
 
+            // Hiệu ứng đã đọc / chưa đọc
             if (n.isRead()) {
                 title.setTypeface(null, android.graphics.Typeface.NORMAL);
                 title.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
@@ -109,10 +112,18 @@ public class NotificationActivity extends AppCompatActivity {
                 itemView.setAlpha(1f);
             }
 
+            // Sự kiện click mở chi tiết
             itemView.setOnClickListener(v -> {
-                Toast.makeText(this, "Mở chi tiết: " + n.getTitle(), Toast.LENGTH_SHORT).show();
-                n.setRead(true);
-                displayNotifications();
+                n.setRead(true); // đánh dấu đã đọc
+
+                Intent intent = new Intent(NotificationActivity.this, NotificationDetailActivity.class);
+                intent.putExtra("title", n.getTitle());
+                intent.putExtra("message", n.getMessage());
+                intent.putExtra("time", n.getTime());
+                intent.putExtra("icon", n.getIconResId());
+                startActivity(intent);
+
+                displayNotifications(); // refresh lại danh sách
             });
 
             notificationList.addView(itemView);
