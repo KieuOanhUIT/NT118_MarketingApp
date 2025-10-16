@@ -10,5 +10,6 @@
     app:backgroundTint="@color/background"
     app:strokeColor="@color/colorPrimary"
     app:strokeWidth="2dp"
+    app:cornerRadius="12dp"
     android:paddingVertical="12dp"
     app:rippleColor="@color/colorSecondary" />
