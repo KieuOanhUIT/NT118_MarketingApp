@@ -9,8 +9,10 @@
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="sign_in_button">Đăng nhập</string>
 
-    <!-- Forgot Password Screen -->
+    <!-- Forgot/Change Password Screen -->
     <string name="forgot_password_title">Quên mật khẩu?</string>
+    <string name="change_password_title">Đổi mật khẩu?</string>
+    <string name="change_password_subtitle">Nhập mật khẩu của bạn để xác minh</string>
     <string name="forgot_password_subtitle">Nhập gmail của bạn để nhận mã xác thực</string>
     <string name="back_sign_in">Quay lại đăng nhập</string>
     <string name="forgot_password_cre_subtitle">Nhập mã xác thực chúng tôi đã gửi qua gmail</string>
