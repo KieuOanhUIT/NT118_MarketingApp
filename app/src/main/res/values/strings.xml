@@ -1,10 +1,22 @@
 <resources>
     <string name="app_name">NT118_MarketingApp</string>
+
+    <!-- Sign In Screen -->
+    <string name="sign_in_greet">Xin chào!</string>
+    <string name="sign_in_title">Vui lòng nhập Gmail và mật khẩu của bạn</string>
+    <string name="email_hint">Gmail</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="sign_in_button">Đăng nhập</string>
+
+    <!-- Filter options -->
     <string-array name="filter_options">
         <item>Tất cả</item>
         <item>Cần duyệt</item>
         <item>Đã duyệt</item>
     </string-array>
+
+    <!-- Content status filter -->
     <string-array name="content_status_filter">
         <item>Tất cả</item>
         <item>Chờ duyệt</item>
