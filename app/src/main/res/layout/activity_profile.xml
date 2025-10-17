@@ -12,7 +12,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:src="@drawable/avt"
         android:scaleType="centerCrop"
         android:background="@drawable/circle_bg"
@@ -37,7 +37,7 @@
         android:layout_below="@id/tvFullName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="25dp"
         android:orientation="vertical"
         android:padding="16dp"
         android:background="@android:color/transparent">
@@ -118,6 +118,24 @@
                 android:textSize="16sp"/>
         </LinearLayout>
 
+        <include
+            layout="@layout/common_button"
+            android:id="@+id/btnSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/btn_up"/>
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/change_pw"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"  />
     </LinearLayout>
 
 </RelativeLayout>
