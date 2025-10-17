@@ -9,6 +9,17 @@
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="sign_in_button">Đăng nhập</string>
 
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Quên mật khẩu?</string>
+    <string name="forgot_password_subtitle">Nhập gmail của bạn để nhận mã xác thực</string>
+    <string name="back_sign_in">Quay lại đăng nhập</string>
+    <string name="forgot_password_cre_subtitle">Nhập mã xác thực chúng tôi đã gửi qua gmail</string>
+    <string name="cre_hint">Mã xác thực</string>
+    <string name="new_password">Nhập mật khẩu mới của bạn!</string>
+    <string name="new_password1">Nhập mật khẩu mới</string>
+    <string name="new_password2">Nhập lại mật khẩu mới</string>
+    <string name="new_password_title">Tạo mật khẩu mới!</string>
+
     <!-- Filter options -->
     <string-array name="filter_options">
         <item>Tất cả</item>
