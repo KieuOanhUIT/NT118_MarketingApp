@@ -43,4 +43,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // Material Design Components (ô chọn ngày, button, card, textfield)
+    implementation("com.google.android.material:material:1.11.0")
+// MPAndroidChart - vẽ biểu đồ cột, tròn, đường, cột ngang
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+// RecyclerView hiển thị dạng danh sách/bảng
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 }

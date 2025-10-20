@@ -89,6 +89,13 @@
         <activity
             android:name=".NotificationDetailActivity"
             android:exported="true" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".ReportActivity"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
