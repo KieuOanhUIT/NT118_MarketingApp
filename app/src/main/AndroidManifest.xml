@@ -84,6 +84,9 @@
             android:name=".ReviewContentActivity"
             android:exported="true" />
         <activity
+            android:name=".SchedulePostActivity"
+            android:exported="true" />
+        <activity
             android:name=".ContentListActivity"
             android:exported="true" />
         <activity

@@ -1,6 +1,7 @@
 package com.example.nt118_marketingapp;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +15,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.nt118_marketingapp.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class ReviewContentActivity extends AppCompatActivity {
     private LinearLayout contentList;
     private Spinner spinnerFilter;
 
-    // Lớp mô tả 1 Content
     static class ContentItem {
         String title;
         String description;
@@ -49,7 +47,6 @@ public class ReviewContentActivity extends AppCompatActivity {
         contentList = findViewById(R.id.contentList);
         spinnerFilter = findViewById(R.id.spinnerFilter);
 
-        // Gán adapter cho spinner lọc
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.filter_options,
@@ -58,13 +55,9 @@ public class ReviewContentActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFilter.setAdapter(adapter);
 
-        // Dữ liệu mẫu
         generateSampleData();
-
-        // Lần đầu load
         displayFilteredList("Tất cả");
 
-        // Sự kiện đổi filter
         spinnerFilter.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -79,24 +72,9 @@ public class ReviewContentActivity extends AppCompatActivity {
 
     private void generateSampleData() {
         allContents = new ArrayList<>();
-        allContents.add(new ContentItem(
-                "Chiến dịch Black Friday",
-                "Bài đăng Facebook ưu đãi giảm 50% toàn bộ sản phẩm.",
-                "14:00 - 15/10/2025",
-                false
-        ));
-        allContents.add(new ContentItem(
-                "Bài Instagram Noel",
-                "Nội dung video ngắn kèm hình ảnh quà tặng cuối năm.",
-                "09:00 - 16/10/2025",
-                true
-        ));
-        allContents.add(new ContentItem(
-                "Bài TikTok khuyến mãi Flash Sale",
-                "Clip quảng bá Flash Sale 11/11 sắp tới.",
-                "11:30 - 16/10/2025",
-                false
-        ));
+        allContents.add(new ContentItem("Chiến dịch Black Friday", "Bài đăng Facebook ưu đãi giảm 50% toàn bộ sản phẩm.", "14:00 - 15/10/2025", false));
+        allContents.add(new ContentItem("Bài Instagram Noel", "Nội dung video ngắn kèm hình ảnh quà tặng cuối năm.", "09:00 - 16/10/2025", true));
+        allContents.add(new ContentItem("Bài TikTok khuyến mãi Flash Sale", "Clip quảng bá Flash Sale 11/11 sắp tới.", "11:30 - 16/10/2025", false));
     }
 
     private void displayFilteredList(String filter) {
@@ -104,7 +82,6 @@ public class ReviewContentActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (ContentItem item : allContents) {
-            // Kiểm tra filter
             if (filter.equals("Cần duyệt") && item.isApproved) continue;
             if (filter.equals("Đã duyệt") && !item.isApproved) continue;
 
@@ -127,14 +104,18 @@ public class ReviewContentActivity extends AppCompatActivity {
                 btnReject.setAlpha(0.5f);
             }
 
-            // Nút Duyệt
             btnApprove.setOnClickListener(v -> {
                 item.isApproved = true;
                 Toast.makeText(this, "Đã duyệt: " + item.title, Toast.LENGTH_SHORT).show();
+
+                // Cập nhật UI trước khi chuyển màn hình
                 displayFilteredList(spinnerFilter.getSelectedItem().toString());
+
+                Intent intent = new Intent(ReviewContentActivity.this, SchedulePostActivity.class);
+                intent.putExtra("contentTitle", item.title);
+                startActivity(intent);
             });
 
-            // Nút Không duyệt
             btnReject.setOnClickListener(v -> showRejectPopup(item));
 
             contentList.addView(itemView);
