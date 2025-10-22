@@ -1,5 +1,6 @@
 package com.example.nt118_marketingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -11,30 +12,37 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private TextInputEditText edtEmail;
     private TextView tvForgotPassword;
-    private View btnSignIn; // nếu "common_button" là layout riêng, bạn có thể ánh xạ nó như View
+    private View btnSubmit; // nút gửi yêu cầu quên mật khẩu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_password); // gắn layout XML
+        setContentView(R.layout.activity_forgot_password);
 
-        // Ánh xạ các View từ XML
+        // Ánh xạ view
         edtEmail = findViewById(R.id.edtEmail);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        btnSignIn = findViewById(R.id.btnSignIn);
+        btnSubmit = findViewById(R.id.btnSignIn); // nếu layout dùng id này thì giữ nguyên
 
-        // Xử lý khi bấm nút "Sign In" hoặc "Gửi yêu cầu"
-        btnSignIn.setOnClickListener(v -> {
-            String email = edtEmail.getText().toString().trim();
+        // Khi nhấn "Submit" hoặc "Gửi yêu cầu"
+        btnSubmit.setOnClickListener(v -> {
+            String email = edtEmail.getText() != null ? edtEmail.getText().toString().trim() : "";
             if (email.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập email", Toast.LENGTH_SHORT).show();
             } else {
-                // TODO: Thực hiện logic gửi email khôi phục mật khẩu
+                // Hiện thông báo
                 Toast.makeText(this, "Yêu cầu khôi phục đã được gửi cho " + email, Toast.LENGTH_LONG).show();
+
+                // Chuyển sang trang ForgotPasswordCre
+                Intent intent = new Intent(ForgotPasswordActivity.this, ForgotPasswordCre.class);
+                startActivity(intent);
+                finish(); // Đóng trang hiện tại nếu không cần quay lại
             }
         });
 
-        // Xử lý khi bấm "Quay lại đăng nhập"
-        tvForgotPassword.setOnClickListener(v -> finish()); // hoặc chuyển sang LoginActivity
+        // Khi nhấn "Quay lại đăng nhập"
+        tvForgotPassword.setOnClickListener(v -> {
+            finish();
+        });
     }
 }
