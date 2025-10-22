@@ -41,4 +41,10 @@
     <string name="btn_up">Chỉnh sửa thông tin</string>
     <string name="btn_update">Cập nhật</string>
     <string name="change_pw">Đổi mật khẩu</string>
+
+    <!--    Role-->
+    <string-array name="user_roles">
+        <item>Quản trị viên</item>
+        <item>Nhân viên</item>
+    </string-array>
 </resources>

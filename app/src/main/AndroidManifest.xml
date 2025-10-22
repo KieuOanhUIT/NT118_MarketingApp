@@ -99,6 +99,11 @@
             android:name=".ReportActivity"
             android:exported="true"/>
 
+        <activity
+            android:name=".UsermanagerActivity"
+            android:exported="true"/>
+
+
     </application>
 
 </manifest>
