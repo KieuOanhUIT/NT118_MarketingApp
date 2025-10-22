@@ -31,10 +31,10 @@
 
     <!-- Content status filter -->
     <string-array name="content_status_filter">
-        <item>Tất cả</item>
-        <item>Chờ duyệt</item>
-        <item>Đã duyệt</item>
-        <item>Đã đăng</item>
+        <item>All</item>
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
     </string-array>
 
     <!-- Profile Screen -->

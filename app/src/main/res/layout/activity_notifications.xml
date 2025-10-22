@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background"
-    tools:context=".NotificationsActivity">
+    android:background="@drawable/wave"
+    tools:context=".NotificationActivity">
 
     <!-- Thanh tiêu đề -->
     <TextView
