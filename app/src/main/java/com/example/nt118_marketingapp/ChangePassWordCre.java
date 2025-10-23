@@ -1,44 +1,50 @@
 package com.example.nt118_marketingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.textfield.TextInputEditText;
 
 public class ChangePassWordCre extends AppCompatActivity {
 
-    private TextInputEditText edtEmail;
-    private Button btnSignIn; // thực tế là nút "Đổi mật khẩu"
+    private TextInputEditText edtPassword;
+    private Button btnSignIn; // nút "Xác thực"
+    private Button btncancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_pass_word_cre); // gắn layout XML
+        setContentView(R.layout.activity_change_pass_word_cre);
 
-        // Ánh xạ view từ XML
-        edtEmail = findViewById(R.id.edtEmail);
+        // Ánh xạ view
+        edtPassword = findViewById(R.id.edtpw);
+        btnSignIn = findViewById(R.id.btnSignIn);
+        btncancel = findViewById(R.id.btncancel);
 
-        // Vì bạn dùng <include layout="@layout/common_button">
-        // nên nút nằm trong layout include — phải lấy bằng 2 bước:
-        View includeView = findViewById(R.id.btnSignIn);
-        btnSignIn = includeView.findViewById(R.id.btnSignIn); // id của nút trong common_button.xml
-
-        // Xử lý sự kiện khi nhấn nút
+        // Xử lý khi nhấn nút
         btnSignIn.setOnClickListener(v -> {
-            String email = edtEmail.getText().toString().trim();
+            String password = edtPassword.getText().toString().trim();
 
-            if (email.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập mật khẩu mới", Toast.LENGTH_SHORT).show();
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập mật khẩu!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // TODO: Xử lý logic đổi mật khẩu tại đây (gửi API, cập nhật DB, v.v.)
-            Toast.makeText(this, "Đổi mật khẩu thành công!", Toast.LENGTH_LONG).show();
+            // Thông báo xác thực thành công
+            Toast.makeText(this, "Xác thực mật khẩu thành công!", Toast.LENGTH_SHORT).show();
 
-            // Quay lại màn hình trước (nếu cần)
-            finish();
+            // Chuyển sang trang NewPassword
+            Intent intent = new Intent(ChangePassWordCre.this, NewPassword.class);
+            startActivity(intent);
+        });
+        // Nút Hủy → Quay lại trang Profile
+        btncancel.setOnClickListener(v -> {
+            Toast.makeText(this, "Đã hủy thay đổi", Toast.LENGTH_SHORT).show();
+            finish(); // 🔹 Kết thúc Activity hiện tại → trở về ProfileActivity
         });
     }
 }
