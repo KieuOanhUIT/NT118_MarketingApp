@@ -8,11 +8,15 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class Profile extends AppCompatActivity {
 
     private ImageView imgAvatar;
     private TextView tvFullName, tvPosition, tvPhone, tvEmail;
     private TextView btnEditProfile, tvForgotPassword;
+
+    private BottomNavigationView bottomNavigationView;
 
     // Dùng ActivityResultLauncher để nhận kết quả khi quay lại từ EditProfile
     private ActivityResultLauncher<Intent> editProfileLauncher;
@@ -69,6 +73,40 @@ public class Profile extends AppCompatActivity {
                 // TODO: sau có thể mở màn hình đổi mật khẩu
                 android.widget.Toast.makeText(this, "Chức năng đổi mật khẩu sắp ra mắt!", android.widget.Toast.LENGTH_SHORT).show()
         );
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void initViews() {
