@@ -19,4 +19,9 @@
     <color name="inputBorder">#E7E9EC</color>
     <color name="inputBackground">#F9FAFB</color>
     <color name="hintText">#9A9FA5</color>
+    
+    <!-- Deadline Status Colors -->
+    <color name="deadlineUpcoming">#43BE83</color> <!-- Green - Còn hạn -->
+    <color name="deadlineOverdue">#E53935</color>  <!-- Red - Quá hạn -->
+    <color name="deadlineWarning">#FF9800</color>  <!-- Orange - Sắp hết hạn -->
 </resources>

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Activity Edit Content - Màn hình chỉnh sửa content -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -38,11 +39,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/create_content_title"
-                android:textColor="@color/textPrimary"
+                android:text="@string/edit_content_title"
                 android:textStyle="bold"
                 android:textSize="22sp"
                 android:gravity="center"
+                android:textColor="@color/textPrimary"
                 android:background="@android:color/transparent"/>
         </LinearLayout>
 
@@ -53,7 +54,6 @@
             android:layout_margin="16dp"
             android:padding="16dp"
             android:background="@android:color/transparent">
-
 
         <!-- Subheading: Thông tin cơ bản -->
         <TextView
@@ -105,7 +105,7 @@
                     android:textColor="@color/textPrimary"
                     android:textColorHint="@color/hintText"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
         <!-- Type (required) -->
         <LinearLayout
@@ -139,9 +139,10 @@
                     android:id="@+id/spinnerType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:entries="@array/content_type_options"
                     android:background="@drawable/bg_input_field"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
         <!-- Channel (required) -->
         <LinearLayout
@@ -183,7 +184,7 @@
                     android:textColor="@color/textPrimary"
                     android:textColorHint="@color/hintText"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
         <!-- Tags -->
         <LinearLayout
@@ -225,7 +226,7 @@
                     android:textColor="@color/textPrimary"
                     android:textColorHint="@color/hintText"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
         <!-- Time -->
         <LinearLayout
@@ -269,7 +270,7 @@
                     android:focusable="false"
                     android:clickable="true"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
         <!-- Subheading: Trạng thái & đính kèm -->
         <TextView
@@ -314,11 +315,12 @@
                     android:id="@+id/spinnerStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:entries="@array/content_status_options"
                     android:background="@drawable/bg_input_field"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
 
-        <!-- Attachment Link (required nếu status là In progress hoặc Done) -->
+        <!-- Attachment Link -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -405,12 +407,12 @@
         <!-- Subtasks Section (Reusable layout) -->
         <include layout="@layout/layout_subtasks_section" />
 
-        <!-- Submit Button -->
+        <!-- Update Button -->
         <Button
-            android:id="@+id/btnSubmit"
+            android:id="@+id/btnUpdate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_create_content"
+            android:text="@string/btn_update_content"
             android:backgroundTint="@color/colorAccent"
             android:textColor="@color/background"
             android:textStyle="bold"/>

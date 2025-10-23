@@ -70,6 +70,52 @@
     <string name="attachment_icon">Icon đính kèm</string>
     <string name="btn_create_content">Tạo Content</string>
 
+    <!-- Edit Content Screen -->
+    <string name="edit_content_title">Chỉnh sửa Content</string>
+    <string name="btn_update_content">Cập nhật Content</string>
+    <string name="time_label">Thời gian</string>
+    <string name="hint_time">Chọn thời gian</string>
+    <string name="editor_link">Link Editor</string>
+    <string name="hint_editor_link">Link Google Docs/Drive</string>
+
+    <!-- Content Type Options -->
+    <string-array name="content_type_options">
+        <item>Post Facebook</item>
+        <item>Blog</item>
+        <item>Video</item>
+        <item>Story</item>
+        <item>Reel</item>
+    </string-array>
+
+    <!-- Content Status Options -->
+    <string-array name="content_status_options">
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
+        <item>In Review</item>
+        <item>Accepted</item>
+        <item>Reject</item>
+        <item>Scheduled</item>
+        <item>Published</item>
+    </string-array>
+
+    <!-- Subtasks -->
+    <string name="subtasks_section">Subtasks</string>
+    <string name="btn_add_subtask">+ Thêm Subtask</string>
+    <string name="subtask_title_hint">Nhập tên subtask</string>
+    <string name="subtask_assign">Phân công</string>
+    <string name="subtask_deadline">Deadline</string>
+    <string name="hint_deadline">DD/MM/YYYY</string>
+
+    <!-- Assign Options -->
+    <string-array name="assign_options">
+        <item>Chưa phân công</item>
+        <item>Nguyễn Văn A</item>
+        <item>Trần Thị B</item>
+        <item>Lê Văn C</item>
+        <item>Phạm Thị D</item>
+    </string-array>
+
     <!-- Popup Confirm Delete -->
     <string name="popup_delete_title">Xác nhận xóa</string>
     <string name="popup_delete_message">Bạn có chắc chắn muốn xóa content này không?\n\nHành động này không thể hoàn tác.</string>
