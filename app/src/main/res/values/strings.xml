@@ -23,4 +23,26 @@
         <item>Đã duyệt</item>
         <item>Đã đăng</item>
     </string-array>
+    <!-- Create Content Screen -->
+    <string name="back_button">Quay lại</string>
+    <string name="create_content_title">Tạo content</string>
+    <string name="basic_info">Thông tin cơ bản</string>
+    <string name="title_required">Tiêu đề *</string>
+    <string name="hint_title">Nhập tiêu đề</string>
+    <string name="title_icon">Icon tiêu đề</string>
+    <string name="type_required">Loại nội dung *</string>
+    <string name="type_icon">Icon loại nội dung</string>
+    <string name="channel_required">Kênh đăng *</string>
+    <string name="hint_channel">Nhập kênh đăng (VD: Fanpage, Blog, Youtube...)</string>
+    <string name="channel_icon">Icon kênh đăng</string>
+    <string name="tags">Tags</string>
+    <string name="hint_tags">Nhập tags (phân cách bởi dấu phẩy)</string>
+    <string name="tags_icon">Icon tags</string>
+    <string name="status_attachment">Trạng thái &amp; Đính kèm</string>
+    <string name="status">Trạng thái</string>
+    <string name="status_icon">Icon trạng thái</string>
+    <string name="attachment_link">Link đính kèm</string>
+    <string name="hint_attachment">Nhập link đính kèm</string>
+    <string name="attachment_icon">Icon đính kèm</string>
+    <string name="btn_create_content">Tạo Content</string>
 </resources>
