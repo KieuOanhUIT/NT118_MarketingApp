@@ -1,5 +1,6 @@
 package com.example.nt118_marketingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -26,6 +29,8 @@ public class ContentListActivity extends AppCompatActivity {
     private LinearLayout layoutContentTable;
 
     private List<ContentItem> allContents;
+    private BottomNavigationView bottomNavigationView;
+
 
     // ----------------------------
     // Mô tả 1 content
@@ -37,7 +42,7 @@ public class ContentListActivity extends AppCompatActivity {
         String timestamp;
         String channel;
         String author;
-        String status;
+        String status;  // "To do", "In progress", "Done"
         String link;
 
         ContentItem(int id, String title, String caption, String timestamp,
@@ -77,7 +82,7 @@ public class ContentListActivity extends AppCompatActivity {
         generateSampleData();
 
         // Hiển thị ban đầu
-        displayFilteredContent("", "Tất cả");
+        displayFilteredContent("", "All");
 
         // Lọc theo search
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -96,6 +101,41 @@ public class ContentListActivity extends AppCompatActivity {
             }
             @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
     }
 
     // ----------------------------
@@ -103,10 +143,10 @@ public class ContentListActivity extends AppCompatActivity {
     // ----------------------------
     private void generateSampleData() {
         allContents = new ArrayList<>();
-        allContents.add(new ContentItem(1, "Black Friday Sale", "Giảm 50% toàn bộ sản phẩm", "2025-10-14 14:00", "Facebook", "Quyên", "Chờ duyệt", "https://fb.com/post1"));
-        allContents.add(new ContentItem(2, "Noel Campaign", "Video quà tặng cuối năm", "2025-10-15 09:00", "Instagram", "Duy", "Đã duyệt", "https://ig.com/post2"));
-        allContents.add(new ContentItem(3, "Flash Sale 11.11", "Bài viết Flash Sale cực hot", "2025-10-16 11:30", "TikTok", "Lan", "Đã đăng", "https://tiktok.com/post3"));
-        allContents.add(new ContentItem(4, "Summer Giveaway", "Mini game trúng thưởng mùa hè", "2025-10-17 08:45", "Facebook", "Hà", "Chờ duyệt", "https://fb.com/post4"));
+        allContents.add(new ContentItem(1, "Black Friday Sale", "Giảm 50% toàn bộ sản phẩm", "2025-10-14 14:00", "Facebook", "Quyên", "To do", "https://fb.com/post1"));
+        allContents.add(new ContentItem(2, "Noel Campaign", "Video quà tặng cuối năm", "2025-10-15 09:00", "Instagram", "Duy", "In progress", "https://ig.com/post2"));
+        allContents.add(new ContentItem(3, "Flash Sale 11.11", "Bài viết Flash Sale cực hot", "2025-10-16 11:30", "TikTok", "Lan", "Done", "https://tiktok.com/post3"));
+        allContents.add(new ContentItem(4, "Summer Giveaway", "Mini game trúng thưởng mùa hè", "2025-10-17 08:45", "Facebook", "Hà", "To do", "https://fb.com/post4"));
     }
 
     // ----------------------------
@@ -122,27 +162,35 @@ public class ContentListActivity extends AppCompatActivity {
             // Lọc theo keyword và status
             if (!keyword.isEmpty() && !item.title.toLowerCase(Locale.ROOT).contains(keyword) &&
                     !item.caption.toLowerCase(Locale.ROOT).contains(keyword)) continue;
-            if (!statusFilter.equals("Tất cả") && !item.status.equalsIgnoreCase(statusFilter)) continue;
+            if (!statusFilter.equals("All") && !item.status.equalsIgnoreCase(statusFilter)) continue;
 
             View row = inflater.inflate(R.layout.item_content_row, layoutContentTable, false);
 
-            ((TextView) row.findViewById(R.id.tvId)).setText(String.valueOf(item.id));
+            ((TextView) row.findViewById(R.id.tvId)).setText("ID: #" + item.id);
             ((TextView) row.findViewById(R.id.tvTitle)).setText(item.title);
             ((TextView) row.findViewById(R.id.tvCaption)).setText(item.caption);
-            ((TextView) row.findViewById(R.id.tvTime)).setText(item.timestamp);
-            ((TextView) row.findViewById(R.id.tvChannel)).setText(item.channel);
-            ((TextView) row.findViewById(R.id.tvAuthor)).setText(item.author);
-            ((TextView) row.findViewById(R.id.tvStatus)).setText(item.status);
-            ((TextView) row.findViewById(R.id.tvLink)).setText(item.link);
+            ((TextView) row.findViewById(R.id.tvTime)).setText("Time: " + item.timestamp);
+            ((TextView) row.findViewById(R.id.tvChannel)).setText("Channel: " + item.channel);
+            ((TextView) row.findViewById(R.id.tvAuthor)).setText("Author: " + item.author);
+            ((TextView) row.findViewById(R.id.tvStatus)).setText("Status: " + item.status);
+            ((TextView) row.findViewById(R.id.tvLink)).setText("Link: " + item.link);
 
             Button btnChange = row.findViewById(R.id.btnChangeStatus);
             btnChange.setOnClickListener(v -> {
-                // Chuyển trạng thái demo
-                if (item.status.equals("Chờ duyệt")) item.status = "Đã duyệt";
-                else if (item.status.equals("Đã duyệt")) item.status = "Đã đăng";
-                else item.status = "Chờ duyệt";
+                // Vòng lặp thay đổi trạng thái
+                switch (item.status) {
+                    case "To do":
+                        item.status = "In progress";
+                        break;
+                    case "In progress":
+                        item.status = "Done";
+                        break;
+                    default:
+                        item.status = "To do";
+                        break;
+                }
 
-                Toast.makeText(this, "🔄 Đổi trạng thái: " + item.title + " → " + item.status, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "🔄 Changed status: " + item.title + " → " + item.status, Toast.LENGTH_SHORT).show();
                 displayFilteredContent(query, statusFilter);
             });
 

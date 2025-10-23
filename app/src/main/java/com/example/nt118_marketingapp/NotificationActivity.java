@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class NotificationActivity extends AppCompatActivity {
 
     private LinearLayout notificationList;
     private List<Notification> notifications;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,41 @@ public class NotificationActivity extends AppCompatActivity {
 
         generateSampleNotifications();
         displayNotifications();
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_notification);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
     }
 
     // ✅ Dữ liệu mẫu

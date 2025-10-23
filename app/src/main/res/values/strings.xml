@@ -9,6 +9,19 @@
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="sign_in_button">Đăng nhập</string>
 
+    <!-- Forgot/Change Password Screen -->
+    <string name="forgot_password_title">Quên mật khẩu?</string>
+    <string name="change_password_title">Đổi mật khẩu?</string>
+    <string name="change_password_subtitle">Nhập mật khẩu của bạn để xác minh</string>
+    <string name="forgot_password_subtitle">Nhập gmail của bạn để nhận mã xác thực</string>
+    <string name="back_sign_in">Quay lại đăng nhập</string>
+    <string name="forgot_password_cre_subtitle">Nhập mã xác thực chúng tôi đã gửi qua gmail</string>
+    <string name="cre_hint">Mã xác thực</string>
+    <string name="new_password">Nhập mật khẩu mới của bạn!</string>
+    <string name="new_password1">Nhập mật khẩu mới</string>
+    <string name="new_password2">Nhập lại mật khẩu mới</string>
+    <string name="new_password_title">Tạo mật khẩu mới!</string>
+
     <!-- Filter options -->
     <string-array name="filter_options">
         <item>Tất cả</item>
@@ -18,10 +31,21 @@
 
     <!-- Content status filter -->
     <string-array name="content_status_filter">
-        <item>Tất cả</item>
-        <item>Chờ duyệt</item>
-        <item>Đã duyệt</item>
-        <item>Đã đăng</item>
+        <item>All</item>
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
+    </string-array>
+
+    <!-- Profile Screen -->
+    <string name="btn_up">Chỉnh sửa thông tin</string>
+    <string name="btn_update">Cập nhật</string>
+    <string name="change_pw">Đổi mật khẩu</string>
+
+    <!--    Role-->
+    <string-array name="user_roles">
+        <item>Quản trị viên</item>
+        <item>Nhân viên</item>
     </string-array>
     <!-- Create Content Screen -->
     <string name="back_button">Quay lại</string>
