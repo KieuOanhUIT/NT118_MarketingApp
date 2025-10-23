@@ -10,6 +10,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,7 @@ public class DashboardActivity extends AppCompatActivity {
     RecyclerView recyclerAssigned, recyclerApproved, recyclerRejected, recyclerAproveAdmin;
     // khai báo imageview imgReport
     ImageView imgReport;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,41 @@ public class DashboardActivity extends AppCompatActivity {
             Toast.makeText(DashboardActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(DashboardActivity.this, ReportActivity.class);
             startActivity(intent);
+        });
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
         });
     }
 

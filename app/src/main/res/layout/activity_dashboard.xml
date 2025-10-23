@@ -179,5 +179,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp" />
 
+        <include layout="@layout/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
     </LinearLayout>
 </ScrollView>
