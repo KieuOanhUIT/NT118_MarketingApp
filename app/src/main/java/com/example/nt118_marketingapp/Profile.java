@@ -7,7 +7,6 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class Profile extends AppCompatActivity {
@@ -18,7 +17,6 @@ public class Profile extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
-    // Dùng ActivityResultLauncher để nhận kết quả khi quay lại từ EditProfile
     private ActivityResultLauncher<Intent> editProfileLauncher;
 
     @Override
@@ -39,13 +37,11 @@ public class Profile extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        // Lấy dữ liệu cập nhật
                         String newName = result.getData().getStringExtra("fullName");
                         String newPosition = result.getData().getStringExtra("position");
                         String newPhone = result.getData().getStringExtra("phone");
                         String newEmail = result.getData().getStringExtra("email");
 
-                        // Cập nhật giao diện
                         tvFullName.setText(newName);
                         tvPosition.setText(newPosition);
                         tvPhone.setText(newPhone);
@@ -54,25 +50,23 @@ public class Profile extends AppCompatActivity {
                 }
         );
 
-        // Sự kiện khi nhấn “Chỉnh sửa thông tin”
+        // Khi nhấn "Chỉnh sửa thông tin"
         btnEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(Profile.this, EditProfile.class);
-
-            // Truyền dữ liệu hiện tại sang EditProfile
             intent.putExtra("fullName", tvFullName.getText().toString());
             intent.putExtra("position", tvPosition.getText().toString());
             intent.putExtra("phone", tvPhone.getText().toString());
             intent.putExtra("email", tvEmail.getText().toString());
-
-            // Mở trang chỉnh sửa và chờ kết quả trả về
             editProfileLauncher.launch(intent);
         });
 
-        // Xử lý nếu người dùng nhấn “Đổi mật khẩu”
-        tvForgotPassword.setOnClickListener(v ->
-                // TODO: sau có thể mở màn hình đổi mật khẩu
-                android.widget.Toast.makeText(this, "Chức năng đổi mật khẩu sắp ra mắt!", android.widget.Toast.LENGTH_SHORT).show()
-        );
+        // Khi nhấn “Đổi mật khẩu” → chuyển sang trang ChangePasswordCre
+        tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(Profile.this, ChangePassWordCre.class);
+            startActivity(intent);
+        });
+
+        // Thiết lập bottom navigation
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
 
@@ -100,8 +94,7 @@ public class Profile extends AppCompatActivity {
                 return true;
 
             } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
-                overridePendingTransition(0, 0);
+                // Không cần start lại Activity hiện tại
                 return true;
             }
 
@@ -116,7 +109,7 @@ public class Profile extends AppCompatActivity {
         tvPhone = findViewById(R.id.tvPhone);
         tvEmail = findViewById(R.id.tvEmail);
 
-        btnEditProfile = findViewById(R.id.btnSignIn); // include button
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        btnEditProfile = findViewById(R.id.btnUp); // nút chỉnh sửa thông tin
+        tvForgotPassword = findViewById(R.id.tvForgotPassword); // nút đổi mật khẩu
     }
 }

@@ -119,15 +119,16 @@
         </LinearLayout>
 
         <!-- Nút đăng xuất -->
-        <include
-            layout="@layout/common_button"
-            android:id="@+id/btnSignIn"
+        <Button
+            android:id="@+id/btnUp"
+            android:text="Chỉnh sửa thông tin"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/btn_up"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="32dp" />
 
-        <!-- Quên mật khẩu -->
+        <!-- Đổi mật khẩu -->
         <TextView
             android:id="@+id/tvForgotPassword"
             android:layout_width="wrap_content"
