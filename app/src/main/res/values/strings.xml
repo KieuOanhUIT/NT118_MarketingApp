@@ -69,4 +69,12 @@
     <string name="hint_attachment">Nhập link đính kèm</string>
     <string name="attachment_icon">Icon đính kèm</string>
     <string name="btn_create_content">Tạo Content</string>
+
+    <!-- Popup Confirm Delete -->
+    <string name="popup_delete_title">Xác nhận xóa</string>
+    <string name="popup_delete_message">Bạn có chắc chắn muốn xóa content này không?\n\nHành động này không thể hoàn tác.</string>
+    <string name="popup_delete_message_user">Bạn có chắc chắn muốn xóa người dùng này không?\n\nHành động này không thể hoàn tác.</string>
+    <string name="btn_delete">Xóa</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="warning_icon">Icon cảnh báo</string>
 </resources>
