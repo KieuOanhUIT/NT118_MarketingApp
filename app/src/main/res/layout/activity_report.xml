@@ -1,6 +1,25 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_report"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="7dp"
+        android:background="@color/colorPrimary"
+        android:text="Báo cáo"
+        android:textAlignment="center"
+        android:textColor="#FAF7F7"
+        android:textSize="26sp"
+        android:gravity="center"
+        android:textStyle="bold" />
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -13,7 +32,7 @@
         <!-- Bộ lọc ngày -->
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="0dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="12dp">
@@ -22,8 +41,7 @@
                 android:text="Khoảng thời gian báo cáo"
                 android:textStyle="bold"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16sp" />
+                android:layout_height="match_parent" />
 
             <EditText
                 android:id="@+id/edtFromDate"
@@ -97,5 +115,12 @@
             android:layout_height="250dp"
             android:layout_marginTop="8dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"></LinearLayout>
+
     </LinearLayout>
 </ScrollView>
+
+</LinearLayout>

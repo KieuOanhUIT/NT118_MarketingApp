@@ -2,9 +2,23 @@
     android:id="@+id/activity_usermanager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="20dp">
+    android:layout_marginTop="0dp">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="7dp"
+        android:background="@color/colorPrimary"
+        android:text="Người dùng"
+        android:textAlignment="center"
+        android:textColor="#FAF7F7"
+        android:textSize="26sp"
+        android:gravity="center"
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@+id/textView"
         android:id="@+id/recyclerUsers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,13 +26,16 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddUser"
+        android:layout_above="@+id/navigator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="30dp"
         android:contentDescription="Thêm người dùng"
         android:src="@drawable/ic_add" />
+
     <include layout="@layout/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
