@@ -127,4 +127,18 @@
     <string name="btn_delete">Xóa</string>
     <string name="btn_cancel">Hủy</string>
     <string name="warning_icon">Icon cảnh báo</string>
+    
+    <!-- Content Calendar -->
+    <string name="content_calendar_title">Content Calendar</string>
+    <string name="btn_add_content">Thêm Content</string>
+    <string name="previous_week">Tuần trước</string>
+    <string name="next_week">Tuần sau</string>
+    <string name="hour_label">Giờ</string>
+    <string name="mon">T2</string>
+    <string name="tue">T3</string>
+    <string name="wed">T4</string>
+    <string name="thu">T5</string>
+    <string name="fri">T6</string>
+    <string name="sat">T7</string>
+    <string name="sun">CN</string>
 </resources>

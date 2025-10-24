@@ -36,12 +36,7 @@
         </activity>
         <activity
             android:name=".SignInActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -58,6 +53,15 @@
         <activity
             android:name=".ContentListActivity"
             android:exported="true" />
+        <activity
+            android:name=".ContentCalendarActivity"
+            android:exported="true">
+            <!-- Launcher activity để debug -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".CreateContentActivity"
             android:exported="true" />
