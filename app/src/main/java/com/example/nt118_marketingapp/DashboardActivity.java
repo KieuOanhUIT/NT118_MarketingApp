@@ -87,6 +87,9 @@ public class DashboardActivity extends AppCompatActivity {
 
             return false;
         });
+
+        //click vào bất kì item nào của các recycler view -> chuyền sang file EditContentActivity.java
+
     }
 
 
@@ -96,10 +99,12 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setAdapter(new PostAdapter(posts));
     }
 
+
+
     private List<Post> getAssignedPosts() {
         List<Post> list = new ArrayList<>();
-        list.add(new Post("Kế hoạch Marketing Mùa Hè 2024", "Nguyễn Văn A", "Hạn: 30/07", "Đã giao"));
-        list.add(new Post("Phân tích Xu hướng thị trường", "Trịnh Thảo", "Hạn: 31/07", "Đã giao"));
+        list.add(new Post("Kế hoạch Marketing Mùa Hè 2024", "Nguyễn Văn A", "Hạn: 30/07", "Được giao"));
+        list.add(new Post("Phân tích Xu hướng thị trường", "Trịnh Thảo", "Hạn: 31/07", "Được giao"));
         return list;
     }
 

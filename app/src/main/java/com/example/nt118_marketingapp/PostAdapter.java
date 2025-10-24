@@ -1,5 +1,7 @@
 package com.example.nt118_marketingapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private List<Post> postList;
+
 
     public PostAdapter(List<Post> postList) {
         this.postList = postList;
@@ -37,6 +40,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.tvStatus.setText(post.getStatus());
 
 
+        // 👉 Khi click vào item
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), EditContentActivity.class);
+            intent.putExtra("title", post.getTitle());
+            intent.putExtra("author", post.getAuthor());
+            intent.putExtra("deadline", post.getDeadline());
+            intent.putExtra("status", post.getStatus());
+            v.getContext().startActivity(intent);
+        });
+
+
+
         GradientDrawable bgShape = (GradientDrawable) holder.tvStatus.getBackground();
         switch (post.getStatus()) {
             case "Đã duyệt":
@@ -53,7 +68,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 holder.tvStatus.setTextColor(Color.WHITE);
                 break;
 
-            case "Đã giao":
+            case "Được giao":
                 bgShape.setColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.background));
                 holder.tvStatus.setTextColor(Color.BLACK);
                 // set viền đen
