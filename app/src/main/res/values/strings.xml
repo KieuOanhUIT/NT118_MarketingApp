@@ -41,4 +41,90 @@
     <string name="btn_up">Chỉnh sửa thông tin</string>
     <string name="btn_update">Cập nhật</string>
     <string name="change_pw">Đổi mật khẩu</string>
+
+    <!--    Role-->
+    <string-array name="user_roles">
+        <item>Quản trị viên</item>
+        <item>Nhân viên</item>
+    </string-array>
+    <!-- Create Content Screen -->
+    <string name="back_button">Quay lại</string>
+    <string name="create_content_title">Tạo content</string>
+    <string name="basic_info">Thông tin cơ bản</string>
+    <string name="title_required">Tiêu đề *</string>
+    <string name="hint_title">Nhập tiêu đề</string>
+    <string name="title_icon">Icon tiêu đề</string>
+    <string name="type_required">Loại nội dung *</string>
+    <string name="type_icon">Icon loại nội dung</string>
+    <string name="channel_required">Kênh đăng *</string>
+    <string name="hint_channel">Nhập kênh đăng (VD: Fanpage, Blog, Youtube...)</string>
+    <string name="channel_icon">Icon kênh đăng</string>
+    <string name="tags">Tags</string>
+    <string name="hint_tags">Nhập tags (phân cách bởi dấu phẩy)</string>
+    <string name="tags_icon">Icon tags</string>
+    <string name="status_attachment">Trạng thái &amp; Đính kèm</string>
+    <string name="status">Trạng thái</string>
+    <string name="status_icon">Icon trạng thái</string>
+    <string name="attachment_link">Link đính kèm</string>
+    <string name="hint_attachment">Nhập link đính kèm</string>
+    <string name="attachment_icon">Icon đính kèm</string>
+    <string name="btn_create_content">Tạo Content</string>
+
+    <!-- Edit Content Screen -->
+    <string name="edit_content_title">Chỉnh sửa Content</string>
+    <string name="btn_update_content">Cập nhật Content</string>
+    <string name="btn_edit">Sửa</string>
+    <string name="btn_save">Lưu</string>
+    <string name="time_label">Thời gian</string>
+    <string name="hint_time">Chọn thời gian</string>
+    <string name="editor_link">Link Editor</string>
+    <string name="hint_editor_link">Link Google Docs/Drive</string>
+    <string name="edit_mode_disabled">Chế độ xem</string>
+    <string name="edit_mode_enabled">Chế độ chỉnh sửa</string>
+
+    <!-- Content Type Options -->
+    <string-array name="content_type_options">
+        <item>Post Facebook</item>
+        <item>Blog</item>
+        <item>Video</item>
+        <item>Story</item>
+        <item>Reel</item>
+    </string-array>
+
+    <!-- Content Status Options -->
+    <string-array name="content_status_options">
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
+        <item>In Review</item>
+        <item>Accepted</item>
+        <item>Reject</item>
+        <item>Scheduled</item>
+        <item>Published</item>
+    </string-array>
+
+    <!-- Subtasks -->
+    <string name="subtasks_section">Subtasks</string>
+    <string name="btn_add_subtask">+ Thêm Subtask</string>
+    <string name="subtask_title_hint">Nhập tên subtask</string>
+    <string name="subtask_assign">Phân công</string>
+    <string name="subtask_deadline">Deadline</string>
+    <string name="hint_deadline">DD/MM/YYYY</string>
+
+    <!-- Assign Options -->
+    <string-array name="assign_options">
+        <item>Chưa phân công</item>
+        <item>Nguyễn Văn A</item>
+        <item>Trần Thị B</item>
+        <item>Lê Văn C</item>
+        <item>Phạm Thị D</item>
+    </string-array>
+
+    <!-- Popup Confirm Delete -->
+    <string name="popup_delete_title">Xác nhận xóa</string>
+    <string name="popup_delete_message">Bạn có chắc chắn muốn xóa content này không?\n\nHành động này không thể hoàn tác.</string>
+    <string name="popup_delete_message_user">Bạn có chắc chắn muốn xóa người dùng này không?\n\nHành động này không thể hoàn tác.</string>
+    <string name="btn_delete">Xóa</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="warning_icon">Icon cảnh báo</string>
 </resources>

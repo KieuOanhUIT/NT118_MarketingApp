@@ -1,22 +1,33 @@
 package com.example.nt118_marketingapp;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
     RecyclerView recyclerAssigned, recyclerApproved, recyclerRejected, recyclerAproveAdmin;
+    // khai báo imageview imgReport
+    ImageView imgReport;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-
+        imgReport = findViewById(R.id.imgReport);
         recyclerAssigned = findViewById(R.id.recyclerAssigned);
         recyclerApproved = findViewById(R.id.recyclerApproved);
         recyclerRejected = findViewById(R.id.recyclerRejected);
@@ -27,7 +38,58 @@ public class DashboardActivity extends AppCompatActivity {
         setupRecycler(recyclerApproved, getApprovedPosts());
         setupRecycler(recyclerRejected, getRejectedPosts());
         setupRecycler(recyclerAproveAdmin, getAproveAdminPosts());
+
+        imgReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this, ReportActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        imgReport.setOnClickListener(v -> {
+            Toast.makeText(DashboardActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(DashboardActivity.this, ReportActivity.class);
+            startActivity(intent);
+        });
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
     }
+
+
 
     private void setupRecycler(RecyclerView recyclerView, List<Post> posts) {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));

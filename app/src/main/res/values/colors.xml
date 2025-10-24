@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Brand Color -->
-    <color name="colorPrimary">#FF3CC7</color>
+    <color name="colorPrimary">#5B67CA</color>
 
     <!-- Secondary / Variant Color -->
-    <color name="colorSecondary">#007C77</color>
+    <color name="colorSecondary">#43BE83</color>
 
     <!-- Accent Color -->
-    <color name="colorAccent">#F0F600</color>
+    <color name="colorAccent">#FF92A4</color>
 
     <!-- Background and Text -->
-    <color name="background">#FFFFFF</color>
-    <color name="textPrimary">#222222</color>
+    <color name="background">#F7F8FA</color>
+    <color name="backgroundCard">#FFFFFF</color>
+    <color name="textPrimary">#222831</color>
+    <color name="textSecondary">#7A7C80</color>
+    
+    <!-- Input Fields -->
+    <color name="inputBorder">#E7E9EC</color>
+    <color name="inputBackground">#F9FAFB</color>
+    <color name="hintText">#9A9FA5</color>
+    
+    <!-- Deadline Status Colors -->
+    <color name="deadlineUpcoming">#43BE83</color> <!-- Green - Còn hạn -->
+    <color name="deadlineOverdue">#E53935</color>  <!-- Red - Quá hạn -->
+    <color name="deadlineWarning">#FF9800</color>  <!-- Orange - Sắp hết hạn -->
 </resources>

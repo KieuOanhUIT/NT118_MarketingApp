@@ -21,7 +21,7 @@ public class NewPassword extends AppCompatActivity {
         setContentView(R.layout.activity_new_password); // gắn layout XML
 
         // Ánh xạ view
-        edtPassword1 = findViewById(R.id.edtEmail);     // ô nhập mật khẩu 1 (tên id hơi lệch trong XML)
+        edtPassword1 = findViewById(R.id.edtEmail);     // ô nhập mật khẩu 1
         edtPassword2 = findViewById(R.id.edtPassword);  // ô nhập mật khẩu 2
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
