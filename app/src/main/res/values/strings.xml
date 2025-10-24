@@ -73,10 +73,14 @@
     <!-- Edit Content Screen -->
     <string name="edit_content_title">Chỉnh sửa Content</string>
     <string name="btn_update_content">Cập nhật Content</string>
+    <string name="btn_edit">Sửa</string>
+    <string name="btn_save">Lưu</string>
     <string name="time_label">Thời gian</string>
     <string name="hint_time">Chọn thời gian</string>
     <string name="editor_link">Link Editor</string>
     <string name="hint_editor_link">Link Google Docs/Drive</string>
+    <string name="edit_mode_disabled">Chế độ xem</string>
+    <string name="edit_mode_enabled">Chế độ chỉnh sửa</string>
 
     <!-- Content Type Options -->
     <string-array name="content_type_options">

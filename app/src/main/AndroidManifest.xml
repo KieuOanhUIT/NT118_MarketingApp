@@ -63,6 +63,9 @@
             android:name=".CreateContentActivity"
             android:exported="true" />
         <activity
+            android:name=".EditContentActivity"
+            android:exported="true" />
+        <activity
             android:name=".NotificationDetailActivity"
             android:exported="true" />
         <activity
