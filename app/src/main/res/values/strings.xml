@@ -96,6 +96,22 @@
         <item>To do</item>
         <item>In progress</item>
         <item>Done</item>
+    </string-array>
+
+    <!-- Content Approve Status Options -->
+    <string-array name="content_appprove_status_options">
+        <item>In Review</item>
+        <item>Accepted</item>
+        <item>Reject</item>
+        <item>Scheduled</item>
+        <item>Published</item>
+    </string-array>
+
+    <!-- Full Content Approve Options -->
+    <string-array name="full_content_status_options">
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
         <item>In Review</item>
         <item>Accepted</item>
         <item>Reject</item>

@@ -6,9 +6,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -102,6 +105,20 @@ public class ContentListActivity extends AppCompatActivity {
             @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
 
+        // Xử lý nút Thêm Content
+        Button btnAddContent = findViewById(R.id.btnAddContent);
+        btnAddContent.setOnClickListener(v -> {
+            Intent intent = new Intent(ContentListActivity.this, CreateContentActivity.class);
+            startActivity(intent);
+        });
+
+        // Xử lý nút Content Calendar
+        Button btnContentCalendar = findViewById(R.id.btnContentCalendar);
+        btnContentCalendar.setOnClickListener(v -> {
+            Intent intent = new Intent(ContentListActivity.this, ContentCalendarActivity.class);
+            startActivity(intent);
+        });
+
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
 
@@ -172,29 +189,141 @@ public class ContentListActivity extends AppCompatActivity {
             ((TextView) row.findViewById(R.id.tvTime)).setText("Time: " + item.timestamp);
             ((TextView) row.findViewById(R.id.tvChannel)).setText("Channel: " + item.channel);
             ((TextView) row.findViewById(R.id.tvAuthor)).setText("Author: " + item.author);
-            ((TextView) row.findViewById(R.id.tvStatus)).setText("Status: " + item.status);
             ((TextView) row.findViewById(R.id.tvLink)).setText("Link: " + item.link);
 
-            Button btnChange = row.findViewById(R.id.btnChangeStatus);
-            btnChange.setOnClickListener(v -> {
-                // Vòng lặp thay đổi trạng thái
-                switch (item.status) {
-                    case "To do":
-                        item.status = "In progress";
-                        break;
-                    case "In progress":
-                        item.status = "Done";
-                        break;
-                    default:
-                        item.status = "To do";
-                        break;
-                }
+            // View button
+            ImageButton btnView = row.findViewById(R.id.btnView);
+            btnView.setOnClickListener(v -> {
+                // Navigate to EditContentActivity in VIEW mode
+                Intent intent = new Intent(this, EditContentActivity.class);
+                intent.putExtra("CONTENT_ID", String.valueOf(item.id));
+                intent.putExtra("EDIT_MODE", false); // Chế độ xem (không sửa)
+                intent.putExtra("TITLE", item.title);
+                intent.putExtra("CAPTION", item.caption);
+                intent.putExtra("CHANNEL", item.channel);
+                intent.putExtra("STATUS", item.status);
+                intent.putExtra("LINK", item.link);
+                intent.putExtra("TIMESTAMP", item.timestamp);
+                intent.putExtra("AUTHOR", item.author);
+                startActivity(intent);
+            });
 
-                Toast.makeText(this, "🔄 Changed status: " + item.title + " → " + item.status, Toast.LENGTH_SHORT).show();
-                displayFilteredContent(query, statusFilter);
+            // Edit button
+            ImageButton btnEdit = row.findViewById(R.id.btnEdit);
+            btnEdit.setOnClickListener(v -> {
+                // Navigate to EditContentActivity with edit mode enabled
+                Intent intent = new Intent(this, EditContentActivity.class);
+                intent.putExtra("CONTENT_ID", String.valueOf(item.id));
+                intent.putExtra("EDIT_MODE", true); // Bật sẵn chế độ sửa
+                intent.putExtra("TITLE", item.title);
+                intent.putExtra("CAPTION", item.caption);
+                intent.putExtra("CHANNEL", item.channel);
+                intent.putExtra("STATUS", item.status);
+                intent.putExtra("LINK", item.link);
+                intent.putExtra("TIMESTAMP", item.timestamp);
+                intent.putExtra("AUTHOR", item.author);
+                startActivity(intent);
+            });
+
+            // Delete button
+            ImageButton btnDelete = row.findViewById(R.id.btnDelete);
+            btnDelete.setOnClickListener(v -> {
+                showDeleteConfirmationPopup(item, query, statusFilter);
+            });
+
+            // Spinner chuyển trạng thái
+            Spinner spinnerChangeStatus = row.findViewById(R.id.spinnerChangeStatus);
+            
+            // Tạo adapter cho spinner với các trạng thái
+            ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(
+                    this,
+                    R.array.content_status_options,
+                    android.R.layout.simple_spinner_item
+            );
+            statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerChangeStatus.setAdapter(statusAdapter);
+            
+            // Set trạng thái hiện tại
+            String[] statusOptions = getResources().getStringArray(R.array.content_status_options);
+            for (int i = 0; i < statusOptions.length; i++) {
+                if (statusOptions[i].equalsIgnoreCase(item.status)) {
+                    spinnerChangeStatus.setSelection(i);
+                    break;
+                }
+            }
+            
+            // Xử lý khi thay đổi trạng thái
+            spinnerChangeStatus.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    String newStatus = parent.getItemAtPosition(position).toString();
+                    if (!newStatus.equalsIgnoreCase(item.status)) {
+                        item.status = newStatus;
+                        Toast.makeText(ContentListActivity.this, 
+                            "🔄 Đã chuyển trạng thái: " + item.title + " → " + newStatus, 
+                            Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onNothingSelected(android.widget.AdapterView<?> parent) {}
             });
 
             layoutContentTable.addView(row);
+        }
+    }
+
+    /**
+     * Hiển thị popup xác nhận xóa content
+     */
+    private void showDeleteConfirmationPopup(ContentItem item, String query, String statusFilter) {
+        // Inflate popup layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View popupView = inflater.inflate(R.layout.popup_confirm_delete_content, null);
+
+        // Get the root layout of the activity (RelativeLayout from activity_content_list.xml)
+        ViewGroup activityRootView = (ViewGroup) findViewById(android.R.id.content);
+        
+        // Add popup view directly to activity root with MATCH_PARENT to cover entire screen
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        activityRootView.addView(popupView, params);
+
+        // Set content name (optional)
+        TextView tvContentName = popupView.findViewById(R.id.tvContentName);
+        tvContentName.setText(item.title);
+        tvContentName.setVisibility(View.VISIBLE);
+
+        // Cancel button
+        androidx.appcompat.widget.AppCompatButton btnCancel = popupView.findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(v -> {
+            activityRootView.removeView(popupView);
+        });
+
+        // Delete button
+        androidx.appcompat.widget.AppCompatButton btnDeleteConfirm = popupView.findViewById(R.id.btnDelete);
+        btnDeleteConfirm.setOnClickListener(v -> {
+            // Remove item from list
+            allContents.remove(item);
+            
+            // Show toast
+            Toast.makeText(this, "✅ Đã xóa: " + item.title, Toast.LENGTH_SHORT).show();
+            
+            // Close popup
+            activityRootView.removeView(popupView);
+            
+            // Refresh list
+            displayFilteredContent(query, statusFilter);
+        });
+
+        // Close popup when clicking overlay background
+        View popupOverlay = popupView.findViewById(R.id.popupOverlay);
+        if (popupOverlay != null) {
+            popupOverlay.setOnClickListener(v -> {
+                activityRootView.removeView(popupView);
+            });
         }
     }
 }

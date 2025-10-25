@@ -2,6 +2,7 @@ package com.example.nt118_marketingapp;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -70,8 +71,11 @@ public class EditContentActivity extends AppCompatActivity {
         // Load data (giả lập dữ liệu hoặc lấy từ Intent/Database)
         loadContentData();
         
-        // Set initial state - View mode (không cho phép chỉnh sửa)
-        setEditMode(false);
+        // Check if Edit Mode should be enabled from Intent
+        boolean shouldEnableEditMode = getIntent().getBooleanExtra("EDIT_MODE", false);
+        
+        // Set initial state based on Intent or default to View mode
+        setEditMode(shouldEnableEditMode);
     }
 
     /**
@@ -117,26 +121,59 @@ public class EditContentActivity extends AppCompatActivity {
     }
 
     /**
-     * Load dữ liệu content (giả lập hoặc từ Intent/Database)
-     * Trong thực tế, bạn có thể nhận content ID từ Intent và load từ database
+     * Load dữ liệu content (từ Intent hoặc dữ liệu mẫu)
      */
     private void loadContentData() {
-        // Ví dụ: Giả lập dữ liệu có sẵn
-        editTitle.setText("Content Marketing Q4 2025");
-        // spinnerType được chọn index 0 (Post Facebook)
-        spinnerType.setSelection(0);
-        editChannel.setText("Fanpage Công ty");
-        editTags.setText("marketing, Q4, promotion");
-        editTime.setText("24/10/2025 14:30");
-        // spinnerStatus được chọn index 1 (In progress)
-        spinnerStatus.setSelection(1);
-        editAttachment.setText("https://drive.google.com/example");
-        editEditorLink.setText("https://docs.google.com/example");
+        Intent intent = getIntent();
         
-        // Trong thực tế, bạn sẽ load từ database hoặc Intent:
-        // Intent intent = getIntent();
-        // String contentId = intent.getStringExtra("CONTENT_ID");
-        // loadContentFromDatabase(contentId);
+        // Kiểm tra xem có dữ liệu từ Intent không
+        if (intent.hasExtra("CONTENT_ID")) {
+            // Load dữ liệu từ Intent
+            String title = intent.getStringExtra("TITLE");
+            String caption = intent.getStringExtra("CAPTION");
+            String channel = intent.getStringExtra("CHANNEL");
+            String status = intent.getStringExtra("STATUS");
+            String link = intent.getStringExtra("LINK");
+            String timestamp = intent.getStringExtra("TIMESTAMP");
+            String author = intent.getStringExtra("AUTHOR");
+            
+            // Set dữ liệu vào các field
+            if (title != null) editTitle.setText(title);
+            if (caption != null) {
+                // Giả sử caption được hiển thị trong một EditText nào đó
+                // Nếu không có field caption, bạn có thể bỏ qua hoặc thêm field mới
+            }
+            if (channel != null) editChannel.setText(channel);
+            if (timestamp != null) editTime.setText(timestamp);
+            if (link != null) editEditorLink.setText(link);
+            
+            // Set status trong Spinner
+            if (status != null) {
+                String[] statusArray = getResources().getStringArray(R.array.content_status_options);
+                for (int i = 0; i < statusArray.length; i++) {
+                    if (statusArray[i].equalsIgnoreCase(status)) {
+                        spinnerStatus.setSelection(i);
+                        break;
+                    }
+                }
+            }
+            
+            // Các field khác có thể để mặc định hoặc thêm vào Intent nếu cần
+            editTags.setText("marketing, content");
+            editAttachment.setText("");
+            spinnerType.setSelection(0); // Mặc định Post Facebook
+            
+        } else {
+            // Dữ liệu mẫu nếu không có Intent
+            editTitle.setText("Content Marketing Q4 2025");
+            spinnerType.setSelection(0);
+            editChannel.setText("Fanpage Công ty");
+            editTags.setText("marketing, Q4, promotion");
+            editTime.setText("24/10/2025 14:30");
+            spinnerStatus.setSelection(1);
+            editAttachment.setText("https://drive.google.com/example");
+            editEditorLink.setText("https://docs.google.com/example");
+        }
     }
 
     /**

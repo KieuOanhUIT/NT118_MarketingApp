@@ -2,6 +2,6 @@
 <!-- Delete button background - Red with rounded corners -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#E53935"/>
+    <solid android:color="#FF3CC7"/>
     <corners android:radius="12dp"/>
 </shape>

@@ -15,14 +15,62 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tvId"
+        <!-- Header Row: ID and Action Buttons -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ID: #001"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:textSize="14sp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ID: #001"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"/>
+
+            <!-- Action Buttons Container -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- View Button -->
+                <ImageButton
+                    android:id="@+id/btnView"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_content"
+                    android:contentDescription="Xem content"
+                    app:tint="@color/colorSecondary"
+                    android:layout_marginEnd="4dp"/>
+
+                <!-- Edit Button -->
+                <ImageButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_edit"
+                    android:contentDescription="Sửa content"
+                    app:tint="@color/colorPrimary"
+                    android:layout_marginEnd="4dp"/>
+
+                <!-- Delete Button -->
+                <ImageButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_delete"
+                    android:contentDescription="Xóa content"
+                    app:tint="@color/deadlineOverdue"/>
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvTitle"
@@ -67,31 +115,40 @@
             android:textColor="#777"/>
 
         <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Trạng thái: Pending"
-            android:textColor="@color/colorSecondary"
-            android:textStyle="bold"
-            android:layout_marginTop="4dp"/>
-
-        <TextView
             android:id="@+id/tvLink"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Link: https://facebook.com/post/123"
             android:textColor="@color/colorPrimary"
             android:textSize="13sp"
-            android:autoLink="web"/>
+            android:autoLink="web"
+            android:layout_marginTop="4dp"/>
 
-        <Button
-            android:id="@+id/btnChangeStatus"
-            android:layout_width="wrap_content"
+        <!-- Dropdown chuyển trạng thái -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chuyển trạng thái"
-            android:textAllCaps="false"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:textColor="@android:color/white" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trạng thái:"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimary"
+                android:layout_marginEnd="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerChangeStatus"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:background="@drawable/bg_edittext_border"
+                android:padding="8dp"/>
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

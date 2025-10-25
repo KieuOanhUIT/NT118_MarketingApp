@@ -47,10 +47,55 @@
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <!-- Action Buttons: Thêm Content và Content Calendar -->
+    <LinearLayout
+        android:id="@+id/layoutActionButtons"
+        android:layout_below="@id/layoutSearchFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center">
+
+        <!-- Nút Thêm Content -->
+        <Button
+            android:id="@+id/btnAddContent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Thêm Content"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="@color/background"
+            android:backgroundTint="#FF3CC7"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp"
+            android:drawablePadding="8dp"
+            android:textAllCaps="false"/>
+
+        <!-- Nút Content Calendar -->
+        <Button
+            android:id="@+id/btnContentCalendar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Lịch Content"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="@color/background"
+            android:backgroundTint="#007C77"
+            android:padding="12dp"
+            android:layout_marginStart="8dp"
+            android:drawablePadding="8dp"
+            android:textAllCaps="false"/>
+    </LinearLayout>
+
     <!-- Bảng danh sách -->
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_below="@id/layoutSearchFilter"
+        android:layout_below="@id/layoutActionButtons"
         android:layout_above="@id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
