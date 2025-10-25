@@ -22,9 +22,9 @@
             android:text="@string/subtasks_section"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="@color/colorSecondary"
+            android:textColor="#007C77"
             android:drawableStart="@drawable/ic_subtask"
-            android:drawableTint="@color/colorSecondary"
+            android:drawableTint="#007C77"
             android:drawablePadding="8dp"/>
 
         <!-- Search Subtask Button -->
@@ -84,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:buttonTint="@color/colorPrimary"
+                        android:buttonTint="#007C77"
                         android:contentDescription="Task status"/>
 
                     <TextView
