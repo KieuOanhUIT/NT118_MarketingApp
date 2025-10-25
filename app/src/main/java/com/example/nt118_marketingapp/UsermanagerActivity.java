@@ -87,6 +87,11 @@ public class UsermanagerActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
 
+            } else if (itemId == R.id.navigation_approve) {
+                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
             } else if (itemId == R.id.navigation_usermanagement) {
                 startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
                 overridePendingTransition(0, 0);
@@ -98,8 +103,7 @@ public class UsermanagerActivity extends AppCompatActivity {
                 return true;
 
             } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
-                overridePendingTransition(0, 0);
+                // Không cần start lại Activity hiện tại
                 return true;
             }
 

@@ -10,7 +10,7 @@
     <item
         android:id="@+id/navigation_approve"
         android:icon="@drawable/ic_approve"
-        android:title="Profile" />
+        android:title="Approval" />
     <item
         android:id="@+id/navigation_usermanagement"
         android:icon="@drawable/ic_user"
