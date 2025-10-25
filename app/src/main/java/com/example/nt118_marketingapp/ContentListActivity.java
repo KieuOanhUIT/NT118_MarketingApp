@@ -281,15 +281,15 @@ public class ContentListActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
         View popupView = inflater.inflate(R.layout.popup_confirm_delete_content, null);
 
-        // Create popup as overlay
-        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().getRootView();
-        FrameLayout popupContainer = new FrameLayout(this);
-        popupContainer.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
-        popupContainer.addView(popupView);
-        rootView.addView(popupContainer);
+        // Get the root layout of the activity (RelativeLayout from activity_content_list.xml)
+        ViewGroup activityRootView = (ViewGroup) findViewById(android.R.id.content);
+        
+        // Add popup view directly to activity root with MATCH_PARENT to cover entire screen
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        activityRootView.addView(popupView, params);
 
         // Set content name (optional)
         TextView tvContentName = popupView.findViewById(R.id.tvContentName);
@@ -297,13 +297,13 @@ public class ContentListActivity extends AppCompatActivity {
         tvContentName.setVisibility(View.VISIBLE);
 
         // Cancel button
-        Button btnCancel = popupView.findViewById(R.id.btnCancel);
+        androidx.appcompat.widget.AppCompatButton btnCancel = popupView.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(v -> {
-            rootView.removeView(popupContainer);
+            activityRootView.removeView(popupView);
         });
 
         // Delete button
-        Button btnDeleteConfirm = popupView.findViewById(R.id.btnDelete);
+        androidx.appcompat.widget.AppCompatButton btnDeleteConfirm = popupView.findViewById(R.id.btnDelete);
         btnDeleteConfirm.setOnClickListener(v -> {
             // Remove item from list
             allContents.remove(item);
@@ -312,16 +312,18 @@ public class ContentListActivity extends AppCompatActivity {
             Toast.makeText(this, "✅ Đã xóa: " + item.title, Toast.LENGTH_SHORT).show();
             
             // Close popup
-            rootView.removeView(popupContainer);
+            activityRootView.removeView(popupView);
             
             // Refresh list
             displayFilteredContent(query, statusFilter);
         });
 
-        // Close popup when clicking overlay
+        // Close popup when clicking overlay background
         View popupOverlay = popupView.findViewById(R.id.popupOverlay);
-        popupOverlay.setOnClickListener(v -> {
-            rootView.removeView(popupContainer);
-        });
+        if (popupOverlay != null) {
+            popupOverlay.setOnClickListener(v -> {
+                activityRootView.removeView(popupView);
+            });
+        }
     }
 }

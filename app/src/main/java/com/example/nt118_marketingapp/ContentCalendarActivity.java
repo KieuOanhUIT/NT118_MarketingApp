@@ -82,6 +82,10 @@ public class ContentCalendarActivity extends AppCompatActivity {
         btnNextWeek = findViewById(R.id.btnNextWeek);
         dayHeadersContainer = findViewById(R.id.dayHeadersContainer);
         calendarGridContainer = findViewById(R.id.calendarGridContainer);
+        
+        // Back button
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
     }
 
     /**
