@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Brand Color -->
-    <color name="colorPrimary">#5B67CA</color>
+    <color name="colorPrimary">#ff3cc7</color>
 
     <!-- Secondary / Variant Color -->
-    <color name="colorSecondary">#43BE83</color>
+    <color name="colorSecondary">#007c77</color>
 
     <!-- Accent Color -->
     <color name="colorAccent">#FF92A4</color>
