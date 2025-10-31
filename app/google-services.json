@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455660154069",
+    "project_id": "nt118-marketingapp",
+    "storage_bucket": "nt118-marketingapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455660154069:android:10fe63560984da6ce5065c",
+        "android_client_info": {
+          "package_name": "com.example.nt118_marketingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpJWIvZPY997sJK7l_8uYzaOeg5QUnxhM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

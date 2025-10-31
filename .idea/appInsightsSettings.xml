@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.nt118_marketingapp" />
+                  <option name="mobileSdkAppId" value="1:455660154069:android:10fe63560984da6ce5065c" />
+                  <option name="projectId" value="nt118-marketingapp" />
+                  <option name="projectNumber" value="455660154069" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
