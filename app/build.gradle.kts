@@ -51,4 +51,6 @@ dependencies {
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 // RecyclerView hiển thị dạng danh sách/bảng
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // Firebase
+    implementation("com.google.firebase:firebase-database:20.3.0")
 }
