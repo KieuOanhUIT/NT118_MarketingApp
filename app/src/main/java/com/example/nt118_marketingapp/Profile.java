@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.*;
 
@@ -17,7 +20,14 @@ public class Profile extends AppCompatActivity {
     private TextView tvFullName, tvPosition, tvPhone, tvEmail;
     private TextView btnEditProfile, tvForgotPassword;
     private BottomNavigationView bottomNavigationView;
+
+    private DatabaseReference userRef;
+    private String userId;
+
     private ActivityResultLauncher<Intent> editProfileLauncher;
+
+    // Lưu tạm thông tin để truyền sang EditProfile
+    private String fullName, roleName, phone, email;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -25,63 +35,46 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         initViews();
+        userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Nhận dữ liệu từ SignInActivity
+        // Lấy userId từ Intent (từ Dashboard)
         Intent intent = getIntent();
-        String userId = intent.getStringExtra("userId");
-        String fullName = intent.getStringExtra("fullName");
-        String roleName = intent.getStringExtra("roleName");
-        String phone = intent.getStringExtra("phone");
-        String email = intent.getStringExtra("email");
+        userId = intent.getStringExtra("userId");
 
-        // Nếu có sẵn thông tin thì hiển thị luôn, không cần load Firebase
-        if (fullName != null) {
-            tvFullName.setText(fullName);
-            tvPosition.setText(roleName);
-            tvPhone.setText(phone);
-            tvEmail.setText(email);
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy người dùng!", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        // Nếu không có thì load từ Firebase theo userId
-        if (userId != null && (fullName == null || fullName.isEmpty())) {
-            loadUserProfile(userId);
-        }
+        loadUserProfile(userId);
 
-        // Khởi tạo launcher chỉnh sửa thông tin
+        // Nhận kết quả sau khi edit xong
         editProfileLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        String newName = result.getData().getStringExtra("fullName");
-                        String newPosition = result.getData().getStringExtra("position");
-                        String newPhone = result.getData().getStringExtra("phone");
-                        String newEmail = result.getData().getStringExtra("email");
-
-                        tvFullName.setText(newName);
-                        tvPosition.setText(newPosition);
-                        tvPhone.setText(newPhone);
-                        tvEmail.setText(newEmail);
+                    if (result.getResultCode() == RESULT_OK) {
+                        loadUserProfile(userId); // reload lại dữ liệu
                     }
                 }
         );
 
-        // Chỉnh sửa thông tin
+        // Mở trang chỉnh sửa hồ sơ — truyền dữ liệu hiện tại
         btnEditProfile.setOnClickListener(v -> {
             Intent editIntent = new Intent(Profile.this, EditProfile.class);
-            editIntent.putExtra("fullName", tvFullName.getText().toString());
-            editIntent.putExtra("position", tvPosition.getText().toString());
-            editIntent.putExtra("phone", tvPhone.getText().toString());
-            editIntent.putExtra("email", tvEmail.getText().toString());
+            editIntent.putExtra("userId", userId);
+            editIntent.putExtra("fullName", fullName);
+            editIntent.putExtra("position", roleName);
+            editIntent.putExtra("phone", phone);
+            editIntent.putExtra("email", email);
             editProfileLauncher.launch(editIntent);
         });
 
-        // Đổi mật khẩu
         tvForgotPassword.setOnClickListener(v -> {
             Intent intent1 = new Intent(Profile.this, ChangePassWordCre.class);
+            intent1.putExtra("userId", userId);
             startActivity(intent1);
         });
 
-        // Bottom navigation
         setupBottomNavigation();
     }
 
@@ -95,22 +88,20 @@ public class Profile extends AppCompatActivity {
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
     }
 
-    // 🔹 Hàm đọc dữ liệu từ Firebase nếu cần
     private void loadUserProfile(String userId) {
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("User").child(userId);
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    String fullName = snapshot.child("FullName").getValue(String.class);
-                    String roleName = snapshot.child("RoleName").getValue(String.class);
-                    String phone = snapshot.child("Phone").getValue(String.class);
-                    String email = snapshot.child("Email").getValue(String.class);
+                    fullName = snapshot.child("FullName").getValue(String.class);
+                    roleName = snapshot.child("RoleName").getValue(String.class);
+                    phone = snapshot.child("Phone").getValue(String.class);
+                    email = snapshot.child("Email").getValue(String.class);
 
-                    tvFullName.setText(fullName);
-                    tvPosition.setText(roleName);
-                    tvPhone.setText(phone);
-                    tvEmail.setText(email);
+                    tvFullName.setText(fullName != null ? fullName : "");
+                    tvPosition.setText(roleName != null ? roleName : "");
+                    tvPhone.setText(phone != null ? phone : "");
+                    tvEmail.setText(email != null ? email : "");
                 } else {
                     tvFullName.setText("Không tìm thấy người dùng!");
                 }
@@ -123,7 +114,6 @@ public class Profile extends AppCompatActivity {
         });
     }
 
-    // 🔹 Bottom Navigation setup
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
@@ -131,21 +121,26 @@ public class Profile extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
+            Intent intent = null;
             if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                intent = new Intent(getApplicationContext(), DashboardActivity.class);
             } else if (itemId == R.id.navigation_contentmanagement) {
-                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                intent = new Intent(getApplicationContext(), ContentListActivity.class);
             } else if (itemId == R.id.navigation_approve) {
-                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+                intent = new Intent(getApplicationContext(), ReviewContentActivity.class);
             } else if (itemId == R.id.navigation_usermanagement) {
-                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                intent = new Intent(getApplicationContext(), UsermanagerActivity.class);
             } else if (itemId == R.id.navigation_notification) {
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                intent = new Intent(getApplicationContext(), NotificationActivity.class);
             } else if (itemId == R.id.navigation_profile) {
                 return true;
             }
 
-            overridePendingTransition(0, 0);
+            if (intent != null) {
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
             return true;
         });
     }

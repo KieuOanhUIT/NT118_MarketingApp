@@ -7,8 +7,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,16 +28,16 @@ public class EditProfile extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         initViews();
+        userRef = FirebaseDatabase.getInstance().getReference("User");
 
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
 
+        // Nhận dữ liệu hiện tại (được truyền từ Profile)
         edtFullName.setText(intent.getStringExtra("fullName"));
         edtPosition.setText(intent.getStringExtra("position"));
         edtPhone.setText(intent.getStringExtra("phone"));
         edtEmail.setText(intent.getStringExtra("email"));
-
-        userRef = FirebaseDatabase.getInstance().getReference("User");
 
         btnSaveInfo.setOnClickListener(v -> saveProfile());
         btnCancel.setOnClickListener(v -> finish());
@@ -62,28 +64,26 @@ public class EditProfile extends AppCompatActivity {
             return;
         }
 
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy người dùng để cập nhật!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận lưu thay đổi")
                 .setMessage("Bạn có chắc muốn cập nhật thông tin này không?")
                 .setPositiveButton("Lưu", (dialog, which) -> {
-                    if (userId != null && !userId.isEmpty()) {
-                        userRef.child(userId).child("FullName").setValue(fullName);
-                        userRef.child(userId).child("RoleName").setValue(position);
-                        userRef.child(userId).child("Phone").setValue(phone);
-                        userRef.child(userId).child("Email").setValue(email);
+                    // Cập nhật trực tiếp lên Firebase
+                    userRef.child(userId).child("FullName").setValue(fullName);
+                    userRef.child(userId).child("RoleName").setValue(position);
+                    userRef.child(userId).child("Phone").setValue(phone);
+                    userRef.child(userId).child("Email").setValue(email);
 
-                        Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
 
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("fullName", fullName);
-                        resultIntent.putExtra("position", position);
-                        resultIntent.putExtra("phone", phone);
-                        resultIntent.putExtra("email", email);
-                        setResult(RESULT_OK, resultIntent);
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Không tìm thấy người dùng để cập nhật!", Toast.LENGTH_SHORT).show();
-                    }
+                    // Gửi kết quả về Profile để reload lại
+                    setResult(RESULT_OK, new Intent());
+                    finish();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
