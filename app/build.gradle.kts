@@ -26,31 +26,36 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // Material Design Components (ô chọn ngày, button, card, textfield)
+
+    // Material Design Components
     implementation("com.google.android.material:material:1.11.0")
-// MPAndroidChart - vẽ biểu đồ cột, tròn, đường, cột ngang
+
+    // MPAndroidChart - vẽ biểu đồ
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-// RecyclerView hiển thị dạng danh sách/bảng
+
+    // RecyclerView hiển thị danh sách
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    // Firebase
-    implementation("com.google.firebase:firebase-database:20.3.0")
+
+    // Firebase Auth & Realtime Database
+    implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation("com.google.firebase:firebase-database:21.0.0")
 }

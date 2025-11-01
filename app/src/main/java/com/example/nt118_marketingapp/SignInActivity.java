@@ -2,51 +2,76 @@ package com.example.nt118_marketingapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.*;
 
 public class SignInActivity extends AppCompatActivity {
 
-    // Khai báo các view
-    private TextView tvTitle, tvSubtitle, tvForgotPassword;
     private TextInputEditText edtEmail, edtPassword;
-    private TextView btnSignIn; // nếu trong layout là Button thì đổi sang Button
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        // Ánh xạ view
-        tvTitle = findViewById(R.id.tvTitle);
-        tvSubtitle = findViewById(R.id.tvSubtitle);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
-        btnSignIn = findViewById(R.id.btnSignIn);
+        findViewById(R.id.btnSignIn).setOnClickListener(v -> signIn());
 
-        // Xử lý sự kiện Đăng nhập
-        btnSignIn.setOnClickListener(v -> {
-            String email = edtEmail.getText() != null ? edtEmail.getText().toString().trim() : "";
-            String password = edtPassword.getText() != null ? edtPassword.getText().toString().trim() : "";
+        userRef = FirebaseDatabase.getInstance().getReference("User");
+    }
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
-            } else {
-                // Tạm thời hiển thị thông báo và chuyển sang Profile
-                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignInActivity.this, Profile.class);
-                startActivity(intent);
-                finish(); // Đóng SignIn để không quay lại
+    private void signIn() {
+        String email = edtEmail.getText().toString().trim();
+        String password = edtPassword.getText().toString().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean found = false;
+                for (DataSnapshot userSnap : snapshot.getChildren()) {
+                    String dbEmail = userSnap.child("Email").getValue(String.class);
+                    String dbPassword = userSnap.child("Password").getValue(String.class);
+
+                    if (email.equals(dbEmail) && password.equals(dbPassword)) {
+                        found = true;
+                        String userId = userSnap.getKey(); // 🔹 Lấy key userId
+                        String fullName = userSnap.child("FullName").getValue(String.class);
+                        String roleName = userSnap.child("RoleName").getValue(String.class);
+                        String phone = userSnap.child("Phone").getValue(String.class);
+
+                        Toast.makeText(SignInActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                        // 🔹 Truyền dữ liệu qua Profile
+                        Intent intent = new Intent(SignInActivity.this, Profile.class);
+                        intent.putExtra("userId", userId);
+                        intent.putExtra("fullName", fullName);
+                        intent.putExtra("roleName", roleName);
+                        intent.putExtra("phone", phone);
+                        intent.putExtra("email", dbEmail);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    }
+                }
+                if (!found) {
+                    Toast.makeText(SignInActivity.this, "Sai email hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
+                }
             }
-        });
 
-        // ✅ Khi nhấn “Quên mật khẩu” → chuyển sang ForgotPasswordActivity
-        tvForgotPassword.setOnClickListener(v -> {
-            Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(SignInActivity.this, "Lỗi khi kết nối Firebase!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }
