@@ -151,7 +151,8 @@ public class ContentListActivity extends AppCompatActivity {
                 return true;
 
             } else if (itemId == R.id.navigation_profile) {
-                // Không cần start lại Activity hiện tại
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
                 return true;
             }
 

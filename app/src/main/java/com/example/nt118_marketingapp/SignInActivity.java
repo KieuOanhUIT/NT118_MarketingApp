@@ -44,15 +44,15 @@ public class SignInActivity extends AppCompatActivity {
 
                     if (email.equals(dbEmail) && password.equals(dbPassword)) {
                         found = true;
-                        String userId = userSnap.getKey(); // 🔹 Lấy key userId
+                        String userId = userSnap.getKey(); // Lấy key userId
                         String fullName = userSnap.child("FullName").getValue(String.class);
                         String roleName = userSnap.child("RoleName").getValue(String.class);
                         String phone = userSnap.child("Phone").getValue(String.class);
 
                         Toast.makeText(SignInActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
-                        // 🔹 Truyền dữ liệu qua Profile
-                        Intent intent = new Intent(SignInActivity.this, Profile.class);
+                        // Truyền dữ liệu qua Profile
+                        Intent intent = new Intent(SignInActivity.this, DashboardActivity.class);
                         intent.putExtra("userId", userId);
                         intent.putExtra("fullName", fullName);
                         intent.putExtra("roleName", roleName);

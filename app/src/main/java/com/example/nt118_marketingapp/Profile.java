@@ -26,7 +26,7 @@ public class Profile extends AppCompatActivity {
 
         initViews();
 
-        // 🔹 Nhận dữ liệu từ SignInActivity
+        // Nhận dữ liệu từ SignInActivity
         Intent intent = getIntent();
         String userId = intent.getStringExtra("userId");
         String fullName = intent.getStringExtra("fullName");
@@ -65,7 +65,7 @@ public class Profile extends AppCompatActivity {
                 }
         );
 
-        // 🔹 Chỉnh sửa thông tin
+        // Chỉnh sửa thông tin
         btnEditProfile.setOnClickListener(v -> {
             Intent editIntent = new Intent(Profile.this, EditProfile.class);
             editIntent.putExtra("fullName", tvFullName.getText().toString());
@@ -75,13 +75,13 @@ public class Profile extends AppCompatActivity {
             editProfileLauncher.launch(editIntent);
         });
 
-        // 🔹 Đổi mật khẩu
+        // Đổi mật khẩu
         tvForgotPassword.setOnClickListener(v -> {
             Intent intent1 = new Intent(Profile.this, ChangePassWordCre.class);
             startActivity(intent1);
         });
 
-        // 🔹 Bottom navigation
+        // Bottom navigation
         setupBottomNavigation();
     }
 
