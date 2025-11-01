@@ -2,6 +2,7 @@ package com.example.nt118_marketingapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -58,6 +59,12 @@ public class DashboardActivity extends AppCompatActivity {
         // Cấu hình bottom navigation
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+
+        // Ẩn tab nếu không phải admin
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
