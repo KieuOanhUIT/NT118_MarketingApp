@@ -1,154 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    android:foreground="?attr/selectableItemBackground">
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:text="Tiêu đề bài viết"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#000" />
 
-        <!-- Header Row: ID and Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <TextView
+        android:id="@+id/tvType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Loại: Article"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
 
-            <TextView
-                android:id="@+id/tvId"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="ID: #001"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
-                android:textSize="14sp"/>
+    <TextView
+        android:id="@+id/tvChannel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kênh: Blog"
+        android:textSize="14sp" />
 
-            <!-- Action Buttons Container -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+    <TextView
+        android:id="@+id/tvTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thẻ: SEO"
+        android:textSize="14sp" />
 
-                <!-- View Button -->
-                <ImageButton
-                    android:id="@+id/btnView"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_content"
-                    android:contentDescription="Xem content"
-                    app:tint="@color/colorSecondary"
-                    android:layout_marginEnd="4dp"/>
+    <TextView
+        android:id="@+id/tvCreatedTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tạo lúc: 2025-10-20T09:00:00"
+        android:textSize="13sp" />
 
-                <!-- Edit Button -->
-                <ImageButton
-                    android:id="@+id/btnEdit"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_edit"
-                    android:contentDescription="Sửa content"
-                    app:tint="@color/colorPrimary"
-                    android:layout_marginEnd="4dp"/>
+    <Button
+        android:id="@+id/btnStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trạng thái"
+        android:backgroundTint="@color/colorPrimary"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:textAllCaps="false"
+        android:layout_marginTop="4dp"/>
 
-                <!-- Delete Button -->
-                <ImageButton
-                    android:id="@+id/btnDelete"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_delete"
-                    android:contentDescription="Xóa content"
-                    app:tint="@color/deadlineOverdue"/>
-            </LinearLayout>
-        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tiêu đề bài viết"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/textPrimary"
-            android:layout_marginTop="4dp"/>
-
-        <TextView
-            android:id="@+id/tvCaption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mô tả / Caption bài viết"
-            android:textColor="#555"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tvTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Thời gian: 10:30 - 16/10/2025"
-            android:textSize="12sp"
-            android:textColor="#777"/>
-
-        <TextView
-            android:id="@+id/tvChannel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Kênh: Facebook"
-            android:textSize="12sp"
-            android:textColor="#777"/>
-
-        <TextView
-            android:id="@+id/tvAuthor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tác giả: Admin"
-            android:textSize="12sp"
-            android:textColor="#777"/>
-
-        <TextView
-            android:id="@+id/tvLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Link: https://facebook.com/post/123"
-            android:textColor="@color/colorPrimary"
-            android:textSize="13sp"
-            android:autoLink="web"
-            android:layout_marginTop="4dp"/>
-
-        <!-- Dropdown chuyển trạng thái -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trạng thái:"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="@color/textPrimary"
-                android:layout_marginEnd="8dp"/>
-
-            <Spinner
-                android:id="@+id/spinnerChangeStatus"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:minHeight="40dp"
-                android:background="@drawable/bg_edittext_border"
-                android:padding="8dp"/>
-        </LinearLayout>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/tvUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="URL: https://example.com/post-1"
+        android:textSize="13sp"
+        android:autoLink="web" />
+</LinearLayout>
