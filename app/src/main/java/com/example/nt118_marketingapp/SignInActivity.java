@@ -2,6 +2,7 @@ package com.example.nt118_marketingapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,7 @@ public class SignInActivity extends AppCompatActivity {
     private TextInputEditText edtEmail, edtPassword;
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
+    private TextView tvForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +27,18 @@ public class SignInActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference("User");
 
+        // Ánh xạ view
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+
         findViewById(R.id.btnSignIn).setOnClickListener(v -> signIn());
+
+        // Khi nhấn "Quên mật khẩu?"
+        tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void signIn() {
@@ -53,10 +64,9 @@ public class SignInActivity extends AppCompatActivity {
                         }
                     } else {
                         // Đăng nhập thất bại
-                        String errorMsg = task.getException() != null
-                                ? task.getException().getMessage()
-                                : "Đăng nhập thất bại!";
-                        Toast.makeText(SignInActivity.this, "Sai email hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignInActivity.this,
+                                "Sai email hoặc mật khẩu!",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
