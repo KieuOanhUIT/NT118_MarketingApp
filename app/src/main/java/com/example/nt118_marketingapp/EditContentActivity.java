@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ public class EditContentActivity extends AppCompatActivity {
     private Button btnEditSave;
     private Button btnAddSubtask;
     private LinearLayout subtasksContainer;
+    private TextView tvHeaderTitle;
     
     // Input fields
     private EditText editTitle;
@@ -86,6 +88,7 @@ public class EditContentActivity extends AppCompatActivity {
         btnEditSave = findViewById(R.id.btnEditSave);
         btnAddSubtask = findViewById(R.id.btnAddSubtask);
         subtasksContainer = findViewById(R.id.subtasksContainer);
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         
         editTitle = findViewById(R.id.editTitle);
         spinnerType = findViewById(R.id.spinnerType);
@@ -198,6 +201,13 @@ public class EditContentActivity extends AppCompatActivity {
      */
     private void setEditMode(boolean enabled) {
         isEditMode = enabled;
+        
+        // Cập nhật header title dựa trên trạng thái
+        if (enabled) {
+            tvHeaderTitle.setText(R.string.edit_content_title); // "Chỉnh sửa Content"
+        } else {
+            tvHeaderTitle.setText(R.string.view_content_title); // "Xem Content"
+        }
         
         // Cập nhật text và style của nút Edit/Save
         if (enabled) {

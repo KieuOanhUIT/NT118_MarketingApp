@@ -72,6 +72,7 @@
 
     <!-- Edit Content Screen -->
     <string name="edit_content_title">Chỉnh sửa Content</string>
+    <string name="view_content_title">Xem Content</string>
     <string name="btn_update_content">Cập nhật Content</string>
     <string name="btn_edit">Sửa</string>
     <string name="btn_save">Lưu</string>
