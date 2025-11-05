@@ -7,44 +7,35 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.example.nt118_marketingapp.model.Notification;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
-// Model thông báo — để gọn trong file cũng được
-class Notification {
-    private final String title;
-    private final String message;
-    private final String time;
-    private final int iconResId;
-    private boolean isRead;
-
-    public Notification(String title, String message, String time, int iconResId, boolean isRead) {
-        this.title = title;
-        this.message = message;
-        this.time = time;
-        this.iconResId = iconResId;
-        this.isRead = isRead;
-    }
-
-    public String getTitle() { return title; }
-    public String getMessage() { return message; }
-    public String getTime() { return time; }
-    public int getIconResId() { return iconResId; }
-    public boolean isRead() { return isRead; }
-    public void setRead(boolean read) { isRead = read; }
-}
+import java.util.Locale;
 
 public class NotificationActivity extends AppCompatActivity {
 
     private LinearLayout notificationList;
     private List<Notification> notifications;
+    private DatabaseReference notificationRef;
     private BottomNavigationView bottomNavigationView;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,81 +43,55 @@ public class NotificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_notifications);
 
         notificationList = findViewById(R.id.notificationList);
+        notifications = new ArrayList<>();
+        auth = FirebaseAuth.getInstance();
+        notificationRef = FirebaseDatabase.getInstance().getReference("Notification");
 
-        generateSampleNotifications();
-        displayNotifications();
+        loadNotificationsFromFirebase();
+        setupBottomNavigation();
+    }
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_notification);
+    /** ✅ Đọc dữ liệu Notification từ Firebase */
+    private void loadNotificationsFromFirebase() {
+        String currentUserId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+        if (currentUserId == null) {
+            Toast.makeText(this, "Không xác định được người dùng!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
+        notificationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                notifications.clear();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Notification n = child.getValue(Notification.class);
+                    if (n == null) continue;
 
-            if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
+                    // Lọc đúng userId
+                    if (currentUserId.equals(n.getUserId())) {
+                        n.setId(child.getKey()); // gắn ID của thông báo
+                        notifications.add(n);
+                    }
+                }
 
-            } else if (itemId == R.id.navigation_contentmanagement) {
-                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
+                // Sắp xếp theo thời gian giảm dần
+                Collections.sort(notifications, (n1, n2) -> n2.getCreatedTime().compareTo(n1.getCreatedTime()));
 
-            } else if (itemId == R.id.navigation_approve) {
-                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
+                if (notifications.isEmpty()) {
+                    Toast.makeText(NotificationActivity.this, "Không có thông báo nào.", Toast.LENGTH_SHORT).show();
+                }
 
-            } else if (itemId == R.id.navigation_usermanagement) {
-                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-
-            } else if (itemId == R.id.navigation_notification) {
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-
-            } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
-                overridePendingTransition(0, 0);
-                return true;
+                displayNotifications();
             }
 
-            return false;
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(NotificationActivity.this, "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    // ✅ Dữ liệu mẫu
-    private void generateSampleNotifications() {
-        notifications = new ArrayList<>();
-
-        notifications.add(new Notification(
-                "Deadline sắp đến!",
-                "Bài đăng Facebook cần lên lịch lúc 14:00 hôm nay.",
-                "10:30 - 16/10/2025",
-                R.drawable.ic_deadline,
-                false
-        ));
-
-        notifications.add(new Notification(
-                "Bị từ chối",
-                "Nội dung bài viết bị reject bởi quản lý. Vui lòng chỉnh sửa lại.",
-                "09:00 - 16/10/2025",
-                R.drawable.ic_reject,
-                true
-        ));
-
-        notifications.add(new Notification(
-                "Đến giờ đăng bài",
-                "Bài Instagram sắp đến giờ đăng.",
-                "13:50 - 16/10/2025",
-                R.drawable.ic_post,
-                false
-        ));
-    }
-
-    // Hiển thị danh sách thông báo
+    /** ✅ Hiển thị danh sách thông báo */
     private void displayNotifications() {
         LayoutInflater inflater = LayoutInflater.from(this);
         notificationList.removeAllViews();
@@ -139,12 +104,29 @@ public class NotificationActivity extends AppCompatActivity {
             TextView message = itemView.findViewById(R.id.tvNotificationMessage);
             TextView time = itemView.findViewById(R.id.tvNotificationTime);
 
-            icon.setImageResource(n.getIconResId());
-            title.setText(n.getTitle());
-            message.setText(n.getMessage());
-            time.setText(n.getTime());
+            // Chọn icon theo Type
+            int iconRes;
+            switch (n.getType()) {
+                case "Approval":
+                    iconRes = R.drawable.ic_approve;
+                    break;
+                case "Task":
+                    iconRes = R.drawable.ic_task;
+                    break;
+                default:
+                    iconRes = R.drawable.ic_notification;
+                    break;
+            }
 
-            // Hiệu ứng đã đọc / chưa đọc
+            icon.setImageResource(iconRes);
+            title.setText(n.getType().equals("Approval") ? "Duyệt nội dung" : "Công việc");
+            message.setText(n.getMessage());
+
+            // Chuyển format thời gian đẹp
+            String formattedTime = n.getCreatedTime().replace("T", " ");
+            time.setText(formattedTime);
+
+            // Giao diện đã đọc / chưa đọc
             if (n.isRead()) {
                 title.setTypeface(null, android.graphics.Typeface.NORMAL);
                 title.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
@@ -155,21 +137,54 @@ public class NotificationActivity extends AppCompatActivity {
                 itemView.setAlpha(1f);
             }
 
-            // Sự kiện click mở chi tiết
+            // Sự kiện click
             itemView.setOnClickListener(v -> {
-                n.setRead(true); // đánh dấu đã đọc
+                // Đánh dấu đã đọc trong Firebase
+                if (!n.isRead()) {
+                    notificationRef.child(n.getId()).child("IsRead").setValue(true);
+                    n.setRead(true);
+                }
 
+                // Mở chi tiết
                 Intent intent = new Intent(NotificationActivity.this, NotificationDetailActivity.class);
-                intent.putExtra("title", n.getTitle());
+                intent.putExtra("notificationId", n.getId());
+                intent.putExtra("title", n.getType().equals("Approval") ? "Duyệt nội dung" : "Công việc");
                 intent.putExtra("message", n.getMessage());
-                intent.putExtra("time", n.getTime());
-                intent.putExtra("icon", n.getIconResId());
+                intent.putExtra("time", formattedTime);
+                intent.putExtra("icon", iconRes);
                 startActivity(intent);
 
-                displayNotifications(); // refresh lại danh sách
+                displayNotifications();
             });
 
             notificationList.addView(itemView);
         }
+    }
+
+    /** ✅ Điều hướng Bottom Navigation */
+    private void setupBottomNavigation() {
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_notification);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+            } else if (itemId == R.id.navigation_approve) {
+                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+            } else {
+                return false;
+            }
+
+            overridePendingTransition(0, 0);
+            return true;
+        });
     }
 }
