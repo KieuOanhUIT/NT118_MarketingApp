@@ -2,6 +2,7 @@ package com.example.nt118_marketingapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -9,24 +10,29 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
 public class Profile extends AppCompatActivity {
 
-    private ImageView imgAvatar;
+    private ImageView imgAvatar, btnLogout;
     private TextView tvFullName, tvPosition, tvPhone, tvEmail;
-    private TextView btnEditProfile, tvForgotPassword;
+    private Button btnEditProfile;
+    private TextView tvForgotPassword;
     private BottomNavigationView bottomNavigationView;
 
     private DatabaseReference userRef;
+    private FirebaseAuth mAuth;
+
     private String userId;
 
     private ActivityResultLauncher<Intent> editProfileLauncher;
 
-    // Lưu tạm thông tin để truyền sang EditProfile
+    // Lưu thông tin người dùng
     private String fullName, roleName, phone, email;
 
     @Override
@@ -35,9 +41,10 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         initViews();
+        mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Lấy userId từ Intent (từ Dashboard)
+        // Lấy userId từ Intent (từ Dashboard hoặc SignIn)
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
 
@@ -46,19 +53,20 @@ public class Profile extends AppCompatActivity {
             return;
         }
 
+        // Tải dữ liệu người dùng
         loadUserProfile(userId);
 
-        // Nhận kết quả sau khi edit xong
+        // Đăng ký nhận kết quả từ trang chỉnh sửa hồ sơ
         editProfileLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        loadUserProfile(userId); // reload lại dữ liệu
+                        loadUserProfile(userId); // reload lại dữ liệu sau khi chỉnh sửa
                     }
                 }
         );
 
-        // Mở trang chỉnh sửa hồ sơ — truyền dữ liệu hiện tại
+        // Chuyển sang EditProfile
         btnEditProfile.setOnClickListener(v -> {
             Intent editIntent = new Intent(Profile.this, EditProfile.class);
             editIntent.putExtra("userId", userId);
@@ -69,17 +77,23 @@ public class Profile extends AppCompatActivity {
             editProfileLauncher.launch(editIntent);
         });
 
+        // Chuyển sang đổi mật khẩu
         tvForgotPassword.setOnClickListener(v -> {
-            Intent intent1 = new Intent(Profile.this, ChangePassWordCre.class);
-            intent1.putExtra("userId", userId);
-            startActivity(intent1);
+            Intent changePassIntent = new Intent(Profile.this, ChangePassWordCre.class);
+            changePassIntent.putExtra("userId", userId);
+            startActivity(changePassIntent);
         });
 
+        // Đăng xuất Firebase
+        btnLogout.setOnClickListener(v -> showLogoutConfirmDialog());
+
+        // Cấu hình bottom navigation
         setupBottomNavigation();
     }
 
     private void initViews() {
         imgAvatar = findViewById(R.id.imgAvatar);
+        btnLogout = findViewById(R.id.btnLogout);
         tvFullName = findViewById(R.id.tvFullName);
         tvPosition = findViewById(R.id.tvPosition);
         tvPhone = findViewById(R.id.tvPhone);
@@ -114,14 +128,33 @@ public class Profile extends AppCompatActivity {
         });
     }
 
+    private void showLogoutConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này?")
+                .setPositiveButton("Có", (dialog, which) -> {
+                    mAuth.signOut(); // Firebase logout
+
+                    // Quay lại màn hình đăng nhập
+                    Intent intent = new Intent(Profile.this, SignInActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+
+                    Toast.makeText(Profile.this, "Đã đăng xuất!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Không", null)
+                .show();
+    }
+
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-
             Intent intent = null;
+
             if (itemId == R.id.navigation_home) {
                 intent = new Intent(getApplicationContext(), DashboardActivity.class);
             } else if (itemId == R.id.navigation_contentmanagement) {
