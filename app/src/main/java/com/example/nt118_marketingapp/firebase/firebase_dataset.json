@@ -1,0 +1,445 @@
+{
+  "User": {
+    "KE4lXTlI8Fchd201GyavRQpagpv2": {
+      "Email": "tran@example.com",
+      "FullName": "Tran Thi B",
+      "Phone": "0905112987",
+      "RoleName": "Content Creator"
+    },
+    "kHu0m3IaaAdJrgcTYjaWMBvMsLs1": {
+      "Email": "pham@example.com",
+      "FullName": "Pham Bao H",
+      "Phone": "0905712347",
+      "RoleName": "Admin"
+    },
+    "qG4yjuOwJMfoqW9KEVZPbtaHCal2": {
+      "Email": "oneoneoneone1478@gmail.com",
+      "FullName": "Le Kim I",
+      "Phone": "0905812348",
+      "RoleName": "Admin"
+    }
+  },
+  "Content": {
+    "C001": {
+      "Channel": "Blog",
+      "CreatedTime": "2025-10-20T09:00:00",
+      "ModifiedTime": "2025-10-20T13:00:00",
+      "PublishedTime": "2025-10-20T11:00:00",
+      "Status": "To do",
+      "Tag": "SEO",
+      "Title": "Bài viết hướng dẫn số 1",
+      "Type": "Post Facebook",
+      "Url": "https://example.com/post-1",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "C002": {
+      "Channel": "YouTube",
+      "CreatedTime": "2025-10-21T09:00:00",
+      "ModifiedTime": "2025-10-21T13:00:00",
+      "PublishedTime": "",
+      "Status": "In progress",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 2",
+      "Type": "Video",
+      "Url": "https://example.com/post-2",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2",
+      "status": "Pending"
+    },
+    "C003": {
+      "Channel": "Blog",
+      "CreatedTime": "2025-10-22T09:00:00",
+      "ModifiedTime": "2025-10-22T13:00:00",
+      "PublishedTime": "2025-10-22T11:00:00",
+      "Status": "Done",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 3",
+      "Type": "Blog",
+      "Url": "https://example.com/post-3",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "C004": {
+      "Channel": "YouTube",
+      "CreatedTime": "2025-10-23T09:00:00",
+      "ModifiedTime": "2025-10-23T13:00:00",
+      "PublishedTime": "",
+      "Status": "In Review",
+      "Tag": "SEO",
+      "Title": "Bài viết hướng dẫn số 4",
+      "Type": "Video",
+      "Url": "https://example.com/post-4",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "C005": {
+      "Channel": "Blog",
+      "CreatedTime": "2025-10-24T09:00:00",
+      "ModifiedTime": "2025-10-24T13:00:00",
+      "PublishedTime": "2025-10-24T11:00:00",
+      "Status": "Accepted",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 5",
+      "Type": "Blog",
+      "Url": "https://example.com/post-5",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "C006": {
+      "Channel": "YouTube",
+      "CreatedTime": "2025-10-25T09:00:00",
+      "ModifiedTime": "2025-10-25T13:00:00",
+      "PublishedTime": "",
+      "Status": "Reject",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 6",
+      "Type": "Video",
+      "Url": "https://example.com/post-6",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "C007": {
+      "Channel": "Blog",
+      "CreatedTime": "2025-10-26T09:00:00",
+      "ModifiedTime": "2025-10-26T13:00:00",
+      "PublishedTime": "2025-10-26T11:00:00",
+      "Status": "Scheduled",
+      "Tag": "SEO",
+      "Title": "Bài viết hướng dẫn số 7",
+      "Type": "Post Facebook",
+      "Url": "https://example.com/post-7",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "C008": {
+      "Channel": "YouTube",
+      "CreatedTime": "2025-10-27T09:00:00",
+      "ModifiedTime": "2025-10-27T13:00:00",
+      "PublishedTime": "",
+      "Status": "To do",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 8",
+      "Type": "Video",
+      "Url": "https://example.com/post-8",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2",
+      "status": "Pending"
+    },
+    "C009": {
+      "Channel": "Blog",
+      "CreatedTime": "2025-10-28T09:00:00",
+      "ModifiedTime": "2025-10-28T13:00:00",
+      "PublishedTime": "2025-10-28T11:00:00",
+      "Status": "Published",
+      "Tag": "Android",
+      "Title": "Bài viết hướng dẫn số 9",
+      "Type": "Post Facebook",
+      "Url": "https://example.com/post-9",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "C0010": {
+      "Channel": "YouTube",
+      "CreatedTime": "2025-10-29T09:00:00",
+      "ModifiedTime": "2025-10-29T13:00:00",
+      "PublishedTime": "",
+      "Status": "In progress",
+      "Tag": "SEO",
+      "Title": "Bài viết hướng dẫn số 10",
+      "Type": "Video",
+      "Url": "https://example.com/post-10",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2",
+      "status": "Pending"
+    }
+  },
+  "Approval": {
+    "A001": {
+      "ApprovedAt": "2025-10-21T09:00:00",
+      "ContentId": "C001",
+      "Reason": "Đạt yêu cầu",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "A002": {
+      "ApprovedAt": "2025-10-22T09:00:00",
+      "ContentId": "C002",
+      "Reason": "Cần chỉnh sửa",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "A003": {
+      "ApprovedAt": "2025-10-23T09:00:00",
+      "ContentId": "C003",
+      "Reason": "Đạt yêu cầu",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "A004": {
+      "ApprovedAt": "2025-10-24T09:00:00",
+      "ContentId": "C004",
+      "Reason": "Cần chỉnh sửa",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "A005": {
+      "ApprovedAt": "2025-10-25T09:00:00",
+      "ContentId": "C005",
+      "Reason": "Đạt yêu cầu",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "A006": {
+      "ApprovedAt": "2025-10-26T09:00:00",
+      "ContentId": "C006",
+      "Reason": "Cần chỉnh sửa",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "A007": {
+      "ApprovedAt": "2025-10-27T09:00:00",
+      "ContentId": "C007",
+      "Reason": "Đạt yêu cầu",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "A008": {
+      "ApprovedAt": "2025-10-28T09:00:00",
+      "ContentId": "C008",
+      "Reason": "Cần chỉnh sửa",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "A009": {
+      "ApprovedAt": "2025-10-29T09:00:00",
+      "ContentId": "C009",
+      "Reason": "Đạt yêu cầu",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "A0010": {
+      "ApprovedAt": "2025-10-30T09:00:00",
+      "ContentId": "C0010",
+      "Reason": "Cần chỉnh sửa",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    }
+  },
+  "Notification": {
+    "N001": {
+      "CreatedTime": "2025-10-20T09:00:00",
+      "IsRead": true,
+      "Message": "Thông báo số 1",
+      "Type": "Approval",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "N002": {
+      "CreatedTime": "2025-10-20T10:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 2",
+      "Type": "Task",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "N003": {
+      "CreatedTime": "2025-10-20T11:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 3",
+      "Type": "Approval",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "N004": {
+      "CreatedTime": "2025-10-20T12:00:00",
+      "IsRead": true,
+      "Message": "Thông báo số 4",
+      "Type": "Task",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "N005": {
+      "CreatedTime": "2025-10-20T13:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 5",
+      "Type": "Approval",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "N006": {
+      "CreatedTime": "2025-10-20T14:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 6",
+      "Type": "Task",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "N007": {
+      "CreatedTime": "2025-10-20T15:00:00",
+      "IsRead": true,
+      "Message": "Thông báo số 7",
+      "Type": "Approval",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "N008": {
+      "CreatedTime": "2025-10-20T16:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 8",
+      "Type": "Task",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "N009": {
+      "CreatedTime": "2025-10-20T17:00:00",
+      "IsRead": false,
+      "Message": "Thông báo số 9",
+      "Type": "Approval",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "N0010": {
+      "CreatedTime": "2025-10-20T18:00:00",
+      "IsRead": true,
+      "Message": "Thông báo số 10",
+      "Type": "Task",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    }
+  },
+  "SubTask": {
+    "S001": {
+      "ContentId": "C001",
+      "Deadline": "2025-10-22T09:00:00",
+      "IsDone": true,
+      "Title": "Kiểm tra nội dung số 1",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "S002": {
+      "ContentId": "C002",
+      "Deadline": "2025-10-23T09:00:00",
+      "IsDone": false,
+      "Title": "Kiểm tra nội dung số 2",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "S003": {
+      "ContentId": "C003",
+      "Deadline": "2025-10-24T09:00:00",
+      "IsDone": true,
+      "Title": "Kiểm tra nội dung số 3",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "S004": {
+      "ContentId": "C004",
+      "Deadline": "2025-10-25T09:00:00",
+      "IsDone": false,
+      "Title": "Kiểm tra nội dung số 4",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "S005": {
+      "ContentId": "C005",
+      "Deadline": "2025-10-26T09:00:00",
+      "IsDone": true,
+      "Title": "Kiểm tra nội dung số 5",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "S006": {
+      "ContentId": "C006",
+      "Deadline": "2025-10-27T09:00:00",
+      "IsDone": false,
+      "Title": "Kiểm tra nội dung số 6",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "S007": {
+      "ContentId": "C007",
+      "Deadline": "2025-10-28T09:00:00",
+      "IsDone": true,
+      "Title": "Kiểm tra nội dung số 7",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "S008": {
+      "ContentId": "C008",
+      "Deadline": "2025-10-29T09:00:00",
+      "IsDone": false,
+      "Title": "Kiểm tra nội dung số 8",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "S009": {
+      "ContentId": "C009",
+      "Deadline": "2025-10-30T09:00:00",
+      "IsDone": true,
+      "Title": "Kiểm tra nội dung số 9",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "S0010": {
+      "ContentId": "C0010",
+      "Deadline": "2025-10-31T09:00:00",
+      "IsDone": false,
+      "Title": "Kiểm tra nội dung số 10",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    }
+  },
+  "ResetPassword": {
+    "R001": {
+      "AttemptCount": 0,
+      "CodeHash": "codehash001",
+      "CreatedAt": "2025-10-20T09:00:00",
+      "ExpiredAt": "2025-10-21T09:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "R002": {
+      "AttemptCount": 1,
+      "CodeHash": "codehash002",
+      "CreatedAt": "2025-10-20T10:00:00",
+      "ExpiredAt": "2025-10-21T10:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "2025-10-20T11:00:00",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "R003": {
+      "AttemptCount": 2,
+      "CodeHash": "codehash003",
+      "CreatedAt": "2025-10-20T11:00:00",
+      "ExpiredAt": "2025-10-21T11:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "R004": {
+      "AttemptCount": 0,
+      "CodeHash": "codehash004",
+      "CreatedAt": "2025-10-20T12:00:00",
+      "ExpiredAt": "2025-10-21T12:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "2025-10-20T13:00:00",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "R005": {
+      "AttemptCount": 1,
+      "CodeHash": "codehash005",
+      "CreatedAt": "2025-10-20T13:00:00",
+      "ExpiredAt": "2025-10-21T13:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "R006": {
+      "AttemptCount": 2,
+      "CodeHash": "codehash006",
+      "CreatedAt": "2025-10-20T14:00:00",
+      "ExpiredAt": "2025-10-21T14:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "2025-10-20T15:00:00",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "R007": {
+      "AttemptCount": 0,
+      "CodeHash": "codehash007",
+      "CreatedAt": "2025-10-20T15:00:00",
+      "ExpiredAt": "2025-10-21T15:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    },
+    "R008": {
+      "AttemptCount": 1,
+      "CodeHash": "codehash008",
+      "CreatedAt": "2025-10-20T16:00:00",
+      "ExpiredAt": "2025-10-21T16:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "2025-10-20T17:00:00",
+      "UserId": "KE4lXTlI8Fchd201GyavRQpagpv2"
+    },
+    "R009": {
+      "AttemptCount": 2,
+      "CodeHash": "codehash009",
+      "CreatedAt": "2025-10-20T17:00:00",
+      "ExpiredAt": "2025-10-21T17:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "",
+      "UserId": "kHu0m3IaaAdJrgcTYjaWMBvMsLs1"
+    },
+    "R0010": {
+      "AttemptCount": 0,
+      "CodeHash": "codehash010",
+      "CreatedAt": "2025-10-20T18:00:00",
+      "ExpiredAt": "2025-10-21T18:00:00",
+      "MaxAttempt": 3,
+      "UsedAt": "2025-10-20T19:00:00",
+      "UserId": "qG4yjuOwJMfoqW9KEVZPbtaHCal2"
+    }
+  }
+}

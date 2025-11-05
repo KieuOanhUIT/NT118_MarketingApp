@@ -7,76 +7,82 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class EditProfile extends AppCompatActivity {
 
-    // Khai báo các thành phần giao diện
     private ImageView imgAvatar;
     private EditText edtFullName, edtPosition, edtPhone, edtEmail;
-    private TextView btnSaveInfo, btnSignIn, tvTitle;
+    private TextView btnSaveInfo, btnCancel;
+    private String userId;
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        // Ánh xạ các view
         initViews();
+        userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Gán dữ liệu mẫu (hoặc dữ liệu thực từ server, Intent, SharedPreferences,…)
-        edtFullName.setText("Nguyễn Văn A");
-        edtPosition.setText("Nhân viên Marketing");
-        edtPhone.setText("0123 456 789");
-        edtEmail.setText("nguyenvana@gmail.com");
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("userId");
 
-        // Nút Lưu thay đổi
+        // Nhận dữ liệu hiện tại (được truyền từ Profile)
+        edtFullName.setText(intent.getStringExtra("fullName"));
+        edtPosition.setText(intent.getStringExtra("position"));
+        edtPhone.setText(intent.getStringExtra("phone"));
+        edtEmail.setText(intent.getStringExtra("email"));
+
         btnSaveInfo.setOnClickListener(v -> saveProfile());
-
-        // Nút Hủy → Quay lại trang Profile
-        btnSignIn.setOnClickListener(v -> {
-            Toast.makeText(this, "Đã hủy thay đổi", Toast.LENGTH_SHORT).show();
-            finish(); // 🔹 Kết thúc Activity hiện tại → trở về ProfileActivity
-        });
+        btnCancel.setOnClickListener(v -> finish());
     }
 
-    // Hàm ánh xạ các view từ XML
     private void initViews() {
         imgAvatar = findViewById(R.id.imgAvatar);
-        tvTitle = findViewById(R.id.tvTitle);
-
         edtFullName = findViewById(R.id.edtFullName);
         edtPosition = findViewById(R.id.edtPosition);
         edtPhone = findViewById(R.id.edtPhone);
         edtEmail = findViewById(R.id.edtEmail);
-
         btnSaveInfo = findViewById(R.id.btnSaveInfo);
-        btnSignIn = findViewById(R.id.btnSignIn);
+        btnCancel = findViewById(R.id.btnSignIn);
     }
 
-    // Hàm xử lý khi nhấn nút “Lưu thay đổi”
     private void saveProfile() {
         String fullName = edtFullName.getText().toString().trim();
         String position = edtPosition.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
 
-        // Kiểm tra dữ liệu nhập
         if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(email)) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên và email!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Hiển thị hộp thoại xác nhận lưu
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy người dùng để cập nhật!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận lưu thay đổi")
                 .setMessage("Bạn có chắc muốn cập nhật thông tin này không?")
                 .setPositiveButton("Lưu", (dialog, which) -> {
-                    // 🔹 Sau này bạn có thể gọi API hoặc lưu vào database tại đây
-                    Toast.makeText(this, "Đã lưu thông tin mới cho " + fullName, Toast.LENGTH_LONG).show();
+                    // Cập nhật trực tiếp lên Firebase
+                    userRef.child(userId).child("FullName").setValue(fullName);
+                    userRef.child(userId).child("RoleName").setValue(position);
+                    userRef.child(userId).child("Phone").setValue(phone);
+                    userRef.child(userId).child("Email").setValue(email);
 
-                    // 🔹 Quay lại trang Profile sau khi lưu
+                    Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+
+                    // Gửi kết quả về Profile để reload lại
+                    setResult(RESULT_OK, new Intent());
                     finish();
                 })
                 .setNegativeButton("Hủy", null)

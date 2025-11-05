@@ -8,6 +8,10 @@
         android:icon="@drawable/ic_content"
         android:title="Content" />
     <item
+        android:id="@+id/navigation_approve"
+        android:icon="@drawable/ic_approve"
+        android:title="Approval" />
+    <item
         android:id="@+id/navigation_usermanagement"
         android:icon="@drawable/ic_user"
         android:title="Users" />

@@ -35,17 +35,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
         holder.tvTitle.setText(post.getTitle());
-        holder.tvAuthor.setText(post.getAuthor());
-        holder.tvDeadline.setText(post.getDeadline());
+        holder.tvAuthor.setText(post.getFullName());
+        holder.tvDeadline.setText(post.getPublishedTime());
         holder.tvStatus.setText(post.getStatus());
 
 
         // 👉 Khi click vào item
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditContentActivity.class);
+            intent.putExtra("contentId", post.getContentId());
             intent.putExtra("title", post.getTitle());
-            intent.putExtra("author", post.getAuthor());
-            intent.putExtra("deadline", post.getDeadline());
+            intent.putExtra("author", post.getFullName());
+            intent.putExtra("deadline", post.getPublishedTime());
             intent.putExtra("status", post.getStatus());
             v.getContext().startActivity(intent);
         });

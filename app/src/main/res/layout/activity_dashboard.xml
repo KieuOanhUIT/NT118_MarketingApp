@@ -80,6 +80,7 @@
                 android:src="@drawable/ic_calendar" />
 
             <TextView
+                android:id="@+id/tvDeadline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5"
@@ -108,6 +109,7 @@
                 android:src="@drawable/ic_check" />
 
             <TextView
+                android:id="@+id/tvApproved"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3"
@@ -136,6 +138,7 @@
                 android:src="@drawable/ic_reject" />
 
             <TextView
+                android:id="@+id/tvRejected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1"
@@ -166,6 +169,7 @@
 
             <!-- Danh sách bài -->
             <TextView
+                android:id="@+id/listtoday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"

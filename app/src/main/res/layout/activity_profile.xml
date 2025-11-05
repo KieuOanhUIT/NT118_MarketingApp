@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     android:background="@drawable/wave3">
 
+    <!-- Nút đăng xuất -->
+    <ImageView
+        android:id="@+id/btnLogout"
+        android:layout_width="40dp"
+        android:layout_height="100dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/ic_signout"
+        android:background="@android:color/transparent"
+        android:padding="6dp" />
+
     <!-- Ảnh đại diện (hình tròn) -->
     <ImageView
         android:id="@+id/imgAvatar"
@@ -145,4 +155,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
