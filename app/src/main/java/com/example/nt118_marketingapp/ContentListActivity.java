@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.nt118_marketingapp.model.Content;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +25,7 @@ public class ContentListActivity extends AppCompatActivity {
 
     private LinearLayout layoutContentTable;
     private DatabaseReference contentRef;
+    private Button btnAddContent, btnContentCalendar; // 👉 thêm biến nút
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +35,28 @@ public class ContentListActivity extends AppCompatActivity {
         layoutContentTable = findViewById(R.id.layoutContentTable);
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
 
+        // 👉 ánh xạ nút "Thêm Content" và "Lịch Content"
+        btnAddContent = findViewById(R.id.btnAddContent);
+        btnContentCalendar = findViewById(R.id.btnContentCalendar);
+
+        // 🎯 Xử lý nhấn nút "Thêm Content" → mở trang CreateContentActivity
+        btnAddContent.setOnClickListener(v -> {
+            Intent intent = new Intent(ContentListActivity.this, CreateContentActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        });
+
+        // 🎯 Xử lý nhấn nút "Lịch Content" (nếu bạn có activity này)
+        btnContentCalendar.setOnClickListener(v -> {
+            Intent intent = new Intent(ContentListActivity.this, ContentCalendarActivity.class);
+            startActivity(intent);
+        });
+
+        // 🔁 Load danh sách Content
         loadContentList();
     }
 
-    /**  Hàm load danh sách Content từ Firebase */
+    /** Load danh sách Content từ Firebase */
     private void loadContentList() {
         contentRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -53,10 +73,17 @@ public class ContentListActivity extends AppCompatActivity {
                     Content content = child.getValue(Content.class);
                     if (content == null) continue;
 
+                    String status = safe(content.getStatus()).toLowerCase();
+
+                    // ✅ Chỉ hiển thị 3 trạng thái: to do, in progress, done
+                    if (!(status.equals("to do") || status.equals("in progress") || status.equals("done"))) {
+                        continue;
+                    }
+
                     String contentId = child.getKey();
                     View itemView = inflater.inflate(R.layout.item_content_row, layoutContentTable, false);
 
-                    //  Ánh xạ view
+                    // Ánh xạ view
                     TextView tvTitle = itemView.findViewById(R.id.tvTitle);
                     TextView tvType = itemView.findViewById(R.id.tvType);
                     TextView tvChannel = itemView.findViewById(R.id.tvChannel);
@@ -68,7 +95,7 @@ public class ContentListActivity extends AppCompatActivity {
                     ImageButton btnEdit = itemView.findViewById(R.id.btnEdit);
                     ImageButton btnDelete = itemView.findViewById(R.id.btnDelete);
 
-                    //  Hiển thị dữ liệu
+                    // Hiển thị nội dung
                     tvTitle.setText(content.getTitle() != null ? content.getTitle() : "(Không có tiêu đề)");
                     tvType.setText("Loại: " + safe(content.getType()));
                     tvChannel.setText("Kênh: " + safe(content.getChannel()));
@@ -77,15 +104,28 @@ public class ContentListActivity extends AppCompatActivity {
                     tvUrl.setText("URL: " + safe(content.getUrl()));
                     btnStatus.setText(safe(content.getStatus()));
 
-                    btnView.setOnClickListener(v -> {
-                    });
+                    // 🎨 Gán màu theo status
+                    setStatusButtonStyle(btnStatus, status);
 
+                    // ✅ Khi status là "done" thì khóa nút Edit
+                    if (status.equals("done")) {
+                        disableEditButton(btnEdit);
+                    }
+
+                    // Nút xem
+                    btnView.setOnClickListener(v ->
+                            Toast.makeText(ContentListActivity.this, "Xem: " + content.getTitle(), Toast.LENGTH_SHORT).show()
+                    );
+
+                    // Nút sửa
                     btnEdit.setOnClickListener(v -> {
+                        if (!btnEdit.isEnabled()) return;
                         Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
                         intent.putExtra("contentId", contentId);
                         startActivity(intent);
                     });
 
+                    // Nút xóa
                     btnDelete.setOnClickListener(v -> {
                         contentRef.child(contentId).removeValue()
                                 .addOnSuccessListener(aVoid -> {
@@ -97,15 +137,22 @@ public class ContentListActivity extends AppCompatActivity {
                                 );
                     });
 
+                    // Nút trạng thái
                     btnStatus.setOnClickListener(v -> {
                         String currentStatus = safe(content.getStatus());
                         String nextStatus = getNextStatus(currentStatus);
                         btnStatus.setText(nextStatus);
+                        setStatusButtonStyle(btnStatus, nextStatus.toLowerCase());
 
                         contentRef.child(contentId).child("status").setValue(nextStatus)
-                                .addOnSuccessListener(aVoid ->
-                                        Toast.makeText(ContentListActivity.this, "Đã đổi trạng thái thành " + nextStatus, Toast.LENGTH_SHORT).show()
-                                )
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(ContentListActivity.this, "Đã đổi sang " + nextStatus, Toast.LENGTH_SHORT).show();
+                                    if (nextStatus.equalsIgnoreCase("done")) {
+                                        disableEditButton(btnEdit);
+                                    } else {
+                                        enableEditButton(btnEdit);
+                                    }
+                                })
                                 .addOnFailureListener(e ->
                                         Toast.makeText(ContentListActivity.this, "Lỗi khi cập nhật trạng thái!", Toast.LENGTH_SHORT).show()
                                 );
@@ -122,12 +169,12 @@ public class ContentListActivity extends AppCompatActivity {
         });
     }
 
-    /**  Xử lý giá trị null */
+    /** Xử lý null */
     private String safe(String value) {
         return value != null ? value : "-";
     }
 
-    /**  Chu kỳ đổi trạng thái */
+    /** Chu kỳ status */
     private String getNextStatus(String current) {
         if (current == null) return "To do";
         switch (current.toLowerCase()) {
@@ -140,5 +187,38 @@ public class ContentListActivity extends AppCompatActivity {
             default:
                 return "To do";
         }
+    }
+
+    /** 🎨 Gán màu cho nút trạng thái */
+    private void setStatusButtonStyle(Button btn, String status) {
+        int colorRes;
+        switch (status.toLowerCase()) {
+            case "to do":
+                colorRes = R.color.deadlineOverdue;
+                break;
+            case "in progress":
+                colorRes = R.color.deadlineWarning;
+                break;
+            case "done":
+                colorRes = R.color.deadlineUpcoming;
+                break;
+            default:
+                colorRes = R.color.deadlineOverdue;
+        }
+
+        btn.setBackgroundTintList(ContextCompat.getColorStateList(this, colorRes));
+        btn.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+    }
+
+    /** 🔒 Disable Edit */
+    private void disableEditButton(ImageButton btn) {
+        btn.setEnabled(false);
+        btn.setAlpha(0.4f);
+    }
+
+    /** 🔓 Enable Edit */
+    private void enableEditButton(ImageButton btn) {
+        btn.setEnabled(true);
+        btn.setAlpha(1f);
     }
 }
