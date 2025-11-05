@@ -1,29 +1,59 @@
 package com.example.nt118_marketingapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Firebase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 
 public class DashboardActivity extends AppCompatActivity {
+    // khai báo các list
+    List<Post> listAssigned, listApproved, listRejected, listAproveAdmin;
 
+    // khai báo các adapter
+    PostAdapter adapterAssigned, adapterApproved, adapterRejected, adapterAproveAdmin;
+
+
+    // khai báo các recycler View
     RecyclerView recyclerAssigned, recyclerApproved, recyclerRejected, recyclerAproveAdmin;
+
+    // khai báo các biến aprove, deadline, reject
+    TextView tvDeadline, tvApproved, tvRejected;
+    TextView tvFullName;
+
     ImageView imgReport;
+
+    // khai báo Firebase real time trong java
+    DatabaseReference database;
+
     private BottomNavigationView bottomNavigationView;
 
     // Thông tin người dùng hiện tại (nhận từ SignInActivity)
     private String userId, fullName, roleName, phone, email;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +73,48 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerApproved = findViewById(R.id.recyclerApproved);
         recyclerRejected = findViewById(R.id.recyclerRejected);
         recyclerAproveAdmin = findViewById(R.id.recyclerWaitAprove);
+        tvDeadline = findViewById(R.id.tvDeadline);
+        tvApproved = findViewById(R.id.tvApproved);
+        tvRejected = findViewById(R.id.tvRejected);
 
-        setupRecycler(recyclerAssigned, getAssignedPosts());
-        setupRecycler(recyclerApproved, getApprovedPosts());
-        setupRecycler(recyclerRejected, getRejectedPosts());
-        setupRecycler(recyclerAproveAdmin, getAproveAdminPosts());
+
+        // set layout cho recycle view dạng ngang (horizontal)
+        recyclerAssigned.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerApproved.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerRejected.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerAproveAdmin.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+
+        // khởi tạo các list
+        listAssigned = new ArrayList<>();
+        listApproved = new ArrayList<>();
+        listRejected = new ArrayList<>();
+        listAproveAdmin = new ArrayList<>();
+
+        // khởi tạo adapter
+        adapterAssigned = new PostAdapter(listAssigned);
+        adapterApproved = new PostAdapter(listApproved);
+        adapterRejected = new PostAdapter(listRejected);
+        adapterAproveAdmin = new PostAdapter(listAproveAdmin);
+
+
+
+        // set adapter cho recycler view
+        recyclerAssigned.setAdapter(adapterAssigned);
+        recyclerApproved.setAdapter(adapterApproved);
+        recyclerRejected.setAdapter(adapterRejected);
+        recyclerAproveAdmin.setAdapter(adapterAproveAdmin);
+
+
+        // Khởi tạo database Fire base
+        database = FirebaseDatabase.getInstance().getReference();
+
+        // Lấy dữ liệu cho các Recycle view
+        getAssignedPost(recyclerAssigned);
+        getApprovedPosts(recyclerApproved);
+        getRejectedPosts(recyclerRejected);
+        getAproveAdminPosts(recyclerAproveAdmin);
+
 
         imgReport.setOnClickListener(v -> {
             Toast.makeText(DashboardActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
@@ -109,33 +176,214 @@ public class DashboardActivity extends AppCompatActivity {
         intent.putExtra("email", email);
     }
 
-    private void setupRecycler(RecyclerView recyclerView, List<Post> posts) {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(new PostAdapter(posts));
+
+    private void getAssignedPost(RecyclerView recyclerView) {
+        database.child("Content").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    // clear list
+                    listAssigned.clear();
+
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        String Status = dataSnapshot.child("Status").getValue(String.class);
+                        String userID = dataSnapshot.child("UserId").getValue(String.class);
+                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                            String Title = dataSnapshot.child("Title").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String ContendId = dataSnapshot.getKey();
+
+
+                            // Lấy FullName từ collection "User"
+                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                    String fullName = "";
+                                    if (userSnapshot.exists()) {
+                                        fullName = userSnapshot.child("FullName").getValue(String.class);
+                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
+                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+                                        listAssigned.add(new Post(ContendId, Title, fullName, PublishedTime, "Được giao"));
+                                        adapterAssigned.notifyDataSetChanged();
+                                        tvDeadline.setText(String.valueOf(listAssigned.size()));
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
-    private List<Post> getAssignedPosts() {
-        List<Post> list = new ArrayList<>();
-        list.add(new Post("Kế hoạch Marketing Mùa Hè 2024", "Nguyễn Văn A", "Hạn: 30/07", "Được giao"));
-        list.add(new Post("Phân tích Xu hướng thị trường", "Trịnh Thảo", "Hạn: 31/07", "Được giao"));
-        return list;
+    private void getApprovedPosts(RecyclerView recyclerView) {
+        database.child("Content").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    // clear list
+                    listApproved.clear();
+
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        String Status = dataSnapshot.child("Status").getValue(String.class);
+                        String userID = dataSnapshot.child("UserId").getValue(String.class);
+                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                            String Title = dataSnapshot.child("Title").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String ContendId = dataSnapshot.getKey();
+
+                            // Lấy FullName từ collection "User"
+                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                    String fullName = "";
+                                    if (userSnapshot.exists()) {
+                                        fullName = userSnapshot.child("FullName").getValue(String.class);
+                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
+                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+
+                                        listApproved.add(new Post(ContendId, Title, fullName, PublishedTime, "Đã duyệt"));
+                                        adapterApproved.notifyDataSetChanged();
+                                        tvApproved.setText(String.valueOf(listApproved.size()));
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
-    private List<Post> getApprovedPosts() {
-        List<Post> list = new ArrayList<>();
-        list.add(new Post("Case Study: Tăng trưởng 20%", "Nguyễn Văn A", "Hạn: 29/07", "Đã duyệt"));
-        list.add(new Post("Báo cáo thị trường Q2/2024", "Trần Duy", "Hạn: 29/07", "Đã duyệt"));
-        return list;
+
+    private void getRejectedPosts(RecyclerView recyclerView) {
+        database.child("Content").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    // clear list
+                    listRejected.clear();
+
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        String Status = dataSnapshot.child("Status").getValue(String.class);
+                        String userID = dataSnapshot.child("UserId").getValue(String.class);
+                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                            String Title = dataSnapshot.child("Title").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String ContendId =dataSnapshot.getKey();
+
+                            // Lấy FullName từ collection "User"
+                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                    String fullName = "";
+                                    if (userSnapshot.exists()) {
+                                        fullName = userSnapshot.child("FullName").getValue(String.class);
+                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
+                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+
+                                        listRejected.add(new Post(ContendId, Title, fullName, PublishedTime, "Từ chối"));
+                                        adapterRejected.notifyDataSetChanged();
+                                        tvRejected.setText(String.valueOf(listRejected.size()));
+
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
-    private List<Post> getRejectedPosts() {
-        List<Post> list = new ArrayList<>();
-        list.add(new Post("Review sản phẩm X", "Phạm Thị D", "Hạn: 29/07", "Từ chối"));
-        return list;
+    private void getAproveAdminPosts(RecyclerView recyclerView) {
+        database.child("Content").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    // clear list
+                    listAproveAdmin.clear();
+
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        String Status = dataSnapshot.child("Status").getValue(String.class);
+                        String userID = dataSnapshot.child("UserId").getValue(String.class);
+                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                            String Title = dataSnapshot.child("Title").getValue(String.class);
+                             String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                             String ContendId = dataSnapshot.getKey();
+
+                            // Lấy FullName từ collection "User"
+                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                    String fullName = "";
+                                    if (userSnapshot.exists()) {
+                                        fullName = userSnapshot.child("FullName").getValue(String.class);
+                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
+                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+
+                                        listAproveAdmin.add(new Post( ContendId, Title, fullName, PublishedTime, "Chờ duyệt"));
+                                        adapterAproveAdmin.notifyDataSetChanged();
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
-    private List<Post> getAproveAdminPosts() {
-        List<Post> list = new ArrayList<>();
-        list.add(new Post("Review sản phẩm X", "Phạm Thị D", "Hạn: 29/07", "Chờ duyệt"));
-        return list;
-    }
+
 }
