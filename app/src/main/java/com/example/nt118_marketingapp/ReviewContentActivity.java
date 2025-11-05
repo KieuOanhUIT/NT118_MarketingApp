@@ -37,10 +37,21 @@ public class ReviewContentActivity extends AppCompatActivity {
     private Spinner spinnerFilter;
     private BottomNavigationView bottomNavigationView;
 
-    private DatabaseReference contentRef, approvalRef;
+    private DatabaseReference contentRef, approvalRef, notificationRef;
     private FirebaseAuth auth;
 
-    private List<Content> allContents = new ArrayList<>();
+    // Wrapper để giữ cả object Content và contentId (Firebase key)
+    private static class ReviewItem {
+        public final Content content;
+        public final String contentId;
+        public ReviewItem(Content content, String contentId) {
+            this.content = content;
+            this.contentId = contentId;
+        }
+    }
+
+    // danh sách ReviewItem thay vì chỉ Content
+    private List<ReviewItem> allItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +65,7 @@ public class ReviewContentActivity extends AppCompatActivity {
         // Firebase setup
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
         approvalRef = FirebaseDatabase.getInstance().getReference("Approval");
+        notificationRef = FirebaseDatabase.getInstance().getReference("Notification");
         auth = FirebaseAuth.getInstance();
 
         // Spinner filter setup
@@ -71,7 +83,6 @@ public class ReviewContentActivity extends AppCompatActivity {
                 String selected = parent.getItemAtPosition(position).toString();
                 displayFilteredList(selected);
             }
-
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
@@ -80,27 +91,26 @@ public class ReviewContentActivity extends AppCompatActivity {
         loadContentsFromFirebase();
     }
 
-    /** ================== Chỉ lấy Content có Status = "Done" ================== **/
+    /** ================== Load Content có Status = "Done" ================== **/
     private void loadContentsFromFirebase() {
+        // truy vấn các content có Status == "Done"
         contentRef.orderByChild("Status").equalTo("Done")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        allContents.clear();
+                        allItems.clear();
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Content c = child.getValue(Content.class);
                             if (c != null) {
-                                // Lưu lại id Firebase (nếu cần)
-                                try {
-                                    java.lang.reflect.Field idField = Content.class.getDeclaredField("id");
-                                    idField.setAccessible(true);
-                                    idField.set(c, child.getKey());
-                                } catch (Exception ignored) {}
-
-                                allContents.add(c);
+                                String key = child.getKey(); // firebase key
+                                allItems.add(new ReviewItem(c, key));
                             }
                         }
-                        displayFilteredList(spinnerFilter.getSelectedItem().toString());
+                        // hiển thị theo filter hiện tại
+                        String selected = spinnerFilter.getSelectedItem() != null
+                                ? spinnerFilter.getSelectedItem().toString()
+                                : "Tất cả";
+                        displayFilteredList(selected);
                     }
 
                     @Override
@@ -112,66 +122,132 @@ public class ReviewContentActivity extends AppCompatActivity {
                 });
     }
 
-    /** ================== Hiển thị danh sách theo bộ lọc ================== **/
+    /** ================== Hiển thị danh sách Content ================== **/
     private void displayFilteredList(String filter) {
         contentList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        for (Content item : allContents) {
-            boolean isDone = "Done".equalsIgnoreCase(item.getStatus());
+        for (ReviewItem ri : allItems) {
+            Content item = ri.content;
 
-            // Chỉ hiển thị các bài có Status = Done
-            if (!isDone) continue;
+            // chỉ hiển thị content có status Done
+            if (!"Done".equalsIgnoreCase(item.getStatus())) continue;
 
             View itemView = inflater.inflate(R.layout.item_content_review, contentList, false);
 
-            TextView tvTitle = itemView.findViewById(R.id.tvContentTitle);
-            TextView tvDesc = itemView.findViewById(R.id.tvContentDesc);
-            TextView tvTime = itemView.findViewById(R.id.tvContentTime);
+            // ánh xạ ID đúng với XML mới
+            TextView tvTitle = itemView.findViewById(R.id.tvTitle);
+            TextView tvStatus = itemView.findViewById(R.id.tvStatus);
             Button btnApprove = itemView.findViewById(R.id.btnApprove);
-            Button btnReject = itemView.findViewById(R.id.btnReject);
+            Button btnReject  = itemView.findViewById(R.id.btnReject);
 
-            tvTitle.setText(item.getTitle());
-            tvDesc.setText(item.getTag() + " - " + item.getChannel());
-            tvTime.setText("Tạo lúc: " + item.getCreatedTime());
+            // gán dữ liệu
+            tvTitle.setText(item.getTitle() != null ? item.getTitle() : "(Không có tiêu đề)");
+            tvStatus.setText("Trạng thái: " + (item.getStatus() != null ? item.getStatus() : "Chưa xác định"));
 
-            btnApprove.setOnClickListener(v -> handleApproval(item, true, "Đạt yêu cầu"));
-            btnReject.setOnClickListener(v -> showRejectPopup(item));
+            // Xử lý nút Duyệt
+            btnApprove.setOnClickListener(v -> showApprovePopup(ri));
 
+            // Xử lý nút Không duyệt
+            btnReject.setOnClickListener(v -> showRejectPopup(ri));
+
+            // thêm view vào layout cha
             contentList.addView(itemView);
+        }
+
+        // Nếu danh sách rỗng
+        if (contentList.getChildCount() == 0) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("Không có nội dung chờ duyệt.");
+            emptyView.setTextSize(16);
+            emptyView.setPadding(24, 32, 24, 32);
+            emptyView.setTextColor(getResources().getColor(R.color.textSecondary));
+            contentList.addView(emptyView);
         }
     }
 
-    /** ================== Hàm duyệt / không duyệt ================== **/
-    private void handleApproval(Content item, boolean approved, String reason) {
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "unknown";
+    /** ================== Show popup để nhập link khi duyệt ================== **/
+    private void showApprovePopup(ReviewItem ri) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View popupView = getLayoutInflater().inflate(R.layout.dialog_approve, null); // bạn cần tạo dialog_approve.xml (edtUrl, btnCancel, btnConfirm)
+        builder.setView(popupView);
+
+        EditText edtUrl = popupView.findViewById(R.id.edtUrl);
+        Button btnCancel = popupView.findViewById(R.id.btnCancel);
+        Button btnConfirm = popupView.findViewById(R.id.btnConfirm);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirm.setOnClickListener(v -> {
+            String url = edtUrl.getText().toString().trim();
+            // optional: validate url
+            if (url.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập link bài đăng!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // cập nhật Url và chuyển trạng thái: Approved -> Scheduled (theo flow bạn muốn)
+            handleApproval(ri, true, "Đạt yêu cầu", url);
+            dialog.dismiss();
+        });
+    }
+
+    /** ================== Duyệt hoặc Không Duyệt ==================
+     *  updated: accept ReviewItem and optional url
+     **/
+    private void handleApproval(ReviewItem ri, boolean approved, String reason, String scheduledUrl) {
+        String reviewerId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "unknown";
         String approvalId = approvalRef.push().getKey();
-        String time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new Date());
+        String notiId = notificationRef.push().getKey();
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Tạo đối tượng ApprovalModel để lưu vào Firebase
-        ApprovalModel approval = new ApprovalModel(time, item.getUrl(), reason, userId);
+        // Lưu Approval
+        ApprovalModel approval = new ApprovalModel(time, ri.contentId, reason, reviewerId);
+        if (approvalId != null) approvalRef.child(approvalId).setValue(approval);
 
-        approvalRef.child(approvalId).setValue(approval)
-                .addOnSuccessListener(aVoid -> {
-                    if (approved) {
-                        Toast.makeText(this, " Đã duyệt: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+        // Cập nhật trạng thái Content
+        String newStatus = approved ? "Approved" : "Rejected";
+        if (ri.contentId != null && !ri.contentId.isEmpty()) {
+            contentRef.child(ri.contentId).child("Status").setValue(newStatus);
+            if (approved && scheduledUrl != null && !scheduledUrl.isEmpty()) {
+                contentRef.child(ri.contentId).child("Url").setValue(scheduledUrl);
+            }
+        }
 
-                        //  Chuyển sang màn hình SchedulePostActivity
-                        Intent intent = new Intent(ReviewContentActivity.this, SchedulePostActivity.class);
-                        intent.putExtra("contentTitle", item.getTitle());
-                        intent.putExtra("contentUrl", item.getUrl());
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(this, "Đã từ chối: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi khi lưu phê duyệt!", Toast.LENGTH_SHORT).show()
-                );
+        // Gửi Notification
+        String message = approved
+                ? "🎉 Bài viết \"" + ri.content.getTitle() + "\" đã được duyệt."
+                : "❌ Bài viết \"" + ri.content.getTitle() + "\" bị từ chối. Lý do: " + reason;
+
+        NotificationModel noti = new NotificationModel(
+                ri.content.getUserId() != null ? ri.content.getUserId() : "unknown",
+                approved ? "Approval" : "Rejection",
+                message,
+                false,
+                time
+        );
+        if (notiId != null) notificationRef.child(notiId).setValue(noti);
+
+        // Thông báo kết quả
+        if (approved) {
+            Toast.makeText(this, "✅ Đã duyệt bài: " + ri.content.getTitle(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "❌ Đã từ chối: " + ri.content.getTitle(), Toast.LENGTH_SHORT).show();
+        }
+
+        // Refresh danh sách
+        displayFilteredList(spinnerFilter.getSelectedItem() != null ? spinnerFilter.getSelectedItem().toString() : "Tất cả");
+    }
+
+    /** overload dùng cho từ chối (không cần url) */
+    private void handleApproval(ReviewItem ri, boolean approved, String reason) {
+        handleApproval(ri, approved, reason, null);
     }
 
     /** ================== Popup nhập lý do từ chối ================== **/
-    private void showRejectPopup(Content item) {
+    private void showRejectPopup(ReviewItem ri) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View popupView = getLayoutInflater().inflate(R.layout.popup_reject_reason, null);
         builder.setView(popupView);
@@ -184,43 +260,40 @@ public class ReviewContentActivity extends AppCompatActivity {
         dialog.show();
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
-
         btnConfirm.setOnClickListener(v -> {
             String reason = etReason.getText().toString().trim();
             if (reason.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập lý do!", Toast.LENGTH_SHORT).show();
             } else {
-                handleApproval(item, false, reason);
+                handleApproval(ri, false, reason);
                 dialog.dismiss();
             }
         });
     }
 
-    /** ==================  Bottom Navigation ================== **/
+    /** ================== Bottom Navigation ================== **/
     private void setupBottomNav() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_approve);
-
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-
             if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                startActivity(new Intent(this, DashboardActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.navigation_contentmanagement) {
-                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                startActivity(new Intent(this, ContentListActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.navigation_usermanagement) {
-                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                startActivity(new Intent(this, UsermanagerActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.navigation_notification) {
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                startActivity(new Intent(this, NotificationActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
+                startActivity(new Intent(this, Profile.class));
                 overridePendingTransition(0, 0);
                 return true;
             }
@@ -228,7 +301,7 @@ public class ReviewContentActivity extends AppCompatActivity {
         });
     }
 
-    /** ==================  Model Approval ================== **/
+    /** ================== Model: Approval ================== **/
     public static class ApprovalModel {
         public String ApprovedAt;
         public String ContentId;
@@ -236,12 +309,29 @@ public class ReviewContentActivity extends AppCompatActivity {
         public String UserId;
 
         public ApprovalModel() {}
-
         public ApprovalModel(String approvedAt, String contentId, String reason, String userId) {
             this.ApprovedAt = approvedAt;
             this.ContentId = contentId;
             this.Reason = reason;
             this.UserId = userId;
+        }
+    }
+
+    /** ================== Model: Notification ================== **/
+    public static class NotificationModel {
+        public String UserId;
+        public String Type;
+        public String Message;
+        public boolean IsRead;
+        public String CreatedTime;
+
+        public NotificationModel() {}
+        public NotificationModel(String userId, String type, String message, boolean isRead, String createdTime) {
+            this.UserId = userId;
+            this.Type = type;
+            this.Message = message;
+            this.IsRead = isRead;
+            this.CreatedTime = createdTime;
         }
     }
 }
