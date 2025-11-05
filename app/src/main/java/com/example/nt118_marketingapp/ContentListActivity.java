@@ -162,7 +162,6 @@ public class ContentListActivity extends AppCompatActivity {
     private boolean isLockedStatus(String status) {
         return status.equals("done") ||
                 status.equals("approved") ||
-                status.equals("rejected") ||
                 status.equals("scheduled") ||
                 status.equals("published");
     }
@@ -183,7 +182,7 @@ public class ContentListActivity extends AppCompatActivity {
             case "in progress": colorRes = R.color.deadlineWarning; break;
             case "done": colorRes = R.color.deadlineUpcoming; break;
             case "approved": colorRes = R.color.inputBorder; break;
-            case "rejected": colorRes = R.color.inputBorder; break;
+            case "rejected": colorRes = R.color.deadlineOverdue; break;
             case "scheduled": colorRes = R.color.inputBorder; break;
             case "published": colorRes = R.color.inputBorder; break;
             default: colorRes = R.color.inputBorder;
