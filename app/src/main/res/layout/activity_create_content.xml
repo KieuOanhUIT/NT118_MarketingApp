@@ -76,7 +76,8 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_field"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:elevation="2dp">
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -111,6 +112,7 @@
 
         <!-- Type (required) -->
         <LinearLayout
+            android:id="@+id/layoutContentType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -118,7 +120,9 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_field"
             android:padding="8dp"
-            android:elevation="2dp">
+            android:elevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -137,11 +141,20 @@
                     android:text="@string/type_required"
                     android:textStyle="bold"
                     android:textColor="@color/textPrimary"/>
-                <Spinner
-                    android:id="@+id/spinnerType"
+                <EditText
+                    android:id="@+id/editContentType"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_input_field"/>
+                    android:layout_height="48dp"
+                    android:hint="Chọn loại nội dung"
+                    android:inputType="none"
+                    android:background="@drawable/bg_input_field"
+                    android:padding="12dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/hintText"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:cursorVisible="false"/>
             </LinearLayout>
     </LinearLayout>
 
@@ -254,7 +267,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/time_label"
+                    android:text="@string/time_publish_required"
                     android:textStyle="bold"
                     android:textColor="@color/textPrimary"/>
                 <EditText
@@ -290,7 +303,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/bg_input_field"
             android:padding="8dp"
             android:elevation="2dp">
@@ -319,6 +332,18 @@
                     android:background="@drawable/bg_input_field"/>
             </LinearLayout>
     </LinearLayout>
+
+        <!-- Status Note -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/status_done_note"
+            android:textSize="12sp"
+            android:textColor="@color/deadlineOverdue"
+            android:textStyle="italic"
+            android:layout_marginBottom="16dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"/>
 
         <!-- Attachment Link (required nếu status là In progress hoặc Done) -->
         <LinearLayout
@@ -385,6 +410,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tvEditorLinkLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/editor_link"

@@ -56,15 +56,18 @@
     <string name="title_icon">Icon tiêu đề</string>
     <string name="type_required">Loại nội dung *</string>
     <string name="type_icon">Icon loại nội dung</string>
+    <string name="type_other_hint">Nhập loại nội dung khác</string>
     <string name="channel_required">Kênh đăng *</string>
     <string name="hint_channel">Nhập kênh đăng (VD: Fanpage, Blog, Youtube...)</string>
     <string name="channel_icon">Icon kênh đăng</string>
     <string name="tags">Tags</string>
     <string name="hint_tags">Nhập tags (phân cách bởi dấu phẩy)</string>
     <string name="tags_icon">Icon tags</string>
+    <string name="time_publish_required">Thời gian đăng tải (dự kiến) *</string>
     <string name="status_attachment">Trạng thái &amp; Đính kèm</string>
     <string name="status">Trạng thái</string>
     <string name="status_icon">Icon trạng thái</string>
+    <string name="status_done_note">Lưu ý: Nếu trạng thái là Done sẽ không thể thay đổi lại được</string>
     <string name="attachment_link">Link đính kèm</string>
     <string name="hint_attachment">Nhập link đính kèm</string>
     <string name="attachment_icon">Icon đính kèm</string>
@@ -88,8 +91,7 @@
         <item>Post Facebook</item>
         <item>Blog</item>
         <item>Video</item>
-        <item>Story</item>
-        <item>Reel</item>
+        <item>Khác</item>
     </string-array>
 
     <!-- Content Status Options -->

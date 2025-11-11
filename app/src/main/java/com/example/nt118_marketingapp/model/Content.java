@@ -7,11 +7,27 @@ public class Content {
     private String CreatedTime;
     private String Status;
     private String Url;
+    private String EditorLink;
     private String PublishedTime;
     private String ModifiedTime;
     private String UserId;
 
     public Content() {}
+
+    public Content(String title, String type, String channel, String tag, String createdTime, 
+                   String status, String url, String editorLink, String userId) {
+        this.Title = title;
+        this.Type = type;
+        this.Channel = channel;
+        this.Tag = tag;
+        this.CreatedTime = createdTime;
+        this.Status = status;
+        this.Url = url;
+        this.EditorLink = editorLink;
+        this.UserId = userId;
+        this.PublishedTime = "";
+        this.ModifiedTime = createdTime;
+    }
 
     public String getTitle() { return Title; }
     public String getType() { return Type; }
@@ -20,8 +36,22 @@ public class Content {
     public String getCreatedTime() { return CreatedTime; }
     public String getStatus() { return Status; }
     public String getUrl() { return Url; }
+    public String getEditorLink() { return EditorLink; }
     public String getPublishedTime() { return PublishedTime; }
     public String getModifiedTime() { return ModifiedTime; }
     public String getUserId() { return UserId; }
+
+    public void setTitle(String title) { this.Title = title; }
+    public void setType(String type) { this.Type = type; }
+    public void setChannel(String channel) { this.Channel = channel; }
+    public void setTag(String tag) { this.Tag = tag; }
+    public void setCreatedTime(String createdTime) { this.CreatedTime = createdTime; }
+    public void setStatus(String status) { this.Status = status; }
+    public void setUrl(String url) { this.Url = url; }
+    public void setEditorLink(String editorLink) { this.EditorLink = editorLink; }
+    public void setPublishedTime(String publishedTime) { this.PublishedTime = publishedTime; }
+    public void setModifiedTime(String modifiedTime) { this.ModifiedTime = modifiedTime; }
+    public void setUserId(String userId) { this.UserId = userId; }
 }
+
 

@@ -102,16 +102,32 @@ public class ContentListActivity extends AppCompatActivity {
                         btnStatus.setEnabled(false);
                     }
 
-                    // Xem chi tiết
-                    btnView.setOnClickListener(v ->
-                            Toast.makeText(ContentListActivity.this, "Xem: " + content.getTitle(), Toast.LENGTH_SHORT).show()
-                    );
+                    // Xem chi tiết - Mở EditContentActivity ở chế độ XEM (không cho phép chỉnh sửa)
+                    btnView.setOnClickListener(v -> {
+                        Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
+                        intent.putExtra("CONTENT_ID", contentId);
+                        intent.putExtra("TITLE", content.getTitle());
+                        intent.putExtra("CHANNEL", content.getChannel());
+                        intent.putExtra("STATUS", content.getStatus());
+                        intent.putExtra("LINK", content.getUrl());
+                        intent.putExtra("TIMESTAMP", content.getCreatedTime());
+                        intent.putExtra("CAPTION", content.getTag());
+                        intent.putExtra("EDIT_MODE", false); // Chế độ XEM
+                        startActivity(intent);
+                    });
 
-                    // Chỉnh sửa
+                    // Chỉnh sửa - Mở EditContentActivity ở chế độ CHỈNH SỬA
                     btnEdit.setOnClickListener(v -> {
                         if (!btnEdit.isEnabled()) return;
                         Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
-                        intent.putExtra("contentId", contentId);
+                        intent.putExtra("CONTENT_ID", contentId);
+                        intent.putExtra("TITLE", content.getTitle());
+                        intent.putExtra("CHANNEL", content.getChannel());
+                        intent.putExtra("STATUS", content.getStatus());
+                        intent.putExtra("LINK", content.getUrl());
+                        intent.putExtra("TIMESTAMP", content.getCreatedTime());
+                        intent.putExtra("CAPTION", content.getTag());
+                        intent.putExtra("EDIT_MODE", true); // Chế độ CHỈNH SỬA
                         startActivity(intent);
                     });
 

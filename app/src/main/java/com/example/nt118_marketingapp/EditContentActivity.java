@@ -142,10 +142,7 @@ public class EditContentActivity extends AppCompatActivity {
             
             // Set dữ liệu vào các field
             if (title != null) editTitle.setText(title);
-            if (caption != null) {
-                // Giả sử caption được hiển thị trong một EditText nào đó
-                // Nếu không có field caption, bạn có thể bỏ qua hoặc thêm field mới
-            }
+            if (caption != null) editTags.setText(caption); // Caption = Tags
             if (channel != null) editChannel.setText(channel);
             if (timestamp != null) editTime.setText(timestamp);
             if (link != null) editEditorLink.setText(link);
@@ -161,10 +158,9 @@ public class EditContentActivity extends AppCompatActivity {
                 }
             }
             
-            // Các field khác có thể để mặc định hoặc thêm vào Intent nếu cần
-            editTags.setText("marketing, content");
+            // Các field khác để trống hoặc mặc định
             editAttachment.setText("");
-            spinnerType.setSelection(0); // Mặc định Post Facebook
+            spinnerType.setSelection(0); // Mặc định option đầu tiên
             
         } else {
             // Dữ liệu mẫu nếu không có Intent
@@ -215,7 +211,7 @@ public class EditContentActivity extends AppCompatActivity {
             btnEditSave.setBackgroundTintList(getColorStateList(R.color.colorAccent));
         } else {
             btnEditSave.setText(R.string.btn_edit);
-            btnEditSave.setBackgroundTintList(getColorStateList(R.color.colorPrimary));
+            btnEditSave.setBackgroundTintList(getColorStateList(R.color.colorSecondary));
         }
         
         // Bật/tắt khả năng chỉnh sửa cho các EditText
@@ -378,7 +374,7 @@ public class EditContentActivity extends AppCompatActivity {
         
         // Lấy các view components
         EditText editSubtaskTitle = subtaskView.findViewById(R.id.editSubtaskTitle);
-        Spinner spinnerAssign = subtaskView.findViewById(R.id.spinnerAssign);
+        EditText editAssign = subtaskView.findViewById(R.id.editAssign);
         EditText editSubtaskDeadline = subtaskView.findViewById(R.id.editSubtaskDeadline);
         ImageButton btnDeleteSubtask = subtaskView.findViewById(R.id.btnDeleteSubtask);
         
@@ -471,11 +467,11 @@ public class EditContentActivity extends AppCompatActivity {
         
         // Lấy dữ liệu từ draft
         EditText editSubtaskTitle = currentDraftSubtask.findViewById(R.id.editSubtaskTitle);
-        Spinner spinnerAssign = currentDraftSubtask.findViewById(R.id.spinnerAssign);
+        EditText editAssign = currentDraftSubtask.findViewById(R.id.editAssign);
         EditText editSubtaskDeadline = currentDraftSubtask.findViewById(R.id.editSubtaskDeadline);
         
         String title = editSubtaskTitle.getText().toString().trim();
-        String assignee = spinnerAssign.getSelectedItem().toString();
+        String assignee = editAssign.getText().toString().trim();
         String deadline = editSubtaskDeadline.getText().toString().trim();
         
         // Log để kiểm tra (tạm thời)
@@ -485,10 +481,10 @@ public class EditContentActivity extends AppCompatActivity {
         
         // Disable các input trong subtask này (chuyển sang chế độ view)
         editSubtaskTitle.setEnabled(false);
-        spinnerAssign.setEnabled(false);
+        editAssign.setEnabled(false);
         editSubtaskDeadline.setEnabled(false);
         editSubtaskTitle.setAlpha(0.7f);
-        spinnerAssign.setAlpha(0.7f);
+        editAssign.setAlpha(0.7f);
         editSubtaskDeadline.setAlpha(0.7f);
         
         // Reset draft state

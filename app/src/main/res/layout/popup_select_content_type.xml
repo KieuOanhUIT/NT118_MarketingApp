@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Header with Title and Save Button -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chọn loại nội dung"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary"
+                    android:layout_centerVertical="true"/>
+
+                <Button
+                    android:id="@+id/btnSaveContentType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:text="Lưu"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+            </RelativeLayout>
+
+            <!-- Radio Group for Content Types -->
+            <RadioGroup
+                android:id="@+id/radioGroupContentType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Post Facebook -->
+                <RadioButton
+                    android:id="@+id/radioPostFacebook"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Post Facebook"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Blog -->
+                <RadioButton
+                    android:id="@+id/radioBlog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Blog"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Video -->
+                <RadioButton
+                    android:id="@+id/radioVideo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Video"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Khác -->
+                <RadioButton
+                    android:id="@+id/radioOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Khác"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary"
+                    android:padding="12dp"/>
+            </RadioGroup>
+
+            <!-- Custom Type Input (visible when "Khác" is selected) -->
+            <LinearLayout
+                android:id="@+id/layoutCustomTypeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhập loại nội dung *"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/editCustomTypePopup"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/type_other_hint"
+                    android:inputType="text"
+                    android:background="@drawable/bg_input_field"
+                    android:padding="12dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/hintText"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

@@ -16,7 +16,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header: Checkbox + Delete Button -->
+        <!-- Header: Checkbox + Title + Delete Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,29 +24,72 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <CheckBox
-                android:id="@+id/checkboxSubtask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:buttonTint="@color/colorPrimary"
-                android:contentDescription="Task status"/>
-
-            <EditText
-                android:id="@+id/editSubtaskTitle"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/subtask_title_hint"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
-                android:textColorHint="@color/hintText"
-                android:background="@android:color/transparent"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:minHeight="40dp"
-                android:inputType="text"/>
+                android:orientation="horizontal">
+
+                <!-- Phần Checkbox: Done -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:paddingEnd="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hoàn thành"
+                        android:textSize="11sp"
+                        android:textColor="@color/textSecondary"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxSubtask"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:buttonTint="@color/colorPrimary"
+                        android:contentDescription="Task status"/>
+
+                </LinearLayout>
+
+                <!-- Phần Input: Tên Subtask -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tên subtask"
+                        android:textSize="11sp"
+                        android:textColor="@color/textSecondary"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/editSubtaskTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/subtask_title_hint"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/hintText"
+                        android:background="@drawable/bg_input_field"
+                        android:padding="8dp"
+                        android:minHeight="40dp"
+                        android:inputType="text"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/btnDeleteSubtask"
@@ -67,11 +110,14 @@
 
             <!-- Assign -->
             <LinearLayout
+                android:id="@+id/layoutAssign"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -98,14 +144,22 @@
                         android:contentDescription="Assign icon"
                         android:layout_marginEnd="4dp"/>
 
-                    <Spinner
-                        android:id="@+id/spinnerAssign"
+                    <EditText
+                        android:id="@+id/editAssign"
                         android:layout_width="0dp"
                         android:layout_height="30dp"
                         android:layout_weight="1"
-                        android:entries="@array/assign_options"
+                        android:hint="Chọn người phụ trách"
+                        android:textSize="13sp"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/hintText"
                         android:background="@android:color/transparent"
-                        android:minHeight="30dp"/>
+                        android:minHeight="30dp"
+                        android:gravity="center_vertical"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:inputType="none"/>
 
                 </LinearLayout>
 
