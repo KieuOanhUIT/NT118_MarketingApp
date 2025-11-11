@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.nt118_marketingapp.model.Content;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +29,8 @@ public class ContentListActivity extends AppCompatActivity {
     private LinearLayout layoutContentTable;
     private DatabaseReference contentRef;
     private Button btnAddContent, btnContentCalendar;
+
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,46 @@ public class ContentListActivity extends AppCompatActivity {
         });
 
         loadContentList();
+        // Cấu hình bottom navigation
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                startActivity(new Intent(getApplicationContext(), ContentListActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_approve) {
+                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void loadContentList() {

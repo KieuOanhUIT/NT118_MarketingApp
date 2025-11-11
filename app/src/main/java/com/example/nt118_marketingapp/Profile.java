@@ -15,19 +15,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
 public class Profile extends AppCompatActivity {
 
     private ImageView imgAvatar, btnLogout;
-    private TextView tvFullName, tvPosition, tvPhone, tvEmail;
+    private TextView tvFullName, tvPosition, tvPhone, tvEmail, tvForgotPassword;
     private Button btnEditProfile;
-    private TextView tvForgotPassword;
     private BottomNavigationView bottomNavigationView;
 
     private DatabaseReference userRef;
     private FirebaseAuth mAuth;
-
     private String userId;
 
     private ActivityResultLauncher<Intent> editProfileLauncher;
@@ -44,9 +43,12 @@ public class Profile extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Lấy userId từ Intent (từ Dashboard hoặc SignIn)
+        // Lấy userId từ Intent hoặc Firebase
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
+        if (userId == null && mAuth.getCurrentUser() != null) {
+            userId = mAuth.getCurrentUser().getUid();
+        }
 
         if (userId == null) {
             Toast.makeText(this, "Không tìm thấy người dùng!", Toast.LENGTH_SHORT).show();
@@ -56,7 +58,7 @@ public class Profile extends AppCompatActivity {
         // Tải dữ liệu người dùng
         loadUserProfile(userId);
 
-        // Đăng ký nhận kết quả từ trang chỉnh sửa hồ sơ
+        // Khi chỉnh sửa hồ sơ xong -> cập nhật lại
         editProfileLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -66,7 +68,7 @@ public class Profile extends AppCompatActivity {
                 }
         );
 
-        // Chuyển sang EditProfile
+        // Nút chỉnh sửa hồ sơ
         btnEditProfile.setOnClickListener(v -> {
             Intent editIntent = new Intent(Profile.this, EditProfile.class);
             editIntent.putExtra("userId", userId);
@@ -77,17 +79,17 @@ public class Profile extends AppCompatActivity {
             editProfileLauncher.launch(editIntent);
         });
 
-        // Chuyển sang đổi mật khẩu
+        // Nút đổi mật khẩu
         tvForgotPassword.setOnClickListener(v -> {
             Intent changePassIntent = new Intent(Profile.this, ChangePassWordCre.class);
             changePassIntent.putExtra("userId", userId);
             startActivity(changePassIntent);
         });
 
-        // Đăng xuất Firebase
+        // Nút đăng xuất
         btnLogout.setOnClickListener(v -> showLogoutConfirmDialog());
 
-        // Cấu hình bottom navigation
+        // Thanh điều hướng
         setupBottomNavigation();
     }
 
@@ -100,6 +102,7 @@ public class Profile extends AppCompatActivity {
         tvEmail = findViewById(R.id.tvEmail);
         btnEditProfile = findViewById(R.id.btnUp);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
     }
 
     private void loadUserProfile(String userId) {
@@ -133,9 +136,8 @@ public class Profile extends AppCompatActivity {
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này?")
                 .setPositiveButton("Có", (dialog, which) -> {
-                    mAuth.signOut(); // Firebase logout
+                    mAuth.signOut();
 
-                    // Quay lại màn hình đăng nhập
                     Intent intent = new Intent(Profile.this, SignInActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -148,7 +150,6 @@ public class Profile extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
