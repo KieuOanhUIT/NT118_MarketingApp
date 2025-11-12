@@ -47,7 +47,6 @@ public class AddEditUserDialog extends Dialog {
         EditText edtName = findViewById(R.id.edtName);
         EditText edtEmail = findViewById(R.id.edtEmail);
         EditText edtPhone = findViewById(R.id.edtPhone);
-        EditText edtUsername = findViewById(R.id.edtUsername);
         EditText edtPassword = findViewById(R.id.edtPassword);
         Spinner spRole = findViewById(R.id.spRole);
         Button btnSave = findViewById(R.id.btnSave);
