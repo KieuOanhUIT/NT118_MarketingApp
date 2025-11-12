@@ -44,8 +44,8 @@
 
     <!--    Role-->
     <string-array name="user_roles">
-        <item>Quản trị viên</item>
-        <item>Nhân viên</item>
+        <item>Admin</item>
+        <item>Content Creator</item>
     </string-array>
     <!-- Create Content Screen -->
     <string name="back_button">Quay lại</string>
