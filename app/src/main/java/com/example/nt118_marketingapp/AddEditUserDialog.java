@@ -12,16 +12,22 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-public class AddEditUserDialog extends Dialog {
-    private User user;
-    private int position;
-    private boolean isEditMode;
-    private AddEditListener listener;
+import com.example.nt118_marketingapp.model.User;
 
-    public interface AddEditListener {
-        void onSave(User user, int position, boolean isEdit);
+// lớp AddEditUserDialog -> dialog dùng để thêm dữ liệu
+public class AddEditUserDialog extends Dialog {
+    private User user; // 1 user kiểu user để lưu trữ
+    private int position; // vị trí truyền vào trong list
+    private boolean isEditMode; // chế độ edit hay thêm người dùng
+    private AddEditListener listener; // 1 cái listener
+
+
+    public interface AddEditListener { // interface để sử dụng callback
+        void onSave(User user, int position, boolean isEdit, String password);
     }
 
+
+    // khai báo các phương thức cần thiết
     public AddEditUserDialog(@NonNull Context context, User user, int position, boolean isEditMode, AddEditListener listener) {
         super(context);
         this.user = user;
@@ -36,41 +42,56 @@ public class AddEditUserDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_edit_user);
 
+        // tham chiếu đến các thành phần giao diện
         TextView tvTitle = findViewById(R.id.tvDialogTitle);
         EditText edtName = findViewById(R.id.edtName);
         EditText edtEmail = findViewById(R.id.edtEmail);
         EditText edtPhone = findViewById(R.id.edtPhone);
-        EditText edtUsername = findViewById(R.id.edtUsername);
         EditText edtPassword = findViewById(R.id.edtPassword);
         Spinner spRole = findViewById(R.id.spRole);
         Button btnSave = findViewById(R.id.btnSave);
         Button btnCancel = findViewById(R.id.btnCancel);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.user_roles, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spRole.setAdapter(adapter);
 
+        // -----spiner -------------------
+        // tạo adapter cho spinner
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                                                                        R.array.user_roles,
+                                                                        android.R.layout.simple_spinner_item);
+        // thiết lập layout cho adapter
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // thiết lập adapter cho spinner
+        spRole.setAdapter(adapter);
+        // ----- end spiner --------------
+
+
+        // ----- tiêu đề của dialog -------
         if (isEditMode && user != null) {
             tvTitle.setText("Chỉnh sửa người dùng");
-            edtName.setText(user.getName());
+            edtName.setText(user.getFullName()); // set name và email truyền từ user
             edtEmail.setText(user.getEmail());
             edtPhone.setText(user.getPhone());
-            edtUsername.setText(user.getUsername());
-            edtPassword.setText(user.getPassword());
-            spRole.setSelection(user.getRole().equals("Quản trị viên") ? 0 : 1);
+//            edtUsername.setText(user.getUsername());
+//            edtPassword.setText(user.getPassword());
+            spRole.setSelection(user.getRoleName().equals("Quản trị viên") ? 0 : 1);
         }
+        // ----- end tiêu đề của dialog -------
+
 
         btnSave.setOnClickListener(v -> {
+            // lấy giá trị
             String name = edtName.getText().toString();
             String email = edtEmail.getText().toString();
             String phone = edtPhone.getText().toString();
-            String username = edtUsername.getText().toString();
-            String password = edtPassword.getText().toString();
             String role = spRole.getSelectedItem().toString();
+            String password = edtPassword.getText().toString();
 
-            User newUser = new User(name, email, phone, username, password, role);
-            listener.onSave(newUser, position, isEditMode);
+
+            //tạo 1 user mới
+            User newUser = new User("",name, role, email, phone);
+            // gọi callback để lưu dữ liệu
+             listener.onSave(newUser, position, isEditMode, password);
+            // đóng dialog
             dismiss();
         });
 

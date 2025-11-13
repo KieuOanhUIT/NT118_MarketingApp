@@ -1,4 +1,4 @@
-package com.example.nt118_marketingapp;
+package com.example.nt118_marketingapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.nt118_marketingapp.R;
+import com.example.nt118_marketingapp.model.User;
 
 import java.util.List;
 
@@ -39,9 +42,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
-        holder.tvName.setText(user.getName());
+        holder.tvName.setText(user.getFullName());
         holder.tvEmail.setText(user.getEmail());
-        holder.tvRole.setText(user.getRole());
+        holder.tvRole.setText(user.getRoleName());
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(position));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(position));
