@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Icon thông báo -->
         <ImageView
             android:id="@+id/ivIcon"
             android:layout_width="80dp"
@@ -18,9 +19,10 @@
             android:src="@drawable/ic_task"
             android:layout_marginBottom="16dp" />
 
+        <!-- Tiêu đề loại thông báo -->
         <TextView
             android:id="@+id/tvTitle"
-            android:text="Tiêu đề"
+            android:text="Loại thông báo"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#222222"
@@ -28,8 +30,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Nội dung thông báo -->
         <TextView
-            android:id="@+id/tvMessage"
+            android:id="@+id/txtMessage"
             android:text="Nội dung thông báo"
             android:textSize="16sp"
             android:textColor="#555555"
@@ -37,8 +40,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Thời gian tạo thông báo -->
         <TextView
-            android:id="@+id/tvTime"
+            android:id="@+id/txtCreatedTime"
             android:text="Thời gian"
             android:textSize="12sp"
             android:textColor="#888888"
@@ -52,9 +56,50 @@
             android:background="#DDDDDD"
             android:layout_marginBottom="12dp" />
 
+        <!-- Loại thông báo -->
         <TextView
-            android:id="@+id/tvExtra"
-            android:text="Chi tiết bổ sung"
+            android:id="@+id/txtType"
+            android:text="Loại: Approval / Rejection"
+            android:textColor="#444444"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Content ID -->
+        <TextView
+            android:id="@+id/txtContentId"
+            android:text="Content ID: C001"
+            android:textColor="#444444"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Người duyệt / từ chối -->
+        <TextView
+            android:id="@+id/txtApprovedBy"
+            android:text="Người duyệt: Phạm Bảo An"
+            android:textColor="#444444"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Thời gian duyệt / từ chối -->
+        <TextView
+            android:id="@+id/txtApprovedAt"
+            android:text="Thời gian duyệt: 2025-10-21"
+            android:textColor="#444444"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Lý do -->
+        <TextView
+            android:id="@+id/txtReason"
+            android:text="Lý do: Đạt yêu cầu"
             android:textColor="#444444"
             android:textSize="16sp"
             android:lineSpacingExtra="4dp"

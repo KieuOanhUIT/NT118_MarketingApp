@@ -1,7 +1,6 @@
 package com.example.nt118_marketingapp;
 
 import android.os.Bundle;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,148 +14,82 @@ import com.google.firebase.database.ValueEventListener;
 
 public class NotificationDetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle, tvMessage, tvTime, tvExtra;
-    private ImageView ivIcon;
-    private DatabaseReference dbRef;
+    private TextView txtMessage, txtCreatedTime, txtType;
+    private TextView txtContentId, txtApprovedBy, txtApprovedAt, txtReason;
+
+    private String notificationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification_detail);
 
-        tvTitle = findViewById(R.id.tvTitle);
-        tvMessage = findViewById(R.id.tvMessage);
-        tvTime = findViewById(R.id.tvTime);
-        tvExtra = findViewById(R.id.tvExtra);
-        ivIcon = findViewById(R.id.ivIcon);
+        // Bind các TextView
+        txtMessage = findViewById(R.id.txtMessage);
+        txtCreatedTime = findViewById(R.id.txtCreatedTime);
+        txtType = findViewById(R.id.txtType);
+        txtContentId = findViewById(R.id.txtContentId);
+        txtApprovedBy = findViewById(R.id.txtApprovedBy);
+        txtApprovedAt = findViewById(R.id.txtApprovedAt);
+        txtReason = findViewById(R.id.txtReason);
 
-        dbRef = FirebaseDatabase.getInstance().getReference();
-
-        // Lấy dữ liệu cơ bản từ Intent
-        String notificationId = getIntent().getStringExtra("notificationId");
-        String title = getIntent().getStringExtra("title");
-        String message = getIntent().getStringExtra("message");
-        String time = getIntent().getStringExtra("time");
-        int iconRes = getIntent().getIntExtra("icon", R.drawable.ic_task);
-
-        tvTitle.setText(title);
-        tvMessage.setText(message);
-        tvTime.setText(time);
-        ivIcon.setImageResource(iconRes);
-
+        // Lấy notificationId từ Intent
+        notificationId = getIntent().getStringExtra("notificationId");
         if (notificationId != null) {
             loadNotificationDetail(notificationId);
         }
     }
 
     private void loadNotificationDetail(String notificationId) {
-        dbRef.child("Notification").child(notificationId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot notiSnap) {
-                        if (notiSnap.exists()) {
-                            String type = notiSnap.child("Type").getValue(String.class);
-                            String userId = notiSnap.child("UserId").getValue(String.class);
-                            String contentId = notiSnap.child("ContentId").getValue(String.class);
+        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("Notification");
+        notificationRef.child(notificationId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) return;
 
-                            if (contentId == null) {
-                                tvExtra.setText("Không có thông tin Content liên kết.");
-                                return;
-                            }
+                String message = snapshot.child("Message").getValue(String.class);
+                String type = snapshot.child("Type").getValue(String.class);
+                String contentId = snapshot.child("ContentId").getValue(String.class);
+                String createdTime = snapshot.child("CreatedTime").getValue(String.class);
 
-                            // Lấy chi tiết bài viết
-                            loadContentInfo(contentId, content -> {
-                                // Nếu là duyệt hay từ chối, thì nối thêm info người duyệt + lý do
-                                if ("Approval".equalsIgnoreCase(type) || "Rejection".equalsIgnoreCase(type)) {
-                                    loadApprovalInfo(contentId, approval -> {
-                                        loadUserInfo(approval.userId, approverName -> {
-                                            String statusText = "Approval".equalsIgnoreCase(type)
-                                                    ? "✅ Bài viết đã được duyệt"
-                                                    : "❌ Bài viết bị từ chối";
+                txtMessage.setText(message);
+                txtType.setText(type != null ? type : "-");
+                txtCreatedTime.setText(createdTime != null ? createdTime : "-");
 
-                                            String detail = statusText +
-                                                    "\n\n👤 Người duyệt: " + approverName +
-                                                    "\n📝 Lý do: " + (approval.reason != null ? approval.reason : "Không có") +
-                                                    "\n🕒 Thời gian xử lý: " + (approval.approvedAt != null ? approval.approvedAt : "N/A") +
-                                                    "\n\n📄 Tiêu đề bài viết: " + content.title +
-                                                    "\n📌 Trạng thái: " + content.status +
-                                                    "\n⏰ Giờ đăng: " + (content.publishedTime.isEmpty() ? "Chưa đăng" : content.publishedTime);
-
-                                            tvExtra.setText(detail);
-                                        });
-                                    });
-                                } else {
-                                    tvExtra.setText("📄 Tiêu đề: " + content.title +
-                                            "\n📌 Trạng thái: " + content.status +
-                                            "\n⏰ Giờ đăng: " + (content.publishedTime.isEmpty() ? "Chưa đăng" : content.publishedTime));
-                                }
-                            });
-                        }
+                if ("Approval".equals(type) || "Rejection".equals(type)) {
+                    if (contentId != null) {
+                        loadApprovalDetail(contentId);
                     }
+                } else {
+                    txtContentId.setText("-");
+                    txtApprovedBy.setText("-");
+                    txtApprovedAt.setText("-");
+                    txtReason.setText("-");
+                }
+            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        tvExtra.setText("Lỗi khi tải chi tiết thông báo.");
-                    }
-                });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
-    // ----------------- LOAD APPROVAL INFO -------------------
-    private static class ApprovalDetail {
-        String userId, reason, approvedAt;
-
-        ApprovalDetail(String userId, String reason, String approvedAt) {
-            this.userId = userId;
-            this.reason = reason;
-            this.approvedAt = approvedAt;
-        }
-    }
-
-    private interface ApprovalCallback {
-        void onApprovalLoaded(ApprovalDetail approval);
-    }
-
-    private void loadApprovalInfo(String contentId, ApprovalCallback callback) {
-        dbRef.child("Approval")
-                .orderByChild("ContentId").equalTo(contentId)
+    private void loadApprovalDetail(String contentId) {
+        DatabaseReference approvalRef = FirebaseDatabase.getInstance().getReference("Approval");
+        approvalRef.orderByChild("ContentId").equalTo(contentId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            String userId = child.child("UserId").getValue(String.class);
-                            String reason = child.child("Reason").getValue(String.class);
-                            String approvedAt = child.child("ApprovedAt").getValue(String.class);
+                        if (!snapshot.exists()) return;
 
-                            callback.onApprovalLoaded(new ApprovalDetail(
-                                    userId != null ? userId : "-",
-                                    reason,
-                                    approvedAt
-                            ));
-                            return; // chỉ cần lấy 1 bản ghi phù hợp
-                        }
-                        tvExtra.setText("Không tìm thấy dữ liệu phê duyệt cho nội dung này.");
-                    }
+                        for (DataSnapshot approvalSnap : snapshot.getChildren()) {
+                            String userId = approvalSnap.child("UserId").getValue(String.class);
+                            String reason = approvalSnap.child("Reason").getValue(String.class);
+                            String approvedAt = approvalSnap.child("ApprovedAt").getValue(String.class);
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
-                });
-    }
-
-    // ----------------- LOAD USER INFO -------------------
-    private interface UserCallback {
-        void onUserLoaded(String name);
-    }
-
-    private void loadUserInfo(String userId, UserCallback callback) {
-        dbRef.child("User").child(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot userSnap) {
-                        if (userSnap.exists()) {
-                            String fullName = userSnap.child("FullName").getValue(String.class);
-                            callback.onUserLoaded(fullName != null ? fullName : "Không rõ");
-                        } else {
-                            callback.onUserLoaded("Không tìm thấy người duyệt");
+                            if (userId != null) {
+                                loadUserName(userId, contentId, reason, approvedAt);
+                                break; // lấy approval đầu tiên
+                            }
                         }
                     }
 
@@ -165,43 +98,23 @@ public class NotificationDetailActivity extends AppCompatActivity {
                 });
     }
 
-    // ----------------- LOAD CONTENT INFO -------------------
-    private static class ContentDetail {
-        String title, status, publishedTime;
+    private void loadUserName(String userId, String contentId, String reason, String approvedAt) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("User");
+        userRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) return;
 
-        ContentDetail(String title, String status, String publishedTime) {
-            this.title = title;
-            this.status = status;
-            this.publishedTime = publishedTime;
-        }
-    }
+                String fullName = snapshot.child("FullName").getValue(String.class);
 
-    private interface ContentCallback {
-        void onContentLoaded(ContentDetail content);
-    }
+                txtContentId.setText(contentId != null ? contentId : "-");
+                txtApprovedBy.setText(fullName != null ? fullName : "-");
+                txtApprovedAt.setText(approvedAt != null ? approvedAt : "-");
+                txtReason.setText(reason != null ? reason : "-");
+            }
 
-    private void loadContentInfo(String contentId, ContentCallback callback) {
-        dbRef.child("Content").child(contentId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot contentSnap) {
-                        if (contentSnap.exists()) {
-                            String title = contentSnap.child("Title").getValue(String.class);
-                            String status = contentSnap.child("Status").getValue(String.class);
-                            String publishedTime = contentSnap.child("PublishedTime").getValue(String.class);
-
-                            callback.onContentLoaded(new ContentDetail(
-                                    title != null ? title : "Không rõ",
-                                    status != null ? status : "Không rõ",
-                                    publishedTime != null ? publishedTime : ""
-                            ));
-                        } else {
-                            callback.onContentLoaded(new ContentDetail("Không tìm thấy bài viết", "-", ""));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
-                });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 }
