@@ -29,8 +29,9 @@ import java.util.Locale;
  * - Xem số lượng content theo giờ và ngày
  * - Chọn ô và thêm content mới
  * - Chuyển tuần trước/sau
+ * - Long press để xem danh sách content
  */
-public class ContentCalendarActivity extends AppCompatActivity {
+public class ContentCalendarActivity extends AppCompatActivity implements ContentCalendarRepository.ContentCalendarListener {
 
     // UI Components
     private TextView tvWeekRange;
@@ -61,6 +62,7 @@ public class ContentCalendarActivity extends AppCompatActivity {
 
         // Setup repository
         repository = ContentCalendarRepository.getInstance();
+        repository.addListener(this);
 
         // Set current week to this Monday
         currentWeekStart = LocalDate.now().with(java.time.DayOfWeek.MONDAY);
@@ -70,6 +72,20 @@ public class ContentCalendarActivity extends AppCompatActivity {
 
         // Load calendar
         loadCalendar();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (repository != null) {
+            repository.removeListener(this);
+        }
+    }
+    
+    @Override
+    public void onDataChanged() {
+        // Refresh calendar khi data thay đổi
+        runOnUiThread(this::loadCalendar);
     }
 
     /**
@@ -255,6 +271,12 @@ public class ContentCalendarActivity extends AppCompatActivity {
 
         // Set click listener
         cell.setOnClickListener(v -> onCellClicked(cell, day, hour));
+        
+        // Set long click listener (1 second hold)
+        cell.setOnLongClickListener(v -> {
+            onCellLongClicked(day, hour);
+            return true; // Consume the event
+        });
 
         // Store data in tag
         cell.setTag(new CellData(day, hour));
@@ -345,7 +367,7 @@ public class ContentCalendarActivity extends AppCompatActivity {
             // Có ô được chọn - nút enabled
             btnAddContent.setEnabled(true);
             btnAddContent.setAlpha(1.0f);
-            btnAddContent.setBackgroundTintList(getColorStateList(R.color.colorPrimary));
+            btnAddContent.setBackgroundTintList(getColorStateList(R.color.colorSecondary));
         } else {
             // Không có ô được chọn - nút disabled
             btnAddContent.setEnabled(false);
@@ -360,6 +382,85 @@ public class ContentCalendarActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
+    }
+    
+    /**
+     * Xử lý khi long click (giữ 1s) vào một ô
+     */
+    private void onCellLongClicked(LocalDate day, int hour) {
+        // Show bottom sheet với danh sách content
+        showContentListBottomSheet(day, hour);
+    }
+    
+    /**
+     * Hiển thị bottom sheet với danh sách content
+     */
+    private void showContentListBottomSheet(LocalDate day, int hour) {
+        // Create bottom sheet dialog
+        com.google.android.material.bottomsheet.BottomSheetDialog bottomSheet = 
+            new com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+        
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_content_list, null);
+        bottomSheet.setContentView(view);
+        
+        // Get screen height and set bottom sheet to half screen
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+        int halfScreenHeight = screenHeight / 2;
+        
+        // Set layout params to make it half screen height
+        if (view.getParent() != null) {
+            View parent = (View) view.getParent();
+            parent.setMinimumHeight(halfScreenHeight);
+        }
+        view.setMinimumHeight(halfScreenHeight);
+        
+        // Get views
+        TextView tvTitle = view.findViewById(R.id.tvBottomSheetTitle);
+        ImageButton btnClose = view.findViewById(R.id.btnCloseBottomSheet);
+        androidx.recyclerview.widget.RecyclerView rvContentList = view.findViewById(R.id.rvContentList);
+        TextView tvEmptyState = view.findViewById(R.id.tvEmptyState);
+        
+        // Set title
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dateStr = day.format(formatter);
+        String timeStr = String.format("%02d:00", hour);
+        tvTitle.setText(String.format("Content - %s (%s)", dateStr, timeStr));
+        
+        // Close button
+        btnClose.setOnClickListener(v -> bottomSheet.dismiss());
+        
+        // Setup RecyclerView
+        rvContentList.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+        ContentCalendarPopupAdapter adapter = new ContentCalendarPopupAdapter(this, content -> {
+            // Navigate to EditContentActivity
+            Intent intent = new Intent(ContentCalendarActivity.this, EditContentActivity.class);
+            intent.putExtra("CONTENT_ID", content.getContentID());
+            intent.putExtra("MODE", "view");
+            startActivity(intent);
+            bottomSheet.dismiss();
+        });
+        rvContentList.setAdapter(adapter);
+        
+        // Load content list
+        repository.getContentList(day, hour, contentList -> {
+            runOnUiThread(() -> {
+                if (contentList.isEmpty()) {
+                    rvContentList.setVisibility(View.GONE);
+                    tvEmptyState.setVisibility(View.VISIBLE);
+                } else {
+                    rvContentList.setVisibility(View.VISIBLE);
+                    tvEmptyState.setVisibility(View.GONE);
+                    adapter.setContentList(contentList);
+                }
+            });
+        });
+        
+        // Show dialog
+        bottomSheet.show();
+        
+        // Apply half screen height to bottom sheet after it's shown
+        bottomSheet.getBehavior().setPeekHeight(halfScreenHeight);
+        bottomSheet.getBehavior().setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**

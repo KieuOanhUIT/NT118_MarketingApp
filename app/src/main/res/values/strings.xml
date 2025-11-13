@@ -110,6 +110,13 @@
         <item>Published</item>
     </string-array>
 
+    <!-- Employee Content Status Options (To do/In progress/Done only) -->
+    <string-array name="employee_content_status_options">
+        <item>To do</item>
+        <item>In progress</item>
+        <item>Done</item>
+    </string-array>
+
     <!-- Full Content Approve Options -->
     <string-array name="full_content_status_options">
         <item>To do</item>

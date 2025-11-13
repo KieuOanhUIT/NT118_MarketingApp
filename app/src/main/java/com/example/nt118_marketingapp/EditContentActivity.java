@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -16,8 +17,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import com.example.nt118_marketingapp.model.Content;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,6 +55,7 @@ public class EditContentActivity extends AppCompatActivity {
     private Spinner spinnerType;
     private EditText editChannel;
     private EditText editTags;
+    private EditText editDate;
     private EditText editTime;
     private Spinner spinnerStatus;
     private EditText editAttachment;
@@ -54,6 +64,11 @@ public class EditContentActivity extends AppCompatActivity {
     // State variables
     private boolean isEditMode = false; // Trạng thái chế độ chỉnh sửa
     private Calendar selectedDateTime;
+    private String currentStatus = ""; // Lưu trạng thái hiện tại của content
+    private String contentID = ""; // ID của content trong Firebase
+    
+    // Firebase
+    private DatabaseReference contentRef;
     
     // Draft subtask tracking
     private View currentDraftSubtask = null;
@@ -63,6 +78,9 @@ public class EditContentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_content);
+        
+        // Initialize Firebase
+        contentRef = FirebaseDatabase.getInstance().getReference("Content");
         
         // Initialize views
         initViews();
@@ -75,6 +93,14 @@ public class EditContentActivity extends AppCompatActivity {
         
         // Check if Edit Mode should be enabled from Intent
         boolean shouldEnableEditMode = getIntent().getBooleanExtra("EDIT_MODE", false);
+        
+        // Kiểm tra xem content có status locked không
+        if (isLockedStatus(currentStatus)) {
+            // Nếu status là Done/Approved/Scheduled/Published -> disable nút Edit
+            shouldEnableEditMode = false;
+            btnEditSave.setEnabled(false);
+            btnEditSave.setAlpha(0.4f);
+        }
         
         // Set initial state based on Intent or default to View mode
         setEditMode(shouldEnableEditMode);
@@ -94,6 +120,7 @@ public class EditContentActivity extends AppCompatActivity {
         spinnerType = findViewById(R.id.spinnerType);
         editChannel = findViewById(R.id.editChannel);
         editTags = findViewById(R.id.editTags);
+        editDate = findViewById(R.id.editDate);
         editTime = findViewById(R.id.editTime);
         spinnerStatus = findViewById(R.id.spinnerStatus);
         editAttachment = findViewById(R.id.editAttachment);
@@ -115,10 +142,17 @@ public class EditContentActivity extends AppCompatActivity {
         // Nút Add/Save Subtask
         btnAddSubtask.setOnClickListener(v -> handleAddSubtaskClick());
         
-        // Time picker - Chỉ mở khi ở chế độ chỉnh sửa
+        // Date picker
+        editDate.setOnClickListener(v -> {
+            if (isEditMode) {
+                showDatePicker();
+            }
+        });
+        
+        // Time picker
         editTime.setOnClickListener(v -> {
             if (isEditMode) {
-                showDateTimePicker();
+                showTimePicker();
             }
         });
     }
@@ -129,46 +163,82 @@ public class EditContentActivity extends AppCompatActivity {
     private void loadContentData() {
         Intent intent = getIntent();
         
-        // Kiểm tra xem có dữ liệu từ Intent không
+        // Kiểm tra xem có CONTENT_ID từ Intent không
         if (intent.hasExtra("CONTENT_ID")) {
-            // Load dữ liệu từ Intent
-            String title = intent.getStringExtra("TITLE");
-            String caption = intent.getStringExtra("CAPTION");
-            String channel = intent.getStringExtra("CHANNEL");
-            String status = intent.getStringExtra("STATUS");
-            String link = intent.getStringExtra("LINK");
-            String timestamp = intent.getStringExtra("TIMESTAMP");
-            String author = intent.getStringExtra("AUTHOR");
+            contentID = intent.getStringExtra("CONTENT_ID");
             
-            // Set dữ liệu vào các field
-            if (title != null) editTitle.setText(title);
-            if (caption != null) editTags.setText(caption); // Caption = Tags
-            if (channel != null) editChannel.setText(channel);
-            if (timestamp != null) editTime.setText(timestamp);
-            if (link != null) editEditorLink.setText(link);
-            
-            // Set status trong Spinner
-            if (status != null) {
-                String[] statusArray = getResources().getStringArray(R.array.content_status_options);
-                for (int i = 0; i < statusArray.length; i++) {
-                    if (statusArray[i].equalsIgnoreCase(status)) {
-                        spinnerStatus.setSelection(i);
-                        break;
+            if (contentID != null && !contentID.isEmpty()) {
+                // Load data từ Firebase
+                contentRef.child(contentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            Content content = snapshot.getValue(Content.class);
+                            if (content != null) {
+                                // Set dữ liệu vào các field
+                                if (content.getTitle() != null) editTitle.setText(content.getTitle());
+                                if (content.getTag() != null) editTags.setText(content.getTag());
+                                if (content.getChannel() != null) editChannel.setText(content.getChannel());
+                                
+                                // Parse timestamp và tách thành date và time
+                                if (content.getCreatedTime() != null && !content.getCreatedTime().isEmpty()) {
+                                    try {
+                                        // Giả sử timestamp có format "dd/MM/yyyy HH:mm"
+                                        String[] parts = content.getCreatedTime().split(" ");
+                                        if (parts.length >= 1) {
+                                            editDate.setText(parts[0]); // Ngày
+                                        }
+                                        if (parts.length >= 2) {
+                                            editTime.setText(parts[1]); // Giờ
+                                        }
+                                    } catch (Exception e) {
+                                        // Nếu parse lỗi, set toàn bộ vào date
+                                        editDate.setText(content.getCreatedTime());
+                                    }
+                                }
+                                
+                                if (content.getEditorLink() != null) editEditorLink.setText(content.getEditorLink());
+                                if (content.getUrl() != null) editAttachment.setText(content.getUrl());
+                                
+                                // Lưu status hiện tại
+                                currentStatus = content.getStatus() != null ? content.getStatus() : "";
+                                
+                                // Set status trong Spinner
+                                if (content.getStatus() != null) {
+                                    String[] statusArray = getResources().getStringArray(R.array.full_content_status_options);
+                                    for (int i = 0; i < statusArray.length; i++) {
+                                        if (statusArray[i].equalsIgnoreCase(content.getStatus())) {
+                                            spinnerStatus.setSelection(i);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // Set type trong Spinner (nếu có)
+                                // TODO: Implement type selection nếu cần
+                                spinnerType.setSelection(0);
+                            }
+                        } else {
+                            Toast.makeText(EditContentActivity.this, "Không tìm thấy content", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
                     }
-                }
+                    
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(EditContentActivity.this, "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
             }
-            
-            // Các field khác để trống hoặc mặc định
-            editAttachment.setText("");
-            spinnerType.setSelection(0); // Mặc định option đầu tiên
-            
         } else {
-            // Dữ liệu mẫu nếu không có Intent
+            // Dữ liệu mẫu nếu không có Intent (for testing)
             editTitle.setText("Content Marketing Q4 2025");
             spinnerType.setSelection(0);
             editChannel.setText("Fanpage Công ty");
             editTags.setText("marketing, Q4, promotion");
-            editTime.setText("24/10/2025 14:30");
+            editDate.setText("24/10/2025");
+            editTime.setText("14:30");
             spinnerStatus.setSelection(1);
             editAttachment.setText("https://drive.google.com/example");
             editEditorLink.setText("https://docs.google.com/example");
@@ -214,10 +284,14 @@ public class EditContentActivity extends AppCompatActivity {
             btnEditSave.setBackgroundTintList(getColorStateList(R.color.colorSecondary));
         }
         
+        // Thay đổi adapter của spinnerStatus dựa trên chế độ
+        updateStatusSpinner(enabled);
+        
         // Bật/tắt khả năng chỉnh sửa cho các EditText
         editTitle.setEnabled(enabled);
         editChannel.setEnabled(enabled);
         editTags.setEnabled(enabled);
+        editDate.setEnabled(enabled);
         editTime.setEnabled(enabled);
         editAttachment.setEnabled(enabled);
         editEditorLink.setEnabled(enabled);
@@ -231,6 +305,7 @@ public class EditContentActivity extends AppCompatActivity {
         editTitle.setAlpha(alpha);
         editChannel.setAlpha(alpha);
         editTags.setAlpha(alpha);
+        editDate.setAlpha(alpha);
         editTime.setAlpha(alpha);
         editAttachment.setAlpha(alpha);
         editEditorLink.setAlpha(alpha);
@@ -240,6 +315,9 @@ public class EditContentActivity extends AppCompatActivity {
         // Show/Hide nút Add Subtask dựa trên chế độ
         btnAddSubtask.setVisibility(enabled ? View.VISIBLE : View.GONE);
         
+        // Khoá/mở khoá tất cả subtasks hiện có
+        setSubtasksEditMode(enabled);
+        
         // Nếu chuyển về chế độ View, xóa draft subtask nếu có
         if (!enabled && currentDraftSubtask != null) {
             subtasksContainer.removeView(currentDraftSubtask);
@@ -247,11 +325,113 @@ public class EditContentActivity extends AppCompatActivity {
             isDraftSubtaskValid = false;
         }
     }
+    
+    /**
+     * Cập nhật adapter của status spinner dựa trên chế độ view/edit
+     * - Chế độ xem: hiển thị tất cả status (full_content_status_options)
+     * - Chế độ sửa: chỉ hiển thị To do/In progress/Done (employee_content_status_options)
+     */
+    private void updateStatusSpinner(boolean isEditMode) {
+        String currentStatusValue = currentStatus;
+        
+        if (isEditMode) {
+            // Chế độ edit: chỉ hiển thị 3 status (To do/In progress/Done)
+            ArrayAdapter<CharSequence> employeeAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.employee_content_status_options,
+                android.R.layout.simple_spinner_item
+            );
+            employeeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerStatus.setAdapter(employeeAdapter);
+            
+            // Set lại vị trí của status hiện tại trong danh sách employee
+            String[] employeeStatuses = getResources().getStringArray(R.array.employee_content_status_options);
+            for (int i = 0; i < employeeStatuses.length; i++) {
+                if (employeeStatuses[i].equals(currentStatusValue)) {
+                    spinnerStatus.setSelection(i);
+                    break;
+                }
+            }
+        } else {
+            // Chế độ view: hiển thị tất cả status
+            ArrayAdapter<CharSequence> fullAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.full_content_status_options,
+                android.R.layout.simple_spinner_item
+            );
+            fullAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerStatus.setAdapter(fullAdapter);
+            
+            // Set lại vị trí của status hiện tại trong danh sách full
+            String[] fullStatuses = getResources().getStringArray(R.array.full_content_status_options);
+            for (int i = 0; i < fullStatuses.length; i++) {
+                if (fullStatuses[i].equals(currentStatusValue)) {
+                    spinnerStatus.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Khoá/mở khoá tất cả subtasks trong container
+     */
+    private void setSubtasksEditMode(boolean enabled) {
+        for (int i = 0; i < subtasksContainer.getChildCount(); i++) {
+            View subtaskView = subtasksContainer.getChildAt(i);
+            
+            // Tìm các view trong subtask
+            EditText editSubtaskTitle = subtaskView.findViewById(R.id.editSubtaskTitle);
+            EditText editAssign = subtaskView.findViewById(R.id.editAssign);
+            EditText editSubtaskDeadline = subtaskView.findViewById(R.id.editSubtaskDeadline);
+            ImageButton btnDeleteSubtask = subtaskView.findViewById(R.id.btnDeleteSubtask);
+            LinearLayout layoutAssign = subtaskView.findViewById(R.id.layoutAssign);
+            android.widget.CheckBox checkboxSubtask = subtaskView.findViewById(R.id.checkboxSubtask);
+            
+            if (editSubtaskTitle != null) {
+                editSubtaskTitle.setEnabled(enabled);
+                editSubtaskTitle.setAlpha(enabled ? 1.0f : 0.7f);
+            }
+            if (editAssign != null) {
+                editAssign.setEnabled(enabled);
+                editAssign.setAlpha(enabled ? 1.0f : 0.7f);
+            }
+            if (editSubtaskDeadline != null) {
+                editSubtaskDeadline.setEnabled(enabled);
+                editSubtaskDeadline.setClickable(enabled);
+                editSubtaskDeadline.setAlpha(enabled ? 1.0f : 0.7f);
+            }
+            if (layoutAssign != null) {
+                layoutAssign.setClickable(enabled);
+                layoutAssign.setAlpha(enabled ? 1.0f : 0.7f);
+            }
+            if (btnDeleteSubtask != null) {
+                btnDeleteSubtask.setEnabled(enabled);
+                btnDeleteSubtask.setAlpha(enabled ? 1.0f : 0.4f);
+            }
+            if (checkboxSubtask != null) {
+                checkboxSubtask.setEnabled(enabled);
+                checkboxSubtask.setAlpha(enabled ? 1.0f : 0.7f);
+            }
+        }
+    }
+    
+    /**
+     * Kiểm tra xem status có bị lock không
+     */
+    private boolean isLockedStatus(String status) {
+        if (status == null || status.isEmpty()) return false;
+        String statusLower = status.toLowerCase();
+        return statusLower.equals("done") ||
+                statusLower.equals("approved") ||
+                statusLower.equals("scheduled") ||
+                statusLower.equals("published");
+    }
 
     /**
-     * Hiển thị Date & Time Picker
+     * Hiển thị Date Picker
      */
-    private void showDateTimePicker() {
+    private void showDatePicker() {
         // Date Picker
         DatePickerDialog datePickerDialog = new DatePickerDialog(
             this,
@@ -260,8 +440,8 @@ public class EditContentActivity extends AppCompatActivity {
                 selectedDateTime.set(Calendar.MONTH, month);
                 selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 
-                // Sau khi chọn ngày, hiển thị Time Picker
-                showTimePicker();
+                // Cập nhật text của EditText Date
+                updateDateField();
             },
             selectedDateTime.get(Calendar.YEAR),
             selectedDateTime.get(Calendar.MONTH),
@@ -280,7 +460,7 @@ public class EditContentActivity extends AppCompatActivity {
                 selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 selectedDateTime.set(Calendar.MINUTE, minute);
                 
-                // Cập nhật text của EditText
+                // Cập nhật text của EditText Time
                 updateTimeField();
             },
             selectedDateTime.get(Calendar.HOUR_OF_DAY),
@@ -291,10 +471,18 @@ public class EditContentActivity extends AppCompatActivity {
     }
 
     /**
-     * Cập nhật hiển thị thời gian
+     * Cập nhật hiển thị ngày
+     */
+    private void updateDateField() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        editDate.setText(sdf.format(selectedDateTime.getTime()));
+    }
+
+    /**
+     * Cập nhật hiển thị giờ
      */
     private void updateTimeField() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
         editTime.setText(sdf.format(selectedDateTime.getTime()));
     }
 
@@ -308,31 +496,35 @@ public class EditContentActivity extends AppCompatActivity {
         String type = spinnerType.getSelectedItem().toString();
         String channel = editChannel.getText().toString().trim();
         String tags = editTags.getText().toString().trim();
+        String date = editDate.getText().toString().trim();
         String time = editTime.getText().toString().trim();
         String status = spinnerStatus.getSelectedItem().toString();
         String attachment = editAttachment.getText().toString().trim();
         String editorLink = editEditorLink.getText().toString().trim();
-        
+
+        // Ghép date và time thành timestamp
+        String timestamp = date + " " + time;
+
         // Validate dữ liệu
         if (title.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập tiêu đề", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         if (channel.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập kênh đăng", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Lưu vào database hoặc gửi lên server
         // Ví dụ: updateContentInDatabase(contentId, title, type, channel, ...);
-        
+
         // Log để kiểm tra (tạm thời)
         android.util.Log.d("EditContent", "Saved - Title: " + title);
         android.util.Log.d("EditContent", "Saved - Type: " + type);
         android.util.Log.d("EditContent", "Saved - Channel: " + channel);
         android.util.Log.d("EditContent", "Saved - Tags: " + tags);
-        android.util.Log.d("EditContent", "Saved - Time: " + time);
+        android.util.Log.d("EditContent", "Saved - Timestamp: " + timestamp);
         android.util.Log.d("EditContent", "Saved - Status: " + status);
         android.util.Log.d("EditContent", "Saved - Attachment: " + attachment);
         android.util.Log.d("EditContent", "Saved - Editor Link: " + editorLink);
@@ -377,6 +569,15 @@ public class EditContentActivity extends AppCompatActivity {
         EditText editAssign = subtaskView.findViewById(R.id.editAssign);
         EditText editSubtaskDeadline = subtaskView.findViewById(R.id.editSubtaskDeadline);
         ImageButton btnDeleteSubtask = subtaskView.findViewById(R.id.btnDeleteSubtask);
+        LinearLayout layoutAssign = subtaskView.findViewById(R.id.layoutAssign);
+        
+        // Setup assign picker (click to open popup select user)
+        if (layoutAssign != null) {
+            layoutAssign.setOnClickListener(v -> {
+                // TODO: Mở popup chọn người phụ trách
+                Toast.makeText(this, "Chọn người phụ trách", Toast.LENGTH_SHORT).show();
+            });
+        }
         
         // Setup deadline picker
         editSubtaskDeadline.setOnClickListener(v -> showSubtaskDeadlinePicker(editSubtaskDeadline));

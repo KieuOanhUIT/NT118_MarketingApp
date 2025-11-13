@@ -242,49 +242,122 @@
             </LinearLayout>
     </LinearLayout>
 
-        <!-- Time -->
+
+        <!-- Subheading: Thời gian đăng tải -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thời gian đăng tải dự kiến"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#007C77"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@android:color/transparent"/>
+
+        <!-- Date và Time trong cùng 1 row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_input_field"
-            android:padding="8dp"
-            android:elevation="2dp">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/ic_time"
-                app:tint="@color/colorPrimary"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="Time icon"/>
+            android:background="#FFFFFF">
+
+            <!-- Date -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_input_field"
+                android:padding="8dp"
+                android:elevation="2dp"
+                android:layout_marginEnd="8dp">
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/colorPrimary"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Date icon"/>
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/time_publish_required"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"/>
-                <EditText
-                    android:id="@+id/editTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:hint="@string/hint_time"
-                    android:inputType="datetime"
-                    android:background="@drawable/bg_input_field"
-                    android:padding="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/textPrimary"
-                    android:textColorHint="@color/hintText"
-                    android:focusable="false"
-                    android:clickable="true"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="@color/textSecondary"/>
+                    <EditText
+                        android:id="@+id/editDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="dd/MM/yyyy"
+                        android:inputType="none"
+                        android:background="@android:color/transparent"
+                        android:textSize="14sp"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/hintText"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:minHeight="36dp"
+                        android:gravity="center_vertical"/>
+                </LinearLayout>
             </LinearLayout>
-    </LinearLayout>
+
+            <!-- Time -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_input_field"
+                android:padding="8dp"
+                android:elevation="2dp"
+                android:layout_marginStart="8dp">
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_time"
+                    app:tint="@color/colorPrimary"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Time icon"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Giờ"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="@color/textSecondary"/>
+                    <EditText
+                        android:id="@+id/editTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="HH:mm"
+                        android:inputType="none"
+                        android:background="@android:color/transparent"
+                        android:textSize="14sp"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/hintText"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:minHeight="36dp"
+                        android:gravity="center_vertical"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
 
         <!-- Subheading: Trạng thái & đính kèm -->
         <TextView
@@ -430,8 +503,62 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Subtasks Section (Reusable layout) -->
-        <include layout="@layout/layout_subtasks_section" />
+        <!-- Subtasks Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header: Subtasks -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/subtasks_section"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#007C77"
+                    android:drawableStart="@drawable/ic_subtask"
+                    android:drawableTint="#007C77"
+                    android:drawablePadding="8dp"/>
+
+            </LinearLayout>
+
+            <!-- Subtasks Container (populated dynamically) -->
+            <LinearLayout
+                android:id="@+id/subtasksContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+                <!-- Subtasks sẽ được thêm động từ code -->
+            </LinearLayout>
+
+            <!-- Add Subtask Button -->
+            <Button
+                android:id="@+id/btnAddSubtask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_add_subtask"
+                android:background="@drawable/bg_button_cancel"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp"
+                android:drawableStart="@drawable/ic_add"
+                android:drawableTint="@color/colorPrimary"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
 
         <!-- Submit Button -->
         <Button

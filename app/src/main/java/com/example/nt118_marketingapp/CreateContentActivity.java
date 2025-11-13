@@ -63,6 +63,7 @@ public class CreateContentActivity extends AppCompatActivity {
     private EditText editContentType;
     private EditText editChannel;
     private EditText editTags;
+    private EditText editDate;
     private EditText editTime;
     private Spinner spinnerStatus;
     private TextView tvEditorLinkLabel;
@@ -150,6 +151,7 @@ public class CreateContentActivity extends AppCompatActivity {
         editContentType = findViewById(R.id.editContentType);
         editChannel = findViewById(R.id.editChannel);
         editTags = findViewById(R.id.editTags);
+        editDate = findViewById(R.id.editDate);
         editTime = findViewById(R.id.editTime);
         spinnerStatus = findViewById(R.id.spinnerStatus);
         tvEditorLinkLabel = findViewById(R.id.tvEditorLinkLabel);
@@ -158,9 +160,47 @@ public class CreateContentActivity extends AppCompatActivity {
         
         selectedDateTime = Calendar.getInstance();
         
+        // Check if date/hour are prefilled from calendar
+        Intent intent = getIntent();
+        if (intent.hasExtra("DATE") && intent.hasExtra("HOUR")) {
+            String dateStr = intent.getStringExtra("DATE"); // Format: "yyyy-MM-dd"
+            int hour = intent.getIntExtra("HOUR", -1);
+            
+            if (dateStr != null && hour >= 0) {
+                prefillDateTime(dateStr, hour);
+            }
+        }
+        
         // Clear existing mock subtasks in container
         if (subtasksContainer != null) {
             subtasksContainer.removeAllViews();
+        }
+    }
+    
+    /**
+     * Prefill date and time from calendar selection
+     */
+    private void prefillDateTime(String dateStr, int hour) {
+        try {
+            // Parse date "yyyy-MM-dd"
+            String[] parts = dateStr.split("-");
+            if (parts.length == 3) {
+                int year = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]) - 1; // Calendar months are 0-indexed
+                int day = Integer.parseInt(parts[2]);
+                
+                selectedDateTime.set(year, month, day, hour, 0);
+                
+                // Format and display date "dd/MM/yyyy"
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                editDate.setText(dateFormatter.format(selectedDateTime.getTime()));
+                
+                // Format and display time "HH:mm"
+                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                editTime.setText(timeFormatter.format(selectedDateTime.getTime()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
@@ -253,9 +293,14 @@ public class CreateContentActivity extends AppCompatActivity {
             btnAddSubtask.setOnClickListener(v -> handleAddSubtaskClick());
         }
         
+        // Date picker
+        if (editDate != null) {
+            editDate.setOnClickListener(v -> showDatePicker());
+        }
+        
         // Time picker
         if (editTime != null) {
-            editTime.setOnClickListener(v -> showDateTimePicker());
+            editTime.setOnClickListener(v -> showTimePicker());
         }
         
         // Content Type - Click để mở popup
@@ -386,7 +431,8 @@ public class CreateContentActivity extends AppCompatActivity {
         
         String channel = editChannel.getText().toString().trim();
         String tags = editTags.getText().toString().trim();
-        String time = editTime.getText().toString().trim();
+        String dateStr = editDate.getText().toString().trim();
+        String timeStr = editTime.getText().toString().trim();
         String status = spinnerStatus.getSelectedItem().toString();
         String attachment = editAttachment.getText().toString().trim();
         String editorLink = editEditorLink.getText().toString().trim();
@@ -404,11 +450,20 @@ public class CreateContentActivity extends AppCompatActivity {
             return;
         }
         
-        if (time.isEmpty()) {
-            Toast.makeText(this, "Vui lòng chọn thời gian đăng tải (dự kiến)", Toast.LENGTH_SHORT).show();
+        if (dateStr.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn ngày đăng tải (dự kiến)", Toast.LENGTH_SHORT).show();
+            editDate.requestFocus();
+            return;
+        }
+        
+        if (timeStr.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn giờ đăng tải (dự kiến)", Toast.LENGTH_SHORT).show();
             editTime.requestFocus();
             return;
         }
+        
+        // Combine date and time
+        String combinedTime = dateStr + " " + timeStr;
         
         // Validate: Nếu status là Done thì Editor Link là required
         if (status.equals("Done") && editorLink.isEmpty()) {
@@ -448,9 +503,9 @@ public class CreateContentActivity extends AppCompatActivity {
         contentMap.put("Type", type);
         contentMap.put("Channel", channel);
         contentMap.put("Tag", tags);
-        contentMap.put("CreatedTime", createdTime);
-        contentMap.put("ModifiedTime", createdTime);
-        contentMap.put("PublishedTime", time); // Thời gian đăng tải dự kiến
+        contentMap.put("CreatedTime", combinedTime); // Thời gian đăng tải dự kiến (dd/MM/yyyy HH:mm)
+        contentMap.put("ModifiedTime", combinedTime);
+        contentMap.put("PublishedTime", combinedTime); // Thời gian đăng tải dự kiến
         contentMap.put("Status", status);
         contentMap.put("Url", attachment);
         contentMap.put("EditorLink", editorLink);
@@ -473,10 +528,9 @@ public class CreateContentActivity extends AppCompatActivity {
     }
     
     /**
-     * Hiển thị Date & Time Picker
+     * Hiển thị Date Picker
      */
-    private void showDateTimePicker() {
-        // Date Picker
+    private void showDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
             this,
             (view, year, month, dayOfMonth) -> {
@@ -484,8 +538,8 @@ public class CreateContentActivity extends AppCompatActivity {
                 selectedDateTime.set(Calendar.MONTH, month);
                 selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 
-                // Sau khi chọn ngày, hiển thị Time Picker
-                showTimePicker();
+                // Cập nhật date field
+                updateDateField();
             },
             selectedDateTime.get(Calendar.YEAR),
             selectedDateTime.get(Calendar.MONTH),
@@ -504,7 +558,7 @@ public class CreateContentActivity extends AppCompatActivity {
                 selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 selectedDateTime.set(Calendar.MINUTE, minute);
                 
-                // Cập nhật text của EditText
+                // Cập nhật time field
                 updateTimeField();
             },
             selectedDateTime.get(Calendar.HOUR_OF_DAY),
@@ -515,10 +569,18 @@ public class CreateContentActivity extends AppCompatActivity {
     }
     
     /**
-     * Cập nhật hiển thị thời gian
+     * Cập nhật hiển thị date
+     */
+    private void updateDateField() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        editDate.setText(sdf.format(selectedDateTime.getTime()));
+    }
+    
+    /**
+     * Cập nhật hiển thị time
      */
     private void updateTimeField() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
         editTime.setText(sdf.format(selectedDateTime.getTime()));
     }
     
