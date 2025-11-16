@@ -487,8 +487,7 @@ public class EditContentActivity extends AppCompatActivity {
     }
 
     /**
-     * Lưu dữ liệu content
-     * Trong thực tế, bạn sẽ lưu vào database hoặc gửi lên server
+     * Lưu dữ liệu content vào Firebase
      */
     private void saveContentData() {
         // Lấy dữ liệu từ các input fields
@@ -508,26 +507,105 @@ public class EditContentActivity extends AppCompatActivity {
         // Validate dữ liệu
         if (title.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập tiêu đề", Toast.LENGTH_SHORT).show();
+            editTitle.requestFocus();
             return;
         }
 
         if (channel.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập kênh đăng", Toast.LENGTH_SHORT).show();
+            editChannel.requestFocus();
+            return;
+        }
+        
+        if (date.isEmpty() || time.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn ngày và giờ đăng", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Lưu vào database hoặc gửi lên server
-        // Ví dụ: updateContentInDatabase(contentId, title, type, channel, ...);
-
-        // Log để kiểm tra (tạm thời)
-        android.util.Log.d("EditContent", "Saved - Title: " + title);
-        android.util.Log.d("EditContent", "Saved - Type: " + type);
-        android.util.Log.d("EditContent", "Saved - Channel: " + channel);
-        android.util.Log.d("EditContent", "Saved - Tags: " + tags);
-        android.util.Log.d("EditContent", "Saved - Timestamp: " + timestamp);
-        android.util.Log.d("EditContent", "Saved - Status: " + status);
-        android.util.Log.d("EditContent", "Saved - Attachment: " + attachment);
-        android.util.Log.d("EditContent", "Saved - Editor Link: " + editorLink);
+        // Kiểm tra tiêu đề có trùng với content khác không
+        checkDuplicateTitleAndSave(title, type, channel, tags, timestamp, status, attachment, editorLink);
+    }
+    
+    /**
+     * Kiểm tra tiêu đề trùng với content khác (trừ content hiện tại)
+     */
+    private void checkDuplicateTitleAndSave(String title, String type, String channel, 
+                                            String tags, String timestamp, String status, 
+                                            String attachment, String editorLink) {
+        contentRef.orderByChild("Title").equalTo(title)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    boolean isDuplicate = false;
+                    
+                    // Kiểm tra xem có content nào khác (không phải content hiện tại) có cùng title không
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        String existingContentId = child.getKey();
+                        // Nếu tìm thấy content khác (không phải content hiện tại) có cùng title
+                        if (existingContentId != null && !existingContentId.equals(contentID)) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    
+                    if (isDuplicate) {
+                        // Hiển thị thông báo trùng tiêu đề
+                        Toast.makeText(EditContentActivity.this, 
+                            "Tiêu đề đã tồn tại! Vui lòng chọn tiêu đề khác.", 
+                            Toast.LENGTH_LONG).show();
+                        editTitle.requestFocus();
+                        editTitle.setError("Tiêu đề đã tồn tại");
+                    } else {
+                        // Không trùng -> Tiến hành update
+                        updateContentToFirebase(title, type, channel, tags, timestamp, status, attachment, editorLink);
+                    }
+                }
+                
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(EditContentActivity.this, 
+                        "Lỗi kiểm tra dữ liệu: " + error.getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+    
+    /**
+     * Update content vào Firebase
+     */
+    private void updateContentToFirebase(String title, String type, String channel, 
+                                        String tags, String timestamp, String status, 
+                                        String attachment, String editorLink) {
+        // Tạo map dữ liệu để update
+        java.util.Map<String, Object> updates = new java.util.HashMap<>();
+        updates.put("Title", title);
+        updates.put("Type", type);
+        updates.put("Channel", channel);
+        updates.put("Tag", tags);
+        updates.put("CreatedTime", timestamp);
+        updates.put("Status", status);
+        updates.put("Url", attachment);
+        updates.put("EditorLink", editorLink);
+        
+        // Update vào Firebase
+        contentRef.child(contentID).updateChildren(updates)
+            .addOnSuccessListener(aVoid -> {
+                Toast.makeText(EditContentActivity.this, 
+                    "Đã lưu thay đổi thành công!", 
+                    Toast.LENGTH_SHORT).show();
+                
+                // Cập nhật currentStatus để theo dõi trạng thái mới
+                currentStatus = status;
+                
+                // Log để kiểm tra
+                android.util.Log.d("EditContent", "Updated successfully - ContentID: " + contentID);
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(EditContentActivity.this, 
+                    "Lỗi khi lưu: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
+                android.util.Log.e("EditContent", "Update failed", e);
+            });
     }
 
     /**
