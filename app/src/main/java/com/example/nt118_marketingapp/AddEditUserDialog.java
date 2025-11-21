@@ -3,6 +3,7 @@ package com.example.nt118_marketingapp;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,6 +75,8 @@ public class AddEditUserDialog extends Dialog {
 //            edtUsername.setText(user.getUsername());
 //            edtPassword.setText(user.getPassword());
             spRole.setSelection(user.getRoleName().equals("Quản trị viên") ? 0 : 1);
+            // ẩn edit password
+            edtPassword.setVisibility(View.GONE);
         }
         // ----- end tiêu đề của dialog -------
 

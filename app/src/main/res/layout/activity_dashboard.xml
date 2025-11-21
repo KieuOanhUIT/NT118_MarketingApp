@@ -90,7 +90,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Deadline hôm nay"
+                android:text="Deadline"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -119,7 +119,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bài chấp nhận"
+                android:text="Chấp nhận"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -148,7 +148,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bài từ chối"
+                android:text="Từ chối"
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
@@ -173,7 +173,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Nội dung được giao hôm nay"
+                android:text="Nội dung được giao"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -187,7 +187,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Bài được duyệt hôm nay"
+                android:text="Bài được duyệt"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -201,7 +201,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Bài bị từ chối hôm nay"
+                android:text="Bài bị từ chối"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -212,6 +212,7 @@
                 android:layout_marginBottom="16dp" />
 
             <TextView
+                android:id="@+id/aproveAdmin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"

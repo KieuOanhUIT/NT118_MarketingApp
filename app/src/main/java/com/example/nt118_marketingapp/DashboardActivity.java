@@ -41,7 +41,7 @@ public class DashboardActivity extends AppCompatActivity {
     RecyclerView recyclerAssigned, recyclerApproved, recyclerRejected, recyclerAproveAdmin;
 
     // khai báo các biến aprove, deadline, reject
-    TextView tvDeadline, tvApproved, tvRejected;
+    TextView tvDeadline, tvApproved, tvRejected,tvapproveAdmin;
     TextView tvFullName;
 
     ImageView imgReport;
@@ -76,6 +76,8 @@ public class DashboardActivity extends AppCompatActivity {
         tvDeadline = findViewById(R.id.tvDeadline);
         tvApproved = findViewById(R.id.tvApproved);
         tvRejected = findViewById(R.id.tvRejected);
+        tvapproveAdmin = findViewById(R.id.aproveAdmin);
+
 
 
         // set layout cho recycle view dạng ngang (horizontal)
@@ -122,6 +124,14 @@ public class DashboardActivity extends AppCompatActivity {
             attachUserData(intent1);
             startActivity(intent1);
         });
+
+        // ẩn bài chờ duyệt nếu ko phải admin
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            recyclerAproveAdmin.setVisibility(View.GONE);
+            tvapproveAdmin.setVisibility(View.GONE);
+
+        }
+
 
         // Cấu hình bottom navigation
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -190,7 +200,7 @@ public class DashboardActivity extends AppCompatActivity {
                         String userID = dataSnapshot.child("UserId").getValue(String.class);
                         if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
                             String Title = dataSnapshot.child("Title").getValue(String.class);
-                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("CreatedTime").getValue(String.class);
                             String ContendId = dataSnapshot.getKey();
 
 
@@ -240,9 +250,9 @@ public class DashboardActivity extends AppCompatActivity {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         String Status = dataSnapshot.child("Status").getValue(String.class);
                         String userID = dataSnapshot.child("UserId").getValue(String.class);
-                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                        if ("Approved".equals(Status) && userID != null && userID.equals(userId)) {
                             String Title = dataSnapshot.child("Title").getValue(String.class);
-                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("CreatedTime").getValue(String.class);
                             String ContendId = dataSnapshot.getKey();
 
                             // Lấy FullName từ collection "User"
@@ -293,9 +303,9 @@ public class DashboardActivity extends AppCompatActivity {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         String Status = dataSnapshot.child("Status").getValue(String.class);
                         String userID = dataSnapshot.child("UserId").getValue(String.class);
-                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
+                        if ("Rejected".equals(Status) && userID != null && userID.equals(userId)) {
                             String Title = dataSnapshot.child("Title").getValue(String.class);
-                            String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+                            String PublishedTime = dataSnapshot.child("CreatedTime").getValue(String.class);
                             String ContendId =dataSnapshot.getKey();
 
                             // Lấy FullName từ collection "User"
@@ -335,55 +345,106 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
+//    private void getAproveAdminPosts(RecyclerView recyclerView) {
+//        database.child("Content").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()) {
+//                    // clear list
+//                    listAproveAdmin.clear();
+//
+//                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+//                        String Status = dataSnapshot.child("Status").getValue(String.class);
+//                        String userID = dataSnapshot.child("UserId").getValue(String.class);
+//                        if ("Done".equals(Status) && userID != null && userID.equals(userId)) {
+//                            String Title = dataSnapshot.child("Title").getValue(String.class);
+//                             String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
+//                             String ContendId = dataSnapshot.getKey();
+//
+//                            // Lấy FullName từ collection "User"
+//                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+//                                    String fullName = "";
+//                                    if (userSnapshot.exists()) {
+//                                        fullName = userSnapshot.child("FullName").getValue(String.class);
+//                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
+//                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+//
+//                                        listAproveAdmin.add(new Post( ContendId, Title, fullName, PublishedTime, "Chờ duyệt"));
+//                                        adapterAproveAdmin.notifyDataSetChanged();
+//                                    }
+//
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                                }
+//                            });
+//
+//                        }
+//                    }
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+
     private void getAproveAdminPosts(RecyclerView recyclerView) {
         database.child("Content").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
-                    // clear list
+                    // Clear list trước khi thêm dữ liệu mới
                     listAproveAdmin.clear();
 
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        String Status = dataSnapshot.child("Status").getValue(String.class);
-                        String userID = dataSnapshot.child("UserId").getValue(String.class);
-                        if ("To do".equals(Status) && userID != null && userID.equals(userId)) {
-                            String Title = dataSnapshot.child("Title").getValue(String.class);
-                             String PublishedTime = dataSnapshot.child("PublishedTime").getValue(String.class);
-                             String ContendId = dataSnapshot.getKey();
+                        String status = dataSnapshot.child("Status").getValue(String.class);
+                        // Bỏ kiểm tra userID
+                        if ("Done".equals(status)) {
+                            String title = dataSnapshot.child("Title").getValue(String.class);
+                            String publishedTime = dataSnapshot.child("CreatedTime").getValue(String.class);
+                            String contentId = dataSnapshot.getKey();
+                            String userID = dataSnapshot.child("UserId").getValue(String.class);
 
                             // Lấy FullName từ collection "User"
-                            database.child("User").child(userID).addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                                    String fullName = "";
-                                    if (userSnapshot.exists()) {
-                                        fullName = userSnapshot.child("FullName").getValue(String.class);
-                                        Log.d("FirebaseDebug", "👤 Lấy được FullName: " + fullName);
-                                        Log.d("FirebaseDebug", "👤 Lấy được Contentid: " + ContendId);
+                            if (userID != null) {
+                                database.child("User").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                        String fullName = "";
+                                        if (userSnapshot.exists()) {
+                                            fullName = userSnapshot.child("FullName").getValue(String.class);
+                                        }
 
-                                        listAproveAdmin.add(new Post( ContendId, Title, fullName, PublishedTime, "Chờ duyệt"));
+                                        // Thêm bài vào list
+                                        listAproveAdmin.add(new Post(contentId, title, fullName, publishedTime, "Chờ duyệt"));
                                         adapterAproveAdmin.notifyDataSetChanged();
                                     }
 
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Log.e("FirebaseDebug", "Lỗi khi lấy User: " + error.getMessage());
+                                    }
+                                });
+                            }
                         }
                     }
-
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e("FirebaseDebug", "Lỗi khi lấy Content: " + error.getMessage());
             }
         });
     }
+
 
 }
