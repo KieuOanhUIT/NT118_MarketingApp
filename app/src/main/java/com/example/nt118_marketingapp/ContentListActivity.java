@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.example.nt118_marketingapp.model.Content;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.*;
+
 import java.util.*;
 
 public class ContentListActivity extends AppCompatActivity {
@@ -27,7 +28,6 @@ public class ContentListActivity extends AppCompatActivity {
     private EditText etSearchContent;
     private Spinner spinnerStatusFilter;
 
-    // Danh sách toàn bộ content load từ Firebase
     private final List<Content> allContents = new ArrayList<>();
     private final List<String> allKeys = new ArrayList<>();
 
@@ -46,51 +46,21 @@ public class ContentListActivity extends AppCompatActivity {
 
         setupStatusFilterSpinner();
         setupSearchListener();
+        setupBottomNavigation();
 
         btnAddContent.setOnClickListener(v -> {
-            Intent intent = new Intent(ContentListActivity.this, CreateContentActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            startActivity(new Intent(ContentListActivity.this, CreateContentActivity.class));
         });
 
         btnContentCalendar.setOnClickListener(v -> {
-            Intent intent = new Intent(ContentListActivity.this, ContentCalendarActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(ContentListActivity.this, ContentCalendarActivity.class));
         });
 
-        setupBottomNavigation();
         loadContentList();
     }
 
     /** ---------------------------
-     *  🔹 Setup Bottom Navigation
-     * --------------------------- */
-    private void setupBottomNavigation() {
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.navigation_home) {
-                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
-            } else if (id == R.id.navigation_contentmanagement) {
-                return true;
-            } else if (id == R.id.navigation_approve) {
-                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
-            } else if (id == R.id.navigation_usermanagement) {
-                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
-            } else if (id == R.id.navigation_notification) {
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
-            } else if (id == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
-            }
-            overridePendingTransition(0, 0);
-            return true;
-        });
-    }
-
-    /** ---------------------------
-     *  🔹 Load dữ liệu từ Firebase
+     *  🔹 Load dữ liệu an toàn từ Firebase
      * --------------------------- */
     private void loadContentList() {
         contentRef.addValueEventListener(new ValueEventListener() {
@@ -100,10 +70,16 @@ public class ContentListActivity extends AppCompatActivity {
                 allKeys.clear();
 
                 for (DataSnapshot child : snapshot.getChildren()) {
-                    Content content = child.getValue(Content.class);
-                    if (content != null) {
-                        allContents.add(content);
-                        allKeys.add(child.getKey());
+                    Object value = child.getValue();
+                    if (value instanceof Map) { // Chỉ convert nếu đúng object
+                        Content content = child.getValue(Content.class);
+                        if (content != null) {
+                            allContents.add(content);
+                            allKeys.add(child.getKey());
+                        }
+                    } else {
+                        // Log node lỗi hoặc dạng string
+                        System.out.println("⚠️ Node không hợp lệ, bỏ qua: " + child.getKey() + " -> " + value);
                     }
                 }
 
@@ -118,7 +94,7 @@ public class ContentListActivity extends AppCompatActivity {
     }
 
     /** ---------------------------
-     *  🔹 Bộ lọc tìm kiếm + trạng thái
+     *  🔹 Bộ lọc status
      * --------------------------- */
     private void setupStatusFilterSpinner() {
         List<String> statuses = Arrays.asList("Tất cả", "To do", "In progress", "Done", "Approved", "Rejected", "Scheduled", "Published");
@@ -153,7 +129,6 @@ public class ContentListActivity extends AppCompatActivity {
         for (int i = 0; i < allContents.size(); i++) {
             Content content = allContents.get(i);
             String key = allKeys.get(i);
-
             if (content == null) continue;
 
             boolean matchStatus = selectedStatus.equals("tất cả") ||
@@ -175,7 +150,7 @@ public class ContentListActivity extends AppCompatActivity {
     }
 
     /** ---------------------------
-     *  🔹 Gán dữ liệu cho từng item
+     *  🔹 Bind dữ liệu item
      * --------------------------- */
     private void bindContentItem(View itemView, Content content, String contentId) {
         TextView tvTitle = itemView.findViewById(R.id.tvTitle);
@@ -189,7 +164,6 @@ public class ContentListActivity extends AppCompatActivity {
         ImageButton btnEdit = itemView.findViewById(R.id.btnEdit);
         ImageButton btnDelete = itemView.findViewById(R.id.btnDelete);
 
-        // Gán dữ liệu
         tvTitle.setText(safe(content.getTitle()));
         tvType.setText("Loại: " + safe(content.getType()));
         tvChannel.setText("Kênh: " + safe(content.getChannel()));
@@ -205,7 +179,6 @@ public class ContentListActivity extends AppCompatActivity {
             btnStatus.setEnabled(false);
         }
 
-        // Xem chi tiết
         btnView.setOnClickListener(v -> {
             Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
             intent.putExtra("CONTENT_ID", contentId);
@@ -213,7 +186,6 @@ public class ContentListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Chỉnh sửa
         btnEdit.setOnClickListener(v -> {
             if (!btnEdit.isEnabled()) return;
             Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
@@ -222,10 +194,8 @@ public class ContentListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Xóa
         btnDelete.setOnClickListener(v -> showDeleteConfirmDialog(contentId, content.getTitle(), itemView));
 
-        // Đổi trạng thái
         btnStatus.setOnClickListener(v -> {
             String current = safe(content.getStatus());
             String next = getNextStatus(current);
@@ -247,13 +217,12 @@ public class ContentListActivity extends AppCompatActivity {
                         }
                     })
                     .addOnFailureListener(e ->
-                            Toast.makeText(this, "Lỗi khi cập nhật trạng thái!", Toast.LENGTH_SHORT).show()
-                    );
+                            Toast.makeText(this, "Lỗi khi cập nhật trạng thái!", Toast.LENGTH_SHORT).show());
         });
     }
 
     /** ---------------------------
-     *  🔹 Tiện ích chung
+     *  🔹 Utility
      * --------------------------- */
     private String safe(String s) { return s == null ? "" : s; }
 
@@ -291,7 +260,6 @@ public class ContentListActivity extends AppCompatActivity {
         btn.setAlpha(0.4f);
     }
 
-    /** 🔸 Popup xác nhận xóa */
     private void showDeleteConfirmDialog(String contentId, String title, View itemView) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -322,5 +290,32 @@ public class ContentListActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             window.setBackgroundDrawableResource(android.R.color.transparent);
         }
+    }
+
+    /** ---------------------------
+     *  🔹 Bottom Navigation
+     * --------------------------- */
+    private void setupBottomNavigation() {
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+            } else if (id == R.id.navigation_contentmanagement) {
+                return true;
+            } else if (id == R.id.navigation_approve) {
+                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+            } else if (id == R.id.navigation_usermanagement) {
+                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+            } else if (id == R.id.navigation_notification) {
+                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+            } else if (id == R.id.navigation_profile) {
+                startActivity(new Intent(getApplicationContext(), Profile.class));
+            }
+            overridePendingTransition(0, 0);
+            return true;
+        });
     }
 }
