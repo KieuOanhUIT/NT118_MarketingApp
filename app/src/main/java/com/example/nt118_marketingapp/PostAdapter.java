@@ -40,14 +40,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.tvStatus.setText(post.getStatus());
 
 
-        // 👉 Khi click vào item
+        // 👉 Khi click vào item - chuyển sang trang xem content
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditContentActivity.class);
-            intent.putExtra("contentId", post.getContentId());
-            intent.putExtra("title", post.getTitle());
-            intent.putExtra("author", post.getFullName());
-            intent.putExtra("deadline", post.getPublishedTime());
-            intent.putExtra("status", post.getStatus());
+            intent.putExtra("CONTENT_ID", post.getContentId()); // Sử dụng CONTENT_ID để load từ Firebase
+            intent.putExtra("EDIT_MODE", false); // Mặc định ở chế độ xem, không chỉnh sửa
             v.getContext().startActivity(intent);
         });
 

@@ -94,12 +94,20 @@ public class EditContentActivity extends AppCompatActivity {
         // Check if Edit Mode should be enabled from Intent
         boolean shouldEnableEditMode = getIntent().getBooleanExtra("EDIT_MODE", false);
         
-        // Kiểm tra xem content có status locked không
-        if (isLockedStatus(currentStatus)) {
-            // Nếu status là Done/Approved/Scheduled/Published -> disable nút Edit
+        // Kiểm tra xem có CONTENT_ID hợp lệ không - nếu không có thì disable edit
+        if (contentID == null || contentID.isEmpty()) {
             shouldEnableEditMode = false;
             btnEditSave.setEnabled(false);
             btnEditSave.setAlpha(0.4f);
+            btnEditSave.setText("Không thể chỉnh sửa");
+        } else {
+            // Kiểm tra xem content có status locked không
+            if (isLockedStatus(currentStatus)) {
+                // Nếu status là Done/Approved/Scheduled/Published -> disable nút Edit
+                shouldEnableEditMode = false;
+                btnEditSave.setEnabled(false);
+                btnEditSave.setAlpha(0.4f);
+            }
         }
         
         // Set initial state based on Intent or default to View mode
@@ -127,6 +135,32 @@ public class EditContentActivity extends AppCompatActivity {
         editEditorLink = findViewById(R.id.editEditorLink);
         
         selectedDateTime = Calendar.getInstance();
+        
+        // Setup spinners với adapter
+        setupSpinners();
+    }
+    
+    /**
+     * Thiết lập các Spinner với adapter
+     */
+    private void setupSpinners() {
+        // Setup Type Spinner
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.content_type_options,
+            android.R.layout.simple_spinner_item
+        );
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerType.setAdapter(typeAdapter);
+        
+        // Setup Status Spinner - Mặc định với full options
+        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.full_content_status_options,
+            android.R.layout.simple_spinner_item
+        );
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStatus.setAdapter(statusAdapter);
     }
 
     /**
@@ -214,9 +248,18 @@ public class EditContentActivity extends AppCompatActivity {
                                     }
                                 }
                                 
-                                // Set type trong Spinner (nếu có)
-                                // TODO: Implement type selection nếu cần
-                                spinnerType.setSelection(0);
+                                // Set type trong Spinner
+                                if (content.getType() != null) {
+                                    String[] typeArray = getResources().getStringArray(R.array.content_type_options);
+                                    for (int i = 0; i < typeArray.length; i++) {
+                                        if (typeArray[i].equalsIgnoreCase(content.getType())) {
+                                            spinnerType.setSelection(i);
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    spinnerType.setSelection(0);
+                                }
                             }
                         } else {
                             Toast.makeText(EditContentActivity.this, "Không tìm thấy content", Toast.LENGTH_SHORT).show();
@@ -232,16 +275,41 @@ public class EditContentActivity extends AppCompatActivity {
                 });
             }
         } else {
-            // Dữ liệu mẫu nếu không có Intent (for testing)
-            editTitle.setText("Content Marketing Q4 2025");
-            spinnerType.setSelection(0);
-            editChannel.setText("Fanpage Công ty");
-            editTags.setText("marketing, Q4, promotion");
-            editDate.setText("24/10/2025");
-            editTime.setText("14:30");
-            spinnerStatus.setSelection(1);
-            editAttachment.setText("https://drive.google.com/example");
-            editEditorLink.setText("https://docs.google.com/example");
+            // Kiểm tra xem có data được pass trực tiếp từ Intent không (fallback)
+            if (intent.hasExtra("title")) {
+                editTitle.setText(intent.getStringExtra("title"));
+            }
+            if (intent.hasExtra("author")) {
+                // Author không có field tương ứng trong EditContentActivity
+                // Có thể thêm vào sau nếu cần
+            }
+            if (intent.hasExtra("deadline")) {
+                String deadline = intent.getStringExtra("deadline");
+                if (deadline != null && !deadline.isEmpty()) {
+                    // Tách deadline thành date và time nếu cần
+                    String[] parts = deadline.split(" ");
+                    if (parts.length >= 1) {
+                        editDate.setText(parts[0]);
+                    }
+                    if (parts.length >= 2) {
+                        editTime.setText(parts[1]);
+                    }
+                }
+            }
+            if (intent.hasExtra("status")) {
+                String status = intent.getStringExtra("status");
+                currentStatus = status != null ? status : "";
+                // Set status trong spinner
+                if (status != null) {
+                    String[] statusArray = getResources().getStringArray(R.array.full_content_status_options);
+                    for (int i = 0; i < statusArray.length; i++) {
+                        if (statusArray[i].equalsIgnoreCase(status)) {
+                            spinnerStatus.setSelection(i);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
