@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat;
 import com.example.nt118_marketingapp.model.Content;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.*;
-
 import java.util.*;
 
 public class ContentListActivity extends AppCompatActivity {
@@ -24,9 +23,11 @@ public class ContentListActivity extends AppCompatActivity {
     private DatabaseReference contentRef;
     private Button btnAddContent, btnContentCalendar;
     private BottomNavigationView bottomNavigationView;
-
     private EditText etSearchContent;
     private Spinner spinnerStatusFilter;
+
+    // THÊM: để phân quyền
+    private String roleName;
 
     private final List<Content> allContents = new ArrayList<>();
     private final List<String> allKeys = new ArrayList<>();
@@ -36,17 +37,20 @@ public class ContentListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_list);
 
+        // NHẬN ROLE TỪ INTENT (bắt buộc để ẩn tab)
+        roleName = getIntent().getStringExtra("roleName");
+
         layoutContentTable = findViewById(R.id.layoutContentTable);
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
-
         btnAddContent = findViewById(R.id.btnAddContent);
         btnContentCalendar = findViewById(R.id.btnContentCalendar);
         etSearchContent = findViewById(R.id.etSearchContent);
         spinnerStatusFilter = findViewById(R.id.spinnerStatusFilter);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         setupStatusFilterSpinner();
         setupSearchListener();
-        setupBottomNavigation();
+        setupBottomNavigation(); // ĐÃ SỬA CHỖ NÀY
 
         btnAddContent.setOnClickListener(v -> {
             startActivity(new Intent(ContentListActivity.this, CreateContentActivity.class));
@@ -59,9 +63,7 @@ public class ContentListActivity extends AppCompatActivity {
         loadContentList();
     }
 
-    /** ---------------------------
-     *  🔹 Load dữ liệu an toàn từ Firebase
-     * --------------------------- */
+    // ====================== GIỮ NGUYÊN TOÀN BỘ LOGIC CŨ ======================
     private void loadContentList() {
         contentRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -71,18 +73,16 @@ public class ContentListActivity extends AppCompatActivity {
 
                 for (DataSnapshot child : snapshot.getChildren()) {
                     Object value = child.getValue();
-                    if (value instanceof Map) { // Chỉ convert nếu đúng object
+                    if (value instanceof Map) {
                         Content content = child.getValue(Content.class);
                         if (content != null) {
                             allContents.add(content);
                             allKeys.add(child.getKey());
                         }
                     } else {
-                        // Log node lỗi hoặc dạng string
-                        System.out.println("⚠️ Node không hợp lệ, bỏ qua: " + child.getKey() + " -> " + value);
+                        System.out.println("Node không hợp lệ, bỏ qua: " + child.getKey() + " -> " + value);
                     }
                 }
-
                 filterAndDisplay();
             }
 
@@ -93,9 +93,6 @@ public class ContentListActivity extends AppCompatActivity {
         });
     }
 
-    /** ---------------------------
-     *  🔹 Bộ lọc status
-     * --------------------------- */
     private void setupStatusFilterSpinner() {
         List<String> statuses = Arrays.asList("Tất cả", "To do", "In progress", "Done", "Approved", "Rejected", "Scheduled", "Published");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuses);
@@ -116,9 +113,6 @@ public class ContentListActivity extends AppCompatActivity {
         });
     }
 
-    /** ---------------------------
-     *  🔹 Lọc dữ liệu & hiển thị
-     * --------------------------- */
     private void filterAndDisplay() {
         layoutContentTable.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -149,9 +143,6 @@ public class ContentListActivity extends AppCompatActivity {
             Toast.makeText(this, "Không tìm thấy nội dung phù hợp!", Toast.LENGTH_SHORT).show();
     }
 
-    /** ---------------------------
-     *  🔹 Bind dữ liệu item
-     * --------------------------- */
     private void bindContentItem(View itemView, Content content, String contentId) {
         TextView tvTitle = itemView.findViewById(R.id.tvTitle);
         TextView tvType = itemView.findViewById(R.id.tvType);
@@ -221,15 +212,10 @@ public class ContentListActivity extends AppCompatActivity {
         });
     }
 
-    /** ---------------------------
-     *  🔹 Utility
-     * --------------------------- */
     private String safe(String s) { return s == null ? "" : s; }
-
     private boolean isLockedStatus(String s) {
         return s.equals("done") || s.equals("approved") || s.equals("scheduled") || s.equals("published");
     }
-
     private String getNextStatus(String current) {
         if (current == null) return "To do";
         switch (current.toLowerCase()) {
@@ -254,12 +240,10 @@ public class ContentListActivity extends AppCompatActivity {
         btn.setBackgroundTintList(ContextCompat.getColorStateList(this, colorRes));
         btn.setTextColor(ContextCompat.getColor(this, android.R.color.white));
     }
-
     private void disableEditButton(ImageButton btn) {
         btn.setEnabled(false);
         btn.setAlpha(0.4f);
     }
-
     private void showDeleteConfirmDialog(String contentId, String title, View itemView) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -270,7 +254,7 @@ public class ContentListActivity extends AppCompatActivity {
         Button btnCancel = dialog.findViewById(R.id.btnCancel);
         Button btnDelete = dialog.findViewById(R.id.btnDelete);
 
-        tvContentName.setText("🗂 " + title);
+        tvContentName.setText(" " + title);
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnDelete.setOnClickListener(v -> {
             contentRef.child(contentId).removeValue()
@@ -292,29 +276,41 @@ public class ContentListActivity extends AppCompatActivity {
         }
     }
 
-    /** ---------------------------
-     *  🔹 Bottom Navigation
-     * --------------------------- */
+    // ====================== CHỈ SỬA PHẦN NÀY: NAVIGATION + PHÂN QUYỀN ======================
     private void setupBottomNavigation() {
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
+
+        // ẨN 2 TAB NẾU KHÔNG PHẢI ADMIN
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
+            Intent intent = null;
+
             if (id == R.id.navigation_home) {
-                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                intent = new Intent(this, DashboardActivity.class);
             } else if (id == R.id.navigation_contentmanagement) {
                 return true;
             } else if (id == R.id.navigation_approve) {
-                startActivity(new Intent(getApplicationContext(), ReviewContentActivity.class));
+                intent = new Intent(this, ReviewContentActivity.class);
             } else if (id == R.id.navigation_usermanagement) {
-                startActivity(new Intent(getApplicationContext(), UsermanagerActivity.class));
+                intent = new Intent(this, UsermanagerActivity.class);
             } else if (id == R.id.navigation_notification) {
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
+                intent = new Intent(this, NotificationActivity.class);
             } else if (id == R.id.navigation_profile) {
-                startActivity(new Intent(getApplicationContext(), Profile.class));
+                intent = new Intent(this, Profile.class);
             }
-            overridePendingTransition(0, 0);
+
+            if (intent != null) {
+                // Truyền lại roleName để trang đích cũng ẩn tab được
+                intent.putExtra("roleName", roleName);
+                // Nếu các trang khác cũng cần userId, fullName... thì thêm ở đây
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
             return true;
         });
     }

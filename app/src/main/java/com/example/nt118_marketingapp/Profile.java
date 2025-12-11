@@ -43,9 +43,14 @@ public class Profile extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Lấy userId từ Intent hoặc Firebase
+        // Lấy dữ liệu từ Intent
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
+        fullName = intent.getStringExtra("fullName");
+        roleName = intent.getStringExtra("roleName");
+        phone = intent.getStringExtra("phone");
+        email = intent.getStringExtra("email");
+
         if (userId == null && mAuth.getCurrentUser() != null) {
             userId = mAuth.getCurrentUser().getUid();
         }
@@ -55,7 +60,7 @@ public class Profile extends AppCompatActivity {
             return;
         }
 
-        // Tải dữ liệu người dùng
+        // Tải dữ liệu người dùng từ DB (sẽ overwrite nếu khác với intent)
         loadUserProfile(userId);
 
         // Khi chỉnh sửa hồ sơ xong -> cập nhật lại
@@ -89,7 +94,7 @@ public class Profile extends AppCompatActivity {
         // Nút đăng xuất
         btnLogout.setOnClickListener(v -> showLogoutConfirmDialog());
 
-        // Thanh điều hướng
+        // Thanh điều hướng (gọi sau khi có roleName từ intent)
         setupBottomNavigation();
     }
 
@@ -119,6 +124,9 @@ public class Profile extends AppCompatActivity {
                     tvPosition.setText(roleName != null ? roleName : "");
                     tvPhone.setText(phone != null ? phone : "");
                     tvEmail.setText(email != null ? email : "");
+
+                    // Re-apply visibility sau khi load từ DB (phòng trường hợp role thay đổi)
+                    applyNavVisibility();
                 } else {
                     tvFullName.setText("Không tìm thấy người dùng!");
                 }
@@ -129,6 +137,17 @@ public class Profile extends AppCompatActivity {
                 tvFullName.setText("Lỗi tải dữ liệu: " + error.getMessage());
             }
         });
+    }
+
+    private void applyNavVisibility() {
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        } else {
+            // Đảm bảo visible cho admin (trong trường hợp trước đó bị hide)
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(true);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(true);
+        }
     }
 
     private void showLogoutConfirmDialog() {
@@ -152,6 +171,9 @@ public class Profile extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
 
+        // Áp dụng visibility dựa trên role từ intent (sẽ được update lại sau nếu DB khác)
+        applyNavVisibility();
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             Intent intent = null;
@@ -171,11 +193,19 @@ public class Profile extends AppCompatActivity {
             }
 
             if (intent != null) {
-                intent.putExtra("userId", userId);
+                attachUserData(intent);  // Thêm method này để pass data nhất quán
                 startActivity(intent);
                 overridePendingTransition(0, 0);
             }
             return true;
         });
+    }
+
+    private void attachUserData(Intent intent) {
+        intent.putExtra("userId", userId);
+        intent.putExtra("fullName", fullName);
+        intent.putExtra("roleName", roleName);
+        intent.putExtra("phone", phone);
+        intent.putExtra("email", email);
     }
 }

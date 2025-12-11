@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.nt118_marketingapp.model.Content;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,11 +20,12 @@ public class ReviewContentActivity extends AppCompatActivity {
     private LinearLayout contentList;
     private Spinner spinnerFilter;
     private BottomNavigationView bottomNavigationView;
-
     private DatabaseReference contentRef, approvalRef, notificationRef;
     private FirebaseAuth auth;
 
-    /** Wrapper để giữ Content + contentId */
+    // THÊM: để phân quyền
+    private String roleName;
+
     private static class ReviewItem {
         public final Content content;
         public final String contentId;
@@ -37,7 +35,6 @@ public class ReviewContentActivity extends AppCompatActivity {
         }
     }
 
-    /** Danh sách tất cả ReviewItem */
     private List<ReviewItem> allItems = new ArrayList<>();
 
     @Override
@@ -45,22 +42,20 @@ public class ReviewContentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_content);
 
+        // NHẬN ROLE TỪ INTENT
+        roleName = getIntent().getStringExtra("roleName");
+
         contentList = findViewById(R.id.contentList);
         spinnerFilter = findViewById(R.id.spinnerFilter);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Firebase setup
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
         approvalRef = FirebaseDatabase.getInstance().getReference("Approval");
         notificationRef = FirebaseDatabase.getInstance().getReference("Notification");
         auth = FirebaseAuth.getInstance();
 
-        // Spinner filter setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.filter_options, // "Tất cả", "Cần duyệt", "Đã duyệt"
-                android.R.layout.simple_spinner_item
-        );
+                this, R.array.filter_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFilter.setAdapter(adapter);
 
@@ -74,7 +69,7 @@ public class ReviewContentActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        setupBottomNav();
+        setupBottomNavigation(); // ĐÃ SỬA CHỖ NÀY
         loadContentsFromFirebase();
     }
 
@@ -89,7 +84,7 @@ public class ReviewContentActivity extends AppCompatActivity {
                     if (value instanceof Map) { // chỉ convert object JSON
                         Content c = child.getValue(Content.class);
                         if (c != null && child.getKey() != null) {
-                            allItems.add(new ReviewItem(c, child.getKey()));
+                            boolean add = allItems.add(new ReviewItem(c, child.getKey()));
                         }
                     }
                 }
@@ -261,23 +256,38 @@ public class ReviewContentActivity extends AppCompatActivity {
     }
 
     /** ================== Bottom Navigation ================== **/
-    private void setupBottomNav() {
+    private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_approve);
+
+        // ẨN 2 TAB NẾU KHÔNG PHẢI ADMIN
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(this, DashboardActivity.class));
-            } else if (itemId == R.id.navigation_contentmanagement) {
-                startActivity(new Intent(this, ContentListActivity.class));
-            } else if (itemId == R.id.navigation_usermanagement) {
-                startActivity(new Intent(this, UsermanagerActivity.class));
-            } else if (itemId == R.id.navigation_notification) {
-                startActivity(new Intent(this, NotificationActivity.class));
-            } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(this, Profile.class));
-            } else return false;
+            Intent intent = null;
 
-            overridePendingTransition(0,0);
+            if (itemId == R.id.navigation_home) {
+                intent = new Intent(this, DashboardActivity.class);
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                intent = new Intent(this, ContentListActivity.class);
+            } else if (itemId == R.id.navigation_approve) {
+                return true; // đang ở đây
+            } else if (itemId == R.id.navigation_usermanagement) {
+                intent = new Intent(this, UsermanagerActivity.class);
+            } else if (itemId == R.id.navigation_notification) {
+                intent = new Intent(this, NotificationActivity.class);
+            } else if (itemId == R.id.navigation_profile) {
+                intent = new Intent(this, Profile.class);
+            }
+
+            if (intent != null) {
+                intent.putExtra("roleName", roleName); // truyền tiếp để trang khác cũng ẩn tab
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
             return true;
         });
     }
