@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.nt118_marketingapp.model.Content;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,11 +20,12 @@ public class ReviewContentActivity extends AppCompatActivity {
     private LinearLayout contentList;
     private Spinner spinnerFilter;
     private BottomNavigationView bottomNavigationView;
-
     private DatabaseReference contentRef, approvalRef, notificationRef;
     private FirebaseAuth auth;
 
-    /** Wrapper để giữ Content + contentId */
+    // THÊM: để phân quyền
+    private String roleName;
+
     private static class ReviewItem {
         public final Content content;
         public final String contentId;
@@ -37,7 +35,6 @@ public class ReviewContentActivity extends AppCompatActivity {
         }
     }
 
-    /** Danh sách tất cả ReviewItem */
     private List<ReviewItem> allItems = new ArrayList<>();
 
     @Override
@@ -45,22 +42,20 @@ public class ReviewContentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_content);
 
+        // NHẬN ROLE TỪ INTENT
+        roleName = getIntent().getStringExtra("roleName");
+
         contentList = findViewById(R.id.contentList);
         spinnerFilter = findViewById(R.id.spinnerFilter);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Firebase setup
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
         approvalRef = FirebaseDatabase.getInstance().getReference("Approval");
         notificationRef = FirebaseDatabase.getInstance().getReference("Notification");
         auth = FirebaseAuth.getInstance();
 
-        // Spinner filter setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.filter_options, // "Tất cả", "Cần duyệt", "Đã duyệt"
-                android.R.layout.simple_spinner_item
-        );
+                this, R.array.filter_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFilter.setAdapter(adapter);
 
@@ -74,7 +69,7 @@ public class ReviewContentActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        setupBottomNav();
+        setupBottomNavigation(); // ĐÃ SỬA CHỖ NÀY
         loadContentsFromFirebase();
     }
 
@@ -89,7 +84,7 @@ public class ReviewContentActivity extends AppCompatActivity {
                     if (value instanceof Map) { // chỉ convert object JSON
                         Content c = child.getValue(Content.class);
                         if (c != null && child.getKey() != null) {
-                            allItems.add(new ReviewItem(c, child.getKey()));
+                            boolean add = allItems.add(new ReviewItem(c, child.getKey()));
                         }
                     }
                 }
@@ -110,34 +105,66 @@ public class ReviewContentActivity extends AppCompatActivity {
     }
 
     /** ================== Hiển thị danh sách Content theo filter ================== **/
+    /** ================== Hiển thị danh sách Content theo filter ================== **/
+    private List<ReviewItem> filteredItems = new ArrayList<>();
+
     private void displayFilteredList(String filter) {
+
+        filteredItems.clear();
         contentList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        boolean isEmpty = true;
-
+        // Lọc dữ liệu
         for (ReviewItem ri : allItems) {
+            String status = ri.content.getStatus();
+
+            switch (filter) {
+                case "Tất cả":
+                    if ("Done".equalsIgnoreCase(status) ||
+                            "Approved".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+
+                case "Cần duyệt":
+                    if ("Done".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+
+                case "Đã duyệt":
+                    if ("Approved".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+            }
+        }
+
+        // Nếu không có item → hiển thị thông báo
+        if (filteredItems.isEmpty()) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("Không có nội dung phù hợp.");
+            emptyView.setTextSize(16);
+            emptyView.setPadding(24, 32, 24, 32);
+            emptyView.setTextColor(getResources().getColor(R.color.textSecondary));
+            contentList.addView(emptyView);
+            return;
+        }
+
+        // Hiển thị item ra UI
+        for (ReviewItem ri : filteredItems) {
             Content item = ri.content;
-            if (item == null || item.getStatus() == null) continue;
-
-            String status = item.getStatus();
-
-            // Filter
-            if ("Cần duyệt".equalsIgnoreCase(filter) && !"Done".equalsIgnoreCase(status)) continue;
-            if ("Đã duyệt".equalsIgnoreCase(filter) && !"Approved".equalsIgnoreCase(status)) continue;
-
             View itemView = inflater.inflate(R.layout.item_content_review, contentList, false);
 
             TextView tvTitle = itemView.findViewById(R.id.tvTitle);
             TextView tvStatus = itemView.findViewById(R.id.tvStatus);
             Button btnApprove = itemView.findViewById(R.id.btnApprove);
-            Button btnReject  = itemView.findViewById(R.id.btnReject);
+            Button btnReject = itemView.findViewById(R.id.btnReject);
 
             tvTitle.setText(item.getTitle() != null ? item.getTitle() : "(Không có tiêu đề)");
-            tvStatus.setText("Trạng thái: " + status);
+            tvStatus.setText("Trạng thái: " + item.getStatus());
 
-            // Nếu content đã Approved, disable nút duyệt/từ chối
-            if ("Approved".equalsIgnoreCase(status)) {
+            if ("Approved".equalsIgnoreCase(item.getStatus())) {
                 btnApprove.setEnabled(false);
                 btnApprove.setAlpha(0.5f);
                 btnReject.setEnabled(false);
@@ -148,18 +175,9 @@ public class ReviewContentActivity extends AppCompatActivity {
             }
 
             contentList.addView(itemView);
-            isEmpty = false;
-        }
-
-        if (isEmpty) {
-            TextView emptyView = new TextView(this);
-            emptyView.setText("Không có nội dung phù hợp.");
-            emptyView.setTextSize(16);
-            emptyView.setPadding(24, 32, 24, 32);
-            emptyView.setTextColor(getResources().getColor(R.color.textSecondary));
-            contentList.addView(emptyView);
         }
     }
+
 
     /** ================== Popup duyệt bài ================== **/
     private void showApprovePopup(ReviewItem ri) {
@@ -261,23 +279,38 @@ public class ReviewContentActivity extends AppCompatActivity {
     }
 
     /** ================== Bottom Navigation ================== **/
-    private void setupBottomNav() {
+    private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_approve);
+
+        // ẨN 2 TAB NẾU KHÔNG PHẢI ADMIN
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(this, DashboardActivity.class));
-            } else if (itemId == R.id.navigation_contentmanagement) {
-                startActivity(new Intent(this, ContentListActivity.class));
-            } else if (itemId == R.id.navigation_usermanagement) {
-                startActivity(new Intent(this, UsermanagerActivity.class));
-            } else if (itemId == R.id.navigation_notification) {
-                startActivity(new Intent(this, NotificationActivity.class));
-            } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(this, Profile.class));
-            } else return false;
+            Intent intent = null;
 
-            overridePendingTransition(0,0);
+            if (itemId == R.id.navigation_home) {
+                intent = new Intent(this, DashboardActivity.class);
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                intent = new Intent(this, ContentListActivity.class);
+            } else if (itemId == R.id.navigation_approve) {
+                return true; // đang ở đây
+            } else if (itemId == R.id.navigation_usermanagement) {
+                intent = new Intent(this, UsermanagerActivity.class);
+            } else if (itemId == R.id.navigation_notification) {
+                intent = new Intent(this, NotificationActivity.class);
+            } else if (itemId == R.id.navigation_profile) {
+                intent = new Intent(this, Profile.class);
+            }
+
+            if (intent != null) {
+                intent.putExtra("roleName", roleName); // truyền tiếp để trang khác cũng ẩn tab
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
             return true;
         });
     }
