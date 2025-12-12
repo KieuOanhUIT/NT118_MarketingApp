@@ -21,8 +21,8 @@ public class NotificationActivity extends AppCompatActivity {
     private DatabaseReference notificationRef;
     private BottomNavigationView bottomNavigationView;
     private FirebaseAuth auth;
-
-    // Thông tin người dùng
+    
+    // User data
     private String userId, fullName, roleName, phone, email;
 
     @Override
@@ -47,7 +47,7 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void loadNotificationsFromFirebase() {
-        String currentUserId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+        String currentUserId = userId != null ? userId : (auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null);
         if (currentUserId == null) {
             Toast.makeText(this, "Không xác định được người dùng!", Toast.LENGTH_SHORT).show();
             return;
@@ -143,23 +143,38 @@ public class NotificationActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_notification);
-        applyNavVisibility();
+        
+        // Ẩn tab dành cho Admin nếu không phải Admin
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            Intent intent = null;
             int id = item.getItemId();
 
-            if (id == R.id.navigation_home) intent = new Intent(this, DashboardActivity.class);
-            else if (id == R.id.navigation_contentmanagement) intent = new Intent(this, ContentListActivity.class);
-            else if (id == R.id.navigation_approve) intent = new Intent(this, ReviewContentActivity.class);
-            else if (id == R.id.navigation_usermanagement) intent = new Intent(this, UsermanagerActivity.class);
-            else if (id == R.id.navigation_notification) return true;
-            else if (id == R.id.navigation_profile) intent = new Intent(this, Profile.class);
-
-            if (intent != null) {
+            if (id == R.id.navigation_home) {
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+            } else if (id == R.id.navigation_contentmanagement) {
+                Intent intent = new Intent(getApplicationContext(), ContentListActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (id == R.id.navigation_approve) {
+                Intent intent = new Intent(getApplicationContext(), ReviewContentActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (id == R.id.navigation_usermanagement) {
+                Intent intent = new Intent(getApplicationContext(), UsermanagerActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (id == R.id.navigation_notification) {
+                return true;
+            } else if (id == R.id.navigation_profile) {
+                Intent intent = new Intent(getApplicationContext(), Profile.class);
+                attachUserData(intent);
+                startActivity(intent);
             }
             return true;
         });

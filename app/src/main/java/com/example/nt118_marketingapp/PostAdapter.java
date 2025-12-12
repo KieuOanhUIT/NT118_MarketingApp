@@ -42,7 +42,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         // 👉 Khi click vào item - chuyển sang trang xem content
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), EditContentActivity.class);
+            Intent intent = new Intent(v.getContext(), ContentManageActivity.class);
             intent.putExtra("CONTENT_ID", post.getContentId()); // Sử dụng CONTENT_ID để load từ Firebase
             intent.putExtra("EDIT_MODE", false); // Mặc định ở chế độ xem, không chỉnh sửa
             v.getContext().startActivity(intent);

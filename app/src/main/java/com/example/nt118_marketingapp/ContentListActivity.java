@@ -25,9 +25,9 @@ public class ContentListActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private EditText etSearchContent;
     private Spinner spinnerStatusFilter;
-
-    // THÊM: để phân quyền
-    private String roleName;
+    
+    // User data
+    private String userId, fullName, roleName, phone, email;
 
     private final List<Content> allContents = new ArrayList<>();
     private final List<String> allKeys = new ArrayList<>();
@@ -47,13 +47,21 @@ public class ContentListActivity extends AppCompatActivity {
         etSearchContent = findViewById(R.id.etSearchContent);
         spinnerStatusFilter = findViewById(R.id.spinnerStatusFilter);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        
+        // Nhận thông tin người dùng từ Intent
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("userId");
+        fullName = intent.getStringExtra("fullName");
+        roleName = intent.getStringExtra("roleName");
+        phone = intent.getStringExtra("phone");
+        email = intent.getStringExtra("email");
 
         setupStatusFilterSpinner();
         setupSearchListener();
         setupBottomNavigation(); // ĐÃ SỬA CHỖ NÀY
 
         btnAddContent.setOnClickListener(v -> {
-            startActivity(new Intent(ContentListActivity.this, CreateContentActivity.class));
+            startActivity(new Intent(ContentListActivity.this, ContentManageActivity.class));
         });
 
         btnContentCalendar.setOnClickListener(v -> {
@@ -171,17 +179,16 @@ public class ContentListActivity extends AppCompatActivity {
         }
 
         btnView.setOnClickListener(v -> {
-            Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
+            Intent intent = new Intent(ContentListActivity.this, ContentManageActivity.class);
             intent.putExtra("CONTENT_ID", contentId);
-            intent.putExtra("EDIT_MODE", false);
             startActivity(intent);
         });
 
         btnEdit.setOnClickListener(v -> {
             if (!btnEdit.isEnabled()) return;
-            Intent intent = new Intent(ContentListActivity.this, EditContentActivity.class);
+            Intent intent = new Intent(ContentListActivity.this, ContentManageActivity.class);
             intent.putExtra("CONTENT_ID", contentId);
-            intent.putExtra("EDIT_MODE", true);
+            intent.putExtra("EDIT_MODE", true);  // Open directly in EDIT mode
             startActivity(intent);
         });
 
@@ -279,6 +286,12 @@ public class ContentListActivity extends AppCompatActivity {
     // ====================== CHỈ SỬA PHẦN NÀY: NAVIGATION + PHÂN QUYỀN ======================
     private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_contentmanagement);
+        
+        // Ẩn tab dành cho Admin nếu không phải Admin
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
 
         // ẨN 2 TAB NẾU KHÔNG PHẢI ADMIN
         if (!"Admin".equalsIgnoreCase(roleName)) {
@@ -288,30 +301,40 @@ public class ContentListActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            Intent intent = null;
 
             if (id == R.id.navigation_home) {
-                intent = new Intent(this, DashboardActivity.class);
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
             } else if (id == R.id.navigation_contentmanagement) {
                 return true;
             } else if (id == R.id.navigation_approve) {
-                intent = new Intent(this, ReviewContentActivity.class);
-            } else if (id == R.id.navigation_usermanagement) {
-                intent = new Intent(this, UsermanagerActivity.class);
-            } else if (id == R.id.navigation_notification) {
-                intent = new Intent(this, NotificationActivity.class);
-            } else if (id == R.id.navigation_profile) {
-                intent = new Intent(this, Profile.class);
-            }
-
-            if (intent != null) {
-                // Truyền lại roleName để trang đích cũng ẩn tab được
-                intent.putExtra("roleName", roleName);
-                // Nếu các trang khác cũng cần userId, fullName... thì thêm ở đây
+                Intent intent = new Intent(getApplicationContext(), ReviewContentActivity.class);
+                attachUserData(intent);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+            } else if (id == R.id.navigation_usermanagement) {
+                Intent intent = new Intent(getApplicationContext(), UsermanagerActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (id == R.id.navigation_notification) {
+                Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (id == R.id.navigation_profile) {
+                Intent intent = new Intent(getApplicationContext(), Profile.class);
+                attachUserData(intent);
+                startActivity(intent);
             }
             return true;
         });
+    }
+    
+    // Helper method: attach user data to Intent
+    private void attachUserData(Intent intent) {
+        intent.putExtra("userId", userId);
+        intent.putExtra("fullName", fullName);
+        intent.putExtra("roleName", roleName);
+        intent.putExtra("phone", phone);
+        intent.putExtra("email", email);
     }
 }

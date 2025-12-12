@@ -124,7 +124,7 @@ public class ContentCalendarActivity extends AppCompatActivity implements Conten
         btnAddContent.setOnClickListener(v -> {
             if (selectedDay != null && selectedHour >= 0) {
                 // Navigate to Create Content with selected date and hour
-                Intent intent = new Intent(this, CreateContentActivity.class);
+                Intent intent = new Intent(this, ContentManageActivity.class);
                 intent.putExtra("DATE", selectedDay.toString());
                 intent.putExtra("HOUR", selectedHour);
                 startActivity(intent);
@@ -432,9 +432,9 @@ public class ContentCalendarActivity extends AppCompatActivity implements Conten
         // Setup RecyclerView
         rvContentList.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
         ContentCalendarPopupAdapter adapter = new ContentCalendarPopupAdapter(this, content -> {
-            // Navigate to EditContentActivity
-            Intent intent = new Intent(ContentCalendarActivity.this, EditContentActivity.class);
-            intent.putExtra("CONTENT_ID", content.getContentID());
+            // Navigate to ContentManageActivity
+            Intent intent = new Intent(ContentCalendarActivity.this, ContentManageActivity.class);
+            intent.putExtra("CONTENT_ID", content.getContentId());
             intent.putExtra("MODE", "view");
             startActivity(intent);
             bottomSheet.dismiss();

@@ -7,9 +7,13 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:background="@color/background"
+    android:elevation="8dp"
+    android:translationZ="8dp"
     app:menu="@menu/bottom_nav_menu"
     app:itemIconTint="@color/colorSecondary"
     app:itemTextColor="@color/colorAccent"
     app:labelVisibilityMode="labeled"
     app:itemRippleColor="@android:color/transparent"
-    app:itemBackground="@android:color/transparent" />
+    app:itemBackground="@android:color/transparent"
+    android:stateListAnimator="@null"
+    android:animateLayoutChanges="false" />

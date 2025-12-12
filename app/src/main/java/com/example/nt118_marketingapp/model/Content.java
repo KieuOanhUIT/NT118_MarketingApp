@@ -1,6 +1,6 @@
 package com.example.nt118_marketingapp.model;
 public class Content {
-    private String contentID; // Firebase key
+    private String ContentId; // Firebase key - MUST match Firebase field name exactly
     private String Title;
     private String Type;
     private String Channel;
@@ -41,11 +41,11 @@ public class Content {
     public String getPublishedTime() { return PublishedTime; }
     public String getModifiedTime() { return ModifiedTime; }
     public String getUserId() { return UserId; }
-    public String getContentID() { return contentID; }
+    public String getContentId() { return ContentId; }
 
     public void setTitle(String title) { this.Title = title; }
     public void setType(String type) { this.Type = type; }
-    public void setChannel(String channel) { this.Channel = channel; }
+    public void setChannel(String channel) { this.Channel = channel; }        
     public void setTag(String tag) { this.Tag = tag; }
     public void setCreatedTime(String createdTime) { this.CreatedTime = createdTime; }
     public void setStatus(String status) { this.Status = status; }
@@ -54,7 +54,7 @@ public class Content {
     public void setPublishedTime(String publishedTime) { this.PublishedTime = publishedTime; }
     public void setModifiedTime(String modifiedTime) { this.ModifiedTime = modifiedTime; }
     public void setUserId(String userId) { this.UserId = userId; }
-    public void setContentID(String contentID) { this.contentID = contentID; }
+    public void setContentId(String contentId) { this.ContentId = contentId; }
 }
 
 

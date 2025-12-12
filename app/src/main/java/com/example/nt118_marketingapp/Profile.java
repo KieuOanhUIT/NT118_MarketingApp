@@ -43,14 +43,14 @@ public class Profile extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference("User");
 
-        // Lấy dữ liệu từ Intent
+        // Lấy userId và thông tin người dùng từ Intent
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
         fullName = intent.getStringExtra("fullName");
         roleName = intent.getStringExtra("roleName");
         phone = intent.getStringExtra("phone");
         email = intent.getStringExtra("email");
-
+        
         if (userId == null && mAuth.getCurrentUser() != null) {
             userId = mAuth.getCurrentUser().getUid();
         }
@@ -170,6 +170,12 @@ public class Profile extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+        
+        // Ẩn tab dành cho Admin nếu không phải Admin
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
 
         // Áp dụng visibility dựa trên role từ intent (sẽ được update lại sau nếu DB khác)
         applyNavVisibility();
@@ -193,14 +199,15 @@ public class Profile extends AppCompatActivity {
             }
 
             if (intent != null) {
-                attachUserData(intent);  // Thêm method này để pass data nhất quán
+                attachUserData(intent);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
             }
             return true;
         });
     }
-
+    
+    // Helper method: attach user data to Intent
     private void attachUserData(Intent intent) {
         intent.putExtra("userId", userId);
         intent.putExtra("fullName", fullName);

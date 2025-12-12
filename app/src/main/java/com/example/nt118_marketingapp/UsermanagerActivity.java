@@ -27,16 +27,16 @@ public class UsermanagerActivity extends AppCompatActivity {
     private UserAdapter userAdapter;
     private FloatingActionButton btnAdd;
     private BottomNavigationView bottomNavigationView;
-
-    // Thông tin người dùng
+    
+    // User data
     private String userId, fullName, roleName, phone, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usermanager);
-
-        // Nhận dữ liệu từ Intent
+        
+        // Nhận thông tin người dùng từ Intent
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
         fullName = intent.getStringExtra("fullName");
@@ -111,6 +111,73 @@ public class UsermanagerActivity extends AppCompatActivity {
                     });
             dialog.show();
         });
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_usermanagement);
+        
+        // Ẩn tab dành cho Admin nếu không phải Admin (thường chỉ Admin vào trang này)
+        if (!"Admin".equalsIgnoreCase(roleName)) {
+            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+        }
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_home) {
+                Intent intentNav = new Intent(getApplicationContext(), DashboardActivity.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                Intent intentNav = new Intent(getApplicationContext(), ContentListActivity.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_approve) {
+                Intent intentNav = new Intent(getApplicationContext(), ReviewContentActivity.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_usermanagement) {
+                Intent intentNav = new Intent(getApplicationContext(), UsermanagerActivity.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_notification) {
+                Intent intentNav = new Intent(getApplicationContext(), NotificationActivity.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (itemId == R.id.navigation_profile) {
+                Intent intentNav = new Intent(getApplicationContext(), Profile.class);
+                attachUserData(intentNav);
+                startActivity(intentNav);
+                overridePendingTransition(0, 0);
+                return true;
+            }
+
+            return false;
+        });
+    }
+    
+    // Helper method: attach user data to Intent
+    private void attachUserData(Intent intent) {
+        intent.putExtra("userId", userId);
+        intent.putExtra("fullName", fullName);
+        intent.putExtra("roleName", roleName);
+        intent.putExtra("phone", phone);
+        intent.putExtra("email", email);
     }
 
     private void initViews() {
@@ -147,14 +214,6 @@ public class UsermanagerActivity extends AppCompatActivity {
             bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
             bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
         }
-    }
-
-    private void attachUserData(Intent intent) {
-        intent.putExtra("userId", userId);
-        intent.putExtra("fullName", fullName);
-        intent.putExtra("roleName", roleName);
-        intent.putExtra("phone", phone);
-        intent.putExtra("email", email);
     }
 
     private void setupBottomNavigation() {

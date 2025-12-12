@@ -22,9 +22,9 @@ public class ReviewContentActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private DatabaseReference contentRef, approvalRef, notificationRef;
     private FirebaseAuth auth;
-
-    // THÊM: để phân quyền
-    private String roleName;
+    
+    // User data
+    private String userId, fullName, roleName, phone, email;
 
     private static class ReviewItem {
         public final Content content;
@@ -48,6 +48,14 @@ public class ReviewContentActivity extends AppCompatActivity {
         contentList = findViewById(R.id.contentList);
         spinnerFilter = findViewById(R.id.spinnerFilter);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        
+        // Nhận thông tin người dùng từ Intent
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("userId");
+        fullName = intent.getStringExtra("fullName");
+        roleName = intent.getStringExtra("roleName");
+        phone = intent.getStringExtra("phone");
+        email = intent.getStringExtra("email");
 
         contentRef = FirebaseDatabase.getInstance().getReference("Content");
         approvalRef = FirebaseDatabase.getInstance().getReference("Approval");
@@ -258,38 +266,47 @@ public class ReviewContentActivity extends AppCompatActivity {
     /** ================== Bottom Navigation ================== **/
     private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_approve);
-
-        // ẨN 2 TAB NẾU KHÔNG PHẢI ADMIN
+        
+        // Ẩn tab dành cho Admin nếu không phải Admin (thông thường chỉ Admin vào trang này)
         if (!"Admin".equalsIgnoreCase(roleName)) {
             bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
             bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
         }
-
+        
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            Intent intent = null;
-
             if (itemId == R.id.navigation_home) {
-                intent = new Intent(this, DashboardActivity.class);
-            } else if (itemId == R.id.navigation_contentmanagement) {
-                intent = new Intent(this, ContentListActivity.class);
-            } else if (itemId == R.id.navigation_approve) {
-                return true; // đang ở đây
-            } else if (itemId == R.id.navigation_usermanagement) {
-                intent = new Intent(this, UsermanagerActivity.class);
-            } else if (itemId == R.id.navigation_notification) {
-                intent = new Intent(this, NotificationActivity.class);
-            } else if (itemId == R.id.navigation_profile) {
-                intent = new Intent(this, Profile.class);
-            }
-
-            if (intent != null) {
-                intent.putExtra("roleName", roleName); // truyền tiếp để trang khác cũng ẩn tab
+                Intent intent = new Intent(this, DashboardActivity.class);
+                attachUserData(intent);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+            } else if (itemId == R.id.navigation_contentmanagement) {
+                Intent intent = new Intent(this, ContentListActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (itemId == R.id.navigation_usermanagement) {
+                Intent intent = new Intent(this, UsermanagerActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (itemId == R.id.navigation_notification) {
+                Intent intent = new Intent(this, NotificationActivity.class);
+                attachUserData(intent);
+                startActivity(intent);
+            } else if (itemId == R.id.navigation_profile) {
+                Intent intent = new Intent(this, Profile.class);
+                attachUserData(intent);
+                startActivity(intent);
             }
             return true;
         });
+    }
+    
+    // Helper method: attach user data to Intent
+    private void attachUserData(Intent intent) {
+        intent.putExtra("userId", userId);
+        intent.putExtra("fullName", fullName);
+        intent.putExtra("roleName", roleName);
+        intent.putExtra("phone", phone);
+        intent.putExtra("email", email);
     }
 
     /** ================== Model: Approval ================== **/

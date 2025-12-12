@@ -64,10 +64,7 @@
             android:exported="true">
         </activity>
         <activity
-            android:name=".CreateContentActivity"
-            android:exported="true" />
-        <activity
-            android:name=".EditContentActivity"
+            android:name=".ContentManageActivity"
             android:exported="true" />
         <activity
             android:name=".NotificationDetailActivity"

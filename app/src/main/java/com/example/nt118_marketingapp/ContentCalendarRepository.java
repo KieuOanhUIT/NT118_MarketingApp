@@ -183,7 +183,7 @@ public class ContentCalendarRepository {
                                     Content content = child.getValue(Content.class);
                                     if (content != null) {
                                         // Set content ID
-                                        content.setContentID(child.getKey());
+                                        content.setContentId(child.getKey());
                                         contentList.add(content);
                                     }
                                 }
