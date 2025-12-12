@@ -113,34 +113,66 @@ public class ReviewContentActivity extends AppCompatActivity {
     }
 
     /** ================== Hiển thị danh sách Content theo filter ================== **/
+    /** ================== Hiển thị danh sách Content theo filter ================== **/
+    private List<ReviewItem> filteredItems = new ArrayList<>();
+
     private void displayFilteredList(String filter) {
+
+        filteredItems.clear();
         contentList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        boolean isEmpty = true;
-
+        // Lọc dữ liệu
         for (ReviewItem ri : allItems) {
+            String status = ri.content.getStatus();
+
+            switch (filter) {
+                case "Tất cả":
+                    if ("Done".equalsIgnoreCase(status) ||
+                            "Approved".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+
+                case "Cần duyệt":
+                    if ("Done".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+
+                case "Đã duyệt":
+                    if ("Approved".equalsIgnoreCase(status)) {
+                        filteredItems.add(ri);
+                    }
+                    break;
+            }
+        }
+
+        // Nếu không có item → hiển thị thông báo
+        if (filteredItems.isEmpty()) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("Không có nội dung phù hợp.");
+            emptyView.setTextSize(16);
+            emptyView.setPadding(24, 32, 24, 32);
+            emptyView.setTextColor(getResources().getColor(R.color.textSecondary));
+            contentList.addView(emptyView);
+            return;
+        }
+
+        // Hiển thị item ra UI
+        for (ReviewItem ri : filteredItems) {
             Content item = ri.content;
-            if (item == null || item.getStatus() == null) continue;
-
-            String status = item.getStatus();
-
-            // Filter
-            if ("Cần duyệt".equalsIgnoreCase(filter) && !"Done".equalsIgnoreCase(status)) continue;
-            if ("Đã duyệt".equalsIgnoreCase(filter) && !"Approved".equalsIgnoreCase(status)) continue;
-
             View itemView = inflater.inflate(R.layout.item_content_review, contentList, false);
 
             TextView tvTitle = itemView.findViewById(R.id.tvTitle);
             TextView tvStatus = itemView.findViewById(R.id.tvStatus);
             Button btnApprove = itemView.findViewById(R.id.btnApprove);
-            Button btnReject  = itemView.findViewById(R.id.btnReject);
+            Button btnReject = itemView.findViewById(R.id.btnReject);
 
             tvTitle.setText(item.getTitle() != null ? item.getTitle() : "(Không có tiêu đề)");
-            tvStatus.setText("Trạng thái: " + status);
+            tvStatus.setText("Trạng thái: " + item.getStatus());
 
-            // Nếu content đã Approved, disable nút duyệt/từ chối
-            if ("Approved".equalsIgnoreCase(status)) {
+            if ("Approved".equalsIgnoreCase(item.getStatus())) {
                 btnApprove.setEnabled(false);
                 btnApprove.setAlpha(0.5f);
                 btnReject.setEnabled(false);
@@ -151,18 +183,9 @@ public class ReviewContentActivity extends AppCompatActivity {
             }
 
             contentList.addView(itemView);
-            isEmpty = false;
-        }
-
-        if (isEmpty) {
-            TextView emptyView = new TextView(this);
-            emptyView.setText("Không có nội dung phù hợp.");
-            emptyView.setTextSize(16);
-            emptyView.setPadding(24, 32, 24, 32);
-            emptyView.setTextColor(getResources().getColor(R.color.textSecondary));
-            contentList.addView(emptyView);
         }
     }
+
 
     /** ================== Popup duyệt bài ================== **/
     private void showApprovePopup(ReviewItem ri) {
