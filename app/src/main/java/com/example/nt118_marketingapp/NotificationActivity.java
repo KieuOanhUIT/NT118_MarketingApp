@@ -1,18 +1,27 @@
 package com.example.nt118_marketingapp;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.example.nt118_marketingapp.model.Notification;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class NotificationActivity extends AppCompatActivity {
 
@@ -21,7 +30,7 @@ public class NotificationActivity extends AppCompatActivity {
     private DatabaseReference notificationRef;
     private BottomNavigationView bottomNavigationView;
     private FirebaseAuth auth;
-    
+
     // User data
     private String userId, fullName, roleName, phone, email;
 
@@ -46,8 +55,12 @@ public class NotificationActivity extends AppCompatActivity {
         loadNotificationsFromFirebase();
     }
 
+    // ================== LOAD DATA ==================
     private void loadNotificationsFromFirebase() {
-        String currentUserId = userId != null ? userId : (auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null);
+        String currentUserId = userId != null
+                ? userId
+                : (auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null);
+
         if (currentUserId == null) {
             Toast.makeText(this, "Không xác định được người dùng!", Toast.LENGTH_SHORT).show();
             return;
@@ -57,6 +70,7 @@ public class NotificationActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 notifications.clear();
+
                 for (DataSnapshot child : snapshot.getChildren()) {
                     Notification n = child.getValue(Notification.class);
                     if (n != null && currentUserId.equals(n.getUserId())) {
@@ -65,18 +79,22 @@ public class NotificationActivity extends AppCompatActivity {
                     }
                 }
 
-                // Sắp xếp mới nhất lên đầu
-                Collections.sort(notifications, (a, b) -> b.getCreatedTime().compareTo(a.getCreatedTime()));
+                // Mới nhất lên đầu
+                Collections.sort(notifications,
+                        (a, b) -> b.getCreatedTime().compareTo(a.getCreatedTime()));
+
                 displayNotifications();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(NotificationActivity.this, "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(NotificationActivity.this,
+                        "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // ================== DISPLAY ==================
     private void displayNotifications() {
         notificationList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -87,36 +105,40 @@ public class NotificationActivity extends AppCompatActivity {
         }
 
         for (Notification n : notifications) {
-            View itemView = inflater.inflate(R.layout.item_notification, notificationList, false);
+            View itemView = inflater.inflate(
+                    R.layout.item_notification, notificationList, false);
 
             ImageView icon = itemView.findViewById(R.id.imgNotificationIcon);
             TextView title = itemView.findViewById(R.id.tvNotificationTitle);
             TextView message = itemView.findViewById(R.id.tvNotificationMessage);
             TextView time = itemView.findViewById(R.id.tvNotificationTime);
 
-            icon.setImageResource(n.getType().equals("Approval") ? R.drawable.ic_approve : R.drawable.ic_task);
-            title.setText(n.getType().equals("Approval") ? "Duyệt nội dung" : "Công việc");
-            message.setText(n.getMessage());
-            time.setText(n.getCreatedTime().substring(0, 16).replace("T", " "));
+            // Bind icon + title theo TYPE
+            bindNotificationUI(n, icon, title);
 
+            message.setText(n.getMessage());
+            time.setText(formatTime(n.getCreatedTime()));
+
+            // Read / Unread
             if (n.isRead()) {
-                title.setTypeface(null, android.graphics.Typeface.NORMAL);
-                title.setTextColor(getColor(R.color.textPrimary));
+                title.setTypeface(null, Typeface.NORMAL);
+                title.setTextColor(
+                        ContextCompat.getColor(this, R.color.textPrimary));
                 itemView.setAlpha(0.7f);
             } else {
-                title.setTypeface(null, android.graphics.Typeface.BOLD);
-                title.setTextColor(getColor(R.color.colorPrimary));
+                title.setTypeface(null, Typeface.BOLD);
+                title.setTextColor(
+                        ContextCompat.getColor(this, R.color.colorPrimary));
             }
 
             itemView.setOnClickListener(v -> {
                 if (!n.isRead()) {
-                    notificationRef.child(n.getId()).child("IsRead").setValue(true);
+                    notificationRef.child(n.getId())
+                            .child("IsRead").setValue(true);
                 }
+
                 Intent i = new Intent(this, NotificationDetailActivity.class);
                 i.putExtra("notificationId", n.getId());
-                i.putExtra("title", n.getType().equals("Approval") ? "Duyệt nội dung" : "Công việc");
-                i.putExtra("message", n.getMessage());
-                i.putExtra("time", n.getCreatedTime().substring(0, 16).replace("T", " "));
                 startActivity(i);
             });
 
@@ -124,14 +146,61 @@ public class NotificationActivity extends AppCompatActivity {
         }
     }
 
-    // ================== PHÂN QUYỀN BOTTOM NAV ==================
-    private void applyNavVisibility() {
-        if (!"Admin".equalsIgnoreCase(roleName)) {
-            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
-            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+    // ================== ICON + TITLE ==================
+    private void bindNotificationUI(Notification n,
+                                    ImageView icon,
+                                    TextView title) {
+
+        icon.clearColorFilter();
+        String type = n.getType();
+
+        if (type == null) {
+            icon.setImageResource(R.drawable.ic_notification);
+            title.setText("Thông báo");
+            return;
+        }
+
+        switch (type) {
+            case "Approval":
+                icon.setImageResource(R.drawable.ic_approve);
+                title.setText("Nội dung đã được duyệt");
+                break;
+
+            case "Rejection":
+                icon.setImageResource(R.drawable.ic_reject);
+                title.setText("Nội dung bị từ chối");
+                break;
+
+            case "Deadline":
+                icon.setImageResource(R.drawable.ic_deadline);
+                title.setText("Deadline sắp đến");
+                break;
+
+            case "Task":
+                icon.setImageResource(R.drawable.ic_task);
+                icon.setColorFilter(
+                        ContextCompat.getColor(this, R.color.colorSecondary));
+                title.setText("Công việc");
+                break;
+
+            default:
+                icon.setImageResource(R.drawable.ic_notification);
+                title.setText("Thông báo");
+                break;
         }
     }
 
+    // ================== TIME FORMAT ==================
+    private String formatTime(String time) {
+        if (time == null) return "-";
+        try {
+            return time.substring(0, 16).replace("T", " ");
+        } catch (Exception e) {
+            return time;
+        }
+    }
+
+    // ================== BOTTOM NAV ==================
     private void attachUserData(Intent intent) {
         intent.putExtra("userId", userId);
         intent.putExtra("fullName", fullName);
@@ -143,38 +212,38 @@ public class NotificationActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_notification);
-        
-        // Ẩn tab dành cho Admin nếu không phải Admin
+
+        // Phân quyền
         if (!"Admin".equalsIgnoreCase(roleName)) {
-            bottomNavigationView.getMenu().findItem(R.id.navigation_usermanagement).setVisible(false);
-            bottomNavigationView.getMenu().findItem(R.id.navigation_approve).setVisible(false);
+            bottomNavigationView.getMenu()
+                    .findItem(R.id.navigation_usermanagement).setVisible(false);
+            bottomNavigationView.getMenu()
+                    .findItem(R.id.navigation_approve).setVisible(false);
         }
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.navigation_home) {
-                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                attachUserData(intent);
-                startActivity(intent);
+                Intent i = new Intent(this, DashboardActivity.class);
+                attachUserData(i);
+                startActivity(i);
             } else if (id == R.id.navigation_contentmanagement) {
-                Intent intent = new Intent(getApplicationContext(), ContentListActivity.class);
-                attachUserData(intent);
-                startActivity(intent);
+                Intent i = new Intent(this, ContentListActivity.class);
+                attachUserData(i);
+                startActivity(i);
             } else if (id == R.id.navigation_approve) {
-                Intent intent = new Intent(getApplicationContext(), ReviewContentActivity.class);
-                attachUserData(intent);
-                startActivity(intent);
+                Intent i = new Intent(this, ReviewContentActivity.class);
+                attachUserData(i);
+                startActivity(i);
             } else if (id == R.id.navigation_usermanagement) {
-                Intent intent = new Intent(getApplicationContext(), UsermanagerActivity.class);
-                attachUserData(intent);
-                startActivity(intent);
-            } else if (id == R.id.navigation_notification) {
-                return true;
+                Intent i = new Intent(this, UsermanagerActivity.class);
+                attachUserData(i);
+                startActivity(i);
             } else if (id == R.id.navigation_profile) {
-                Intent intent = new Intent(getApplicationContext(), Profile.class);
-                attachUserData(intent);
-                startActivity(intent);
+                Intent i = new Intent(this, Profile.class);
+                attachUserData(i);
+                startActivity(i);
             }
             return true;
         });
