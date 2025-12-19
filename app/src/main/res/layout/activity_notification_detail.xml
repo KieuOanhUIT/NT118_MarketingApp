@@ -8,7 +8,9 @@
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
 
         <!-- Icon thông báo -->
         <ImageView
@@ -38,7 +40,8 @@
             android:textColor="#555555"
             android:layout_marginBottom="8dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
         <!-- Thời gian tạo thông báo -->
         <TextView
@@ -48,12 +51,12 @@
             android:textColor="#888888"
             android:layout_marginBottom="12dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#DDDDDD"
             android:layout_marginBottom="12dp" />
 
         <!-- Loại thông báo -->
@@ -64,7 +67,8 @@
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
         <!-- Content ID -->
         <TextView
@@ -74,7 +78,8 @@
             android:textSize="16sp"
             android:layout_marginBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
         <!-- Người duyệt / từ chối -->
         <TextView
@@ -84,7 +89,8 @@
             android:textSize="16sp"
             android:layout_marginBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
         <!-- Thời gian duyệt / từ chối -->
         <TextView
@@ -94,7 +100,8 @@
             android:textSize="16sp"
             android:layout_marginBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
         <!-- Lý do -->
         <TextView
@@ -104,7 +111,8 @@
             android:textSize="16sp"
             android:lineSpacingExtra="4dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
 
     </LinearLayout>
 </ScrollView>
