@@ -1,5 +1,7 @@
 package com.example.nt118_marketingapp;
 
+import static android.content.Intent.getIntent;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -306,24 +308,29 @@ public class ContentListActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_contentmanagement) {
                 return true;
             } else if (id == R.id.navigation_approve) {
                 Intent intent = new Intent(getApplicationContext(), ReviewContentActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_usermanagement) {
                 Intent intent = new Intent(getApplicationContext(), UsermanagerActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_notification) {
                 Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_profile) {
                 Intent intent = new Intent(getApplicationContext(), Profile.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             }
             return true;
         });

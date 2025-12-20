@@ -302,22 +302,27 @@ public class ReviewContentActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, DashboardActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (itemId == R.id.navigation_contentmanagement) {
                 Intent intent = new Intent(this, ContentListActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (itemId == R.id.navigation_usermanagement) {
                 Intent intent = new Intent(this, UsermanagerActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (itemId == R.id.navigation_notification) {
                 Intent intent = new Intent(this, NotificationActivity.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (itemId == R.id.navigation_profile) {
                 Intent intent = new Intent(this, Profile.class);
                 attachUserData(intent);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             }
             return true;
         });

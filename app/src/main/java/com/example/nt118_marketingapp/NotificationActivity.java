@@ -228,22 +228,27 @@ public class NotificationActivity extends AppCompatActivity {
                 Intent i = new Intent(this, DashboardActivity.class);
                 attachUserData(i);
                 startActivity(i);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_contentmanagement) {
                 Intent i = new Intent(this, ContentListActivity.class);
                 attachUserData(i);
                 startActivity(i);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_approve) {
                 Intent i = new Intent(this, ReviewContentActivity.class);
                 attachUserData(i);
                 startActivity(i);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_usermanagement) {
                 Intent i = new Intent(this, UsermanagerActivity.class);
                 attachUserData(i);
                 startActivity(i);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             } else if (id == R.id.navigation_profile) {
                 Intent i = new Intent(this, Profile.class);
                 attachUserData(i);
                 startActivity(i);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             }
             return true;
         });

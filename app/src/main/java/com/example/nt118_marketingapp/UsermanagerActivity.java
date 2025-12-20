@@ -128,42 +128,42 @@ public class UsermanagerActivity extends AppCompatActivity {
                 Intent intentNav = new Intent(getApplicationContext(), DashboardActivity.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
 
             } else if (itemId == R.id.navigation_contentmanagement) {
                 Intent intentNav = new Intent(getApplicationContext(), ContentListActivity.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
 
             } else if (itemId == R.id.navigation_approve) {
                 Intent intentNav = new Intent(getApplicationContext(), ReviewContentActivity.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
 
             } else if (itemId == R.id.navigation_usermanagement) {
                 Intent intentNav = new Intent(getApplicationContext(), UsermanagerActivity.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
 
             } else if (itemId == R.id.navigation_notification) {
                 Intent intentNav = new Intent(getApplicationContext(), NotificationActivity.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
 
             } else if (itemId == R.id.navigation_profile) {
                 Intent intentNav = new Intent(getApplicationContext(), Profile.class);
                 attachUserData(intentNav);
                 startActivity(intentNav);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
             }
 

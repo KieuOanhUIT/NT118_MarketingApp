@@ -169,7 +169,7 @@ public class DashboardActivity extends AppCompatActivity {
             if (nextIntent != null) {
                 attachUserData(nextIntent); // thêm userId và info vào tất cả Intent
                 startActivity(nextIntent);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
                 return true;
             }
 

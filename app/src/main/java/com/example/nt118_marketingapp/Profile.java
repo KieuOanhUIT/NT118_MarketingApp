@@ -201,7 +201,7 @@ public class Profile extends AppCompatActivity {
             if (intent != null) {
                 attachUserData(intent);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in_fast, R.anim.fade_out_fast);
             }
             return true;
         });
