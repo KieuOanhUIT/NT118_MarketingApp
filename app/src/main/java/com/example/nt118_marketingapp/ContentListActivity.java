@@ -63,7 +63,9 @@ public class ContentListActivity extends AppCompatActivity {
         setupBottomNavigation(); // ĐÃ SỬA CHỖ NÀY
 
         btnAddContent.setOnClickListener(v -> {
-            startActivity(new Intent(ContentListActivity.this, ContentManageActivity.class));
+            Intent addIntent = new Intent(ContentListActivity.this, ContentManageActivity.class);
+            attachUserData(addIntent);
+            startActivity(addIntent);
         });
 
         btnContentCalendar.setOnClickListener(v -> {
@@ -175,7 +177,8 @@ public class ContentListActivity extends AppCompatActivity {
         setStatusButtonStyle(btnStatus, safe(content.getStatus()).toLowerCase());
 
         String status = safe(content.getStatus()).toLowerCase();
-        if (isLockedStatus(status)) {
+        // Disable Edit button for locked statuses (except for Admin)
+        if (isLockedStatus(status) && !"Admin".equalsIgnoreCase(roleName)) {
             disableEditButton(btnEdit);
             btnStatus.setEnabled(false);
         }
@@ -183,6 +186,7 @@ public class ContentListActivity extends AppCompatActivity {
         btnView.setOnClickListener(v -> {
             Intent intent = new Intent(ContentListActivity.this, ContentManageActivity.class);
             intent.putExtra("CONTENT_ID", contentId);
+            attachUserData(intent);
             startActivity(intent);
         });
 
@@ -191,6 +195,7 @@ public class ContentListActivity extends AppCompatActivity {
             Intent intent = new Intent(ContentListActivity.this, ContentManageActivity.class);
             intent.putExtra("CONTENT_ID", contentId);
             intent.putExtra("EDIT_MODE", true);  // Open directly in EDIT mode
+            attachUserData(intent);
             startActivity(intent);
         });
 

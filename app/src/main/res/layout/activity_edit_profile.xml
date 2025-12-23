@@ -62,7 +62,8 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/transparent"/>
 
                 <EditText
                     android:id="@+id/edtFullName"
@@ -90,7 +91,8 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/transparent"/>
 
                 <EditText
                     android:id="@+id/edtPosition"
@@ -121,7 +123,8 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/transparent"/>
 
                 <EditText
                     android:id="@+id/edtPhone"
@@ -149,7 +152,8 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/transparent"/>
 
                 <EditText
                     android:id="@+id/edtEmail"

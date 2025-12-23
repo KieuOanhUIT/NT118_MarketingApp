@@ -682,10 +682,17 @@ public class ContentManageActivity extends AppCompatActivity {
                             Toast.makeText(ContentManageActivity.this,
                                 "Tạo content thành công! ID: " + contentId, Toast.LENGTH_SHORT).show();
 
-                            // Quay về ContentListActivity và refresh
-                            Intent intent = new Intent(ContentManageActivity.this, ContentListActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
+                            // Quay về ContentListActivity và refresh với user data
+                            Intent backIntent = new Intent(ContentManageActivity.this, ContentListActivity.class);
+                            backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            // Pass user data from current Intent
+                            Intent currentIntent = getIntent();
+                            backIntent.putExtra("userId", currentIntent.getStringExtra("userId"));
+                            backIntent.putExtra("fullName", currentIntent.getStringExtra("fullName"));
+                            backIntent.putExtra("roleName", currentIntent.getStringExtra("roleName"));
+                            backIntent.putExtra("phone", currentIntent.getStringExtra("phone"));
+                            backIntent.putExtra("email", currentIntent.getStringExtra("email"));
+                            startActivity(backIntent);
                             finish();
                         })
                         .addOnFailureListener(e -> {

@@ -39,7 +39,8 @@
         android:text="Nguyễn Văn A"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="@color/textPrimary" />
+        android:textColor="@color/textPrimary"
+        android:background="@color/transparent"/>
 
     <!-- Thông tin chi tiết -->
     <LinearLayout
@@ -66,7 +67,8 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_work"/>
+                android:src="@drawable/ic_work"
+                android:background="@color/transparent"/>
 
             <TextView
                 android:id="@+id/tvPosition"
@@ -75,7 +77,8 @@
                 android:layout_marginStart="12dp"
                 android:text="Nhân viên Marketing"
                 android:textSize="16sp"
-                android:textColor="@color/textPrimary" />
+                android:textColor="@color/textPrimary"
+                android:background="@color/transparent"/>
         </LinearLayout>
 
         <!-- Số điện thoại -->
@@ -92,7 +95,8 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_phone"/>
+                android:src="@drawable/ic_phone"
+                android:background="@color/transparent"/>
 
             <TextView
                 android:id="@+id/tvPhone"
@@ -100,7 +104,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="0123 456 789"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:background="@color/transparent"/>
         </LinearLayout>
 
         <!-- Email -->
@@ -117,7 +122,8 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_email"/>
+                android:src="@drawable/ic_email"
+                android:background="@color/transparent"/>
 
             <TextView
                 android:id="@+id/tvEmail"
@@ -125,7 +131,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="nguyenvana@gmail.com"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:background="@color/transparent"/>
         </LinearLayout>
 
         <!-- Nút đăng xuất -->
