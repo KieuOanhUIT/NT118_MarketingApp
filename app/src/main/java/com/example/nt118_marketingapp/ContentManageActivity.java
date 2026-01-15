@@ -72,6 +72,7 @@ public class ContentManageActivity extends AppCompatActivity {
     private EditText editTitle;
     private LinearLayout layoutContentType;
     private EditText editContentType;
+    private LinearLayout layoutSpinnerType;  // NEW: Container for spinner in VIEW/EDIT mode
     private Spinner spinnerType;  // NEW: Spinner for View/Edit mode
     private EditText editChannel;
     private EditText editTags;
@@ -234,6 +235,7 @@ public class ContentManageActivity extends AppCompatActivity {
         editTitle = findViewById(R.id.editTitle);
         layoutContentType = findViewById(R.id.layoutContentType);
         editContentType = findViewById(R.id.editContentType);
+        layoutSpinnerType = findViewById(R.id.layoutSpinnerType);  // NEW
         spinnerType = findViewById(R.id.spinnerType);  // NEW for VIEW/EDIT mode
         editChannel = findViewById(R.id.editChannel);
         editTags = findViewById(R.id.editTags);
@@ -653,58 +655,54 @@ public class ContentManageActivity extends AppCompatActivity {
         Content newContent = new Content(title, type, channel, tags, createdTime, status,
                                         attachment, editorLink, userId);
 
-        // Generate Content ID theo format C001, C002, ...
-        com.example.nt118_marketingapp.utils.IdGenerator.generateContentId(
-            new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                @Override
-                public void onIdGenerated(String contentId) {
-                    // Tạo map để lưu vào Firebase
-                    Map<String, Object> contentMap = new HashMap<>();
-                    contentMap.put("ContentId", contentId);
-                    contentMap.put("Title", title);
-                    contentMap.put("Type", type);
-                    contentMap.put("Channel", channel);
-                    contentMap.put("Tag", tags);
-                    contentMap.put("CreatedTime", combinedTime);
-                    contentMap.put("ModifiedTime", combinedTime);
-                    contentMap.put("PublishedTime", combinedTime);
-                    contentMap.put("Status", status);
-                    contentMap.put("Url", attachment);
-                    contentMap.put("EditorLink", editorLink);
-                    contentMap.put("UserId", userId);
+        // Generate auto key từ Firebase (format: -OhLzVdBk57fu7pXJjyt)
+        String contentId = contentRef.push().getKey();
+        
+        if (contentId == null) {
+            Toast.makeText(this, "Lỗi tạo ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Tạo map để lưu vào Firebase
+        Map<String, Object> contentMap = new HashMap<>();
+        contentMap.put("ContentId", contentId);
+        contentMap.put("Title", title);
+        contentMap.put("Type", type);
+        contentMap.put("Channel", channel);
+        contentMap.put("Tag", tags);
+        contentMap.put("CreatedTime", combinedTime);
+        contentMap.put("ModifiedTime", combinedTime);
+        contentMap.put("PublishedTime", combinedTime);
+        contentMap.put("Status", status);
+        contentMap.put("Url", attachment);
+        contentMap.put("EditorLink", editorLink);
+        contentMap.put("UserId", userId);
 
-                    // Lưu vào Firebase
-                    contentRef.child(contentId).setValue(contentMap)
-                        .addOnSuccessListener(aVoid -> {
-                            // Lưu subtasks vào Firebase và gửi thông báo
-                            saveSubtasksToFirebase(contentId, title);
+        // Lưu vào Firebase
+        contentRef.child(contentId).setValue(contentMap)
+            .addOnSuccessListener(aVoid -> {
+                // Lưu subtasks vào Firebase và gửi thông báo
+                saveSubtasksToFirebase(contentId, title);
 
-                            Toast.makeText(ContentManageActivity.this,
-                                "Tạo content thành công! ID: " + contentId, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ContentManageActivity.this,
+                    "Tạo content thành công!", Toast.LENGTH_SHORT).show();
 
-                            // Quay về ContentListActivity và refresh với user data
-                            Intent backIntent = new Intent(ContentManageActivity.this, ContentListActivity.class);
-                            backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            // Pass user data from current Intent
-                            Intent currentIntent = getIntent();
-                            backIntent.putExtra("userId", currentIntent.getStringExtra("userId"));
-                            backIntent.putExtra("fullName", currentIntent.getStringExtra("fullName"));
-                            backIntent.putExtra("roleName", currentIntent.getStringExtra("roleName"));
-                            backIntent.putExtra("phone", currentIntent.getStringExtra("phone"));
-                            backIntent.putExtra("email", currentIntent.getStringExtra("email"));
-                            startActivity(backIntent);
-                            finish();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(ContentManageActivity.this,
-                                "Lỗi lưu content: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
-                }
-
-                @Override
-                public void onError(String error) {
-                    Toast.makeText(ContentManageActivity.this, error, Toast.LENGTH_SHORT).show();
-                }
+                // Quay về ContentListActivity và refresh với user data
+                Intent backIntent = new Intent(ContentManageActivity.this, ContentListActivity.class);
+                backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                // Pass user data from current Intent
+                Intent currentIntent = getIntent();
+                backIntent.putExtra("userId", currentIntent.getStringExtra("userId"));
+                backIntent.putExtra("fullName", currentIntent.getStringExtra("fullName"));
+                backIntent.putExtra("roleName", currentIntent.getStringExtra("roleName"));
+                backIntent.putExtra("phone", currentIntent.getStringExtra("phone"));
+                backIntent.putExtra("email", currentIntent.getStringExtra("email"));
+                startActivity(backIntent);
+                finish();
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(ContentManageActivity.this,
+                    "Lỗi lưu content: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
     }
 
@@ -909,7 +907,7 @@ public class ContentManageActivity extends AppCompatActivity {
         String assignee = editAssign.getText().toString().trim();
         String deadline = editSubtaskDeadline.getText().toString().trim();
 
-        // Lưu vào danh sách
+        // Lưu vào danh sách (cho cả CREATE và EDIT mode)
         savedSubtasks.add(new SubtaskData(title, assignee, deadline));
 
         // Log để kiểm tra (tạm thời)
@@ -1108,40 +1106,36 @@ public class ContentManageActivity extends AppCompatActivity {
             // Tìm userId từ assignee name
             findUserIdByName(subtaskData.assignee, userId -> {
                 if (userId != null && !userId.isEmpty()) {
-                    // Generate SubTask ID theo format ST001, ST002, ...
-                    com.example.nt118_marketingapp.utils.IdGenerator.generateSubTaskId(
-                        new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                            @Override
-                            public void onIdGenerated(String subtaskId) {
-                                SubTask subtask = new SubTask(
-                                    subtaskId,
-                                    contentId,
-                                    userId,
-                                    subtaskData.title,
-                                    false,
-                                    subtaskData.deadline
-                                );
+                    // Generate auto key từ Firebase
+                    String subtaskId = subtaskRef.push().getKey();
+                    
+                    if (subtaskId == null) {
+                        android.util.Log.e("ContentManage", "Failed to generate subtask ID");
+                        return;
+                    }
+                    
+                    SubTask subtask = new SubTask(
+                        subtaskId,
+                        contentId,
+                        userId,
+                        subtaskData.title,
+                        false,
+                        subtaskData.deadline
+                    );
 
-                                // Lưu vào Firebase
-                                Map<String, Object> subtaskMap = new HashMap<>();
-                                subtaskMap.put("SubTaskId", subtaskId);
-                                subtaskMap.put("ContentId", contentId);
-                                subtaskMap.put("UserId", userId);
-                                subtaskMap.put("Title", subtaskData.title);
-                                subtaskMap.put("IsDone", false);
-                                subtaskMap.put("Deadline", subtaskData.deadline);
+                    // Lưu vào Firebase
+                    Map<String, Object> subtaskMap = new HashMap<>();
+                    subtaskMap.put("SubTaskId", subtaskId);
+                    subtaskMap.put("ContentId", contentId);
+                    subtaskMap.put("UserId", userId);
+                    subtaskMap.put("Title", subtaskData.title);
+                    subtaskMap.put("IsDone", false);
+                    subtaskMap.put("Deadline", subtaskData.deadline);
 
-                                subtaskRef.child(subtaskId).setValue(subtaskMap)
-                                    .addOnSuccessListener(aVoid -> {
-                                        // Gửi thông báo cho user được giao subtask
-                                        sendSubtaskNotification(userId, contentTitle, subtaskData.title);
-                                    });
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                android.util.Log.e("CreateContent", "Lỗi generate SubTask ID: " + error);
-                            }
+                    subtaskRef.child(subtaskId).setValue(subtaskMap)
+                        .addOnSuccessListener(aVoid -> {
+                            // Gửi thông báo cho user được giao subtask
+                            sendSubtaskNotification(userId, contentTitle, subtaskData.title);
                         });
                 }
             });
@@ -1152,21 +1146,34 @@ public class ContentManageActivity extends AppCompatActivity {
      * Tìm userId từ tên user
      */
     private void findUserIdByName(String fullName, UserIdCallback callback) {
+        if (fullName == null || fullName.isEmpty()) {
+            android.util.Log.e("ContentManage", "findUserIdByName: fullName is null or empty");
+            callback.onUserIdFound(null);
+            return;
+        }
+        
+        android.util.Log.d("ContentManage", "findUserIdByName: Searching for user: " + fullName);
+        
         userRef.orderByChild("FullName").equalTo(fullName)
             .addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    android.util.Log.d("ContentManage", "findUserIdByName: snapshot.exists() = " + snapshot.exists() + ", children count = " + snapshot.getChildrenCount());
                     if (snapshot.exists()) {
                         for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                            callback.onUserIdFound(userSnapshot.getKey());
+                            String userId = userSnapshot.getKey();
+                            android.util.Log.d("ContentManage", "findUserIdByName: Found userId = " + userId + " for fullName = " + fullName);
+                            callback.onUserIdFound(userId);
                             return;
                         }
                     }
+                    android.util.Log.e("ContentManage", "findUserIdByName: NOT FOUND user with fullName = " + fullName);
                     callback.onUserIdFound(null);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
+                    android.util.Log.e("ContentManage", "findUserIdByName: Database error - " + error.getMessage());
                     callback.onUserIdFound(null);
                 }
             });
@@ -1176,28 +1183,24 @@ public class ContentManageActivity extends AppCompatActivity {
      * Gửi thông báo cho user được giao subtask
      */
     private void sendSubtaskNotification(String userId, String contentTitle, String subtaskTitle) {
-        // Generate Notification ID theo format N001, N002, ...
-        com.example.nt118_marketingapp.utils.IdGenerator.generateNotificationId(
-            new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                @Override
-                public void onIdGenerated(String notificationId) {
-                    Map<String, Object> notificationMap = new HashMap<>();
-                    notificationMap.put("NotiId", notificationId);
-                    notificationMap.put("UserId", userId);
-                    notificationMap.put("Type", "Task Assignment");
-                    notificationMap.put("Message", "Bạn được giao subtask: " + subtaskTitle + " trong content: " + contentTitle);
-                    notificationMap.put("IsRead", false);
-                    notificationMap.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                            .format(Calendar.getInstance().getTime()));
+        // Generate auto key từ Firebase
+        String notificationId = notificationRef.push().getKey();
+        
+        if (notificationId == null) {
+            android.util.Log.e("CreateContent", "Failed to generate notification ID");
+            return;
+        }
+        
+        Map<String, Object> notificationMap = new HashMap<>();
+        notificationMap.put("NotiId", notificationId);
+        notificationMap.put("UserId", userId);
+        notificationMap.put("Type", "Task Assignment");
+        notificationMap.put("Message", "Bạn được giao subtask: " + subtaskTitle + " trong content: " + contentTitle);
+        notificationMap.put("IsRead", false);
+        notificationMap.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                .format(Calendar.getInstance().getTime()));
 
-                    notificationRef.child(notificationId).setValue(notificationMap);
-                }
-
-                @Override
-                public void onError(String error) {
-                    android.util.Log.e("CreateContent", "Lỗi generate Notification ID: " + error);
-                }
-            });
+        notificationRef.child(notificationId).setValue(notificationMap);
     }
 
     /**
@@ -1331,6 +1334,13 @@ public class ContentManageActivity extends AppCompatActivity {
      * Load subtasks từ Firebase (for VIEW/EDIT mode) - Optimized
      */
     private void loadSubtasksFromFirebase(String contentId) {
+        loadSubtasksFromFirebase(contentId, null);
+    }
+    
+    /**
+     * Load subtasks từ Firebase với callback
+     */
+    private void loadSubtasksFromFirebase(String contentId, Runnable onComplete) {
         if (contentId == null || contentId.isEmpty()) {
             android.util.Log.e("ContentManage", "Content ID null hoặc rỗng");
             return;
@@ -1350,6 +1360,7 @@ public class ContentManageActivity extends AppCompatActivity {
                     try {
                         existingSubtasks.clear();
                         subtasksContainer.removeAllViews();
+                        subtaskChanges.clear();  // Clear old changes before loading new subtasks
 
                         android.util.Log.d("ContentManage", "Snapshot exists: " + snapshot.exists() + ", children count: " + snapshot.getChildrenCount());
 
@@ -1370,6 +1381,11 @@ public class ContentManageActivity extends AppCompatActivity {
                             android.util.Log.d("ContentManage", "Đã tải " + count + " subtask(s)");
                         } else {
                             android.util.Log.d("ContentManage", "Không có subtasks cho content này");
+                        }
+                        
+                        // Call callback if provided
+                        if (onComplete != null) {
+                            onComplete.run();
                         }
                     } catch (Exception e) {
                         android.util.Log.e("ContentManage", "Lỗi xử lý subtasks: " + e.getMessage());
@@ -1566,18 +1582,30 @@ public class ContentManageActivity extends AppCompatActivity {
     private void toggleEditMode() {
         if (currentMode == Mode.VIEW) {
             currentMode = Mode.EDIT;
+            updateUIForMode();
         } else if (currentMode == Mode.EDIT) {
-            // Save changes and return to VIEW
+            // Save any pending draft subtask before saving content
+            if (currentDraftSubtask != null && isDraftSubtaskValid) {
+                saveDraftSubtask();
+            }
+            
+            // Save changes to Firebase
+            // Mode will be switched to VIEW in the callback after save completes
             updateContentToFirebase();
-            currentMode = Mode.VIEW;
         }
-        updateUIForMode();
     }
 
     /**
      * Update UI theo mode hiện tại
      */
     private void updateUIForMode() {
+        updateUIForMode(false);
+    }
+    
+    /**
+     * Update UI theo mode hiện tại với option skip reload subtasks
+     */
+    private void updateUIForMode(boolean skipSubtasksReload) {
         switch (currentMode) {
             case CREATE:
                 // Header
@@ -1605,9 +1633,9 @@ public class ContentManageActivity extends AppCompatActivity {
                 // Disable all fields
                 setFieldsEnabled(false);
 
-                // Hide layoutContentType, show spinnerType
+                // Hide layoutContentType, show layoutSpinnerType
                 if (layoutContentType != null) layoutContentType.setVisibility(View.GONE);
-                if (spinnerType != null) spinnerType.setVisibility(View.VISIBLE);
+                if (layoutSpinnerType != null) layoutSpinnerType.setVisibility(View.VISIBLE);
 
                 // Update status spinner for VIEW mode
                 updateStatusSpinner(false);
@@ -1615,8 +1643,10 @@ public class ContentManageActivity extends AppCompatActivity {
                 // Hide Add Subtask button
                 if (btnAddSubtask != null) btnAddSubtask.setVisibility(View.GONE);
 
-                // Reload subtasks to update UI state
-                reloadSubtasksUI();
+                // Reload subtasks to update UI state (only if not skipped)
+                if (!skipSubtasksReload) {
+                    reloadSubtasksUI();
+                }
                 break;
 
             case EDIT:
@@ -1634,9 +1664,9 @@ public class ContentManageActivity extends AppCompatActivity {
                     spinnerStatus.setEnabled(false);
                 }
 
-                // Show layoutContentType (custom popup), hide spinnerType - same as CREATE mode
+                // Show layoutContentType (custom popup), hide layoutSpinnerType - same as CREATE mode
                 if (layoutContentType != null) layoutContentType.setVisibility(View.VISIBLE);
-                if (spinnerType != null) spinnerType.setVisibility(View.GONE);
+                if (layoutSpinnerType != null) layoutSpinnerType.setVisibility(View.GONE);
 
                 // Update status spinner for EDIT mode
                 updateStatusSpinner(true);
@@ -1644,8 +1674,10 @@ public class ContentManageActivity extends AppCompatActivity {
                 // Show Add Subtask button
                 if (btnAddSubtask != null) btnAddSubtask.setVisibility(View.VISIBLE);
 
-                // Reload subtasks to update UI state
-                reloadSubtasksUI();
+                // Reload subtasks to update UI state (only if not skipped)
+                if (!skipSubtasksReload) {
+                    reloadSubtasksUI();
+                }
                 break;
         }
     }
@@ -1782,6 +1814,16 @@ public class ContentManageActivity extends AppCompatActivity {
                 // Update subtasks and send notifications
                 updateSubtasksToFirebase(title);
                 currentStatus = status;
+                
+                // Switch to VIEW mode after saving
+                currentMode = Mode.VIEW;
+                
+                // Reload subtasks from Firebase to get fresh data, then update UI
+                loadSubtasksFromFirebase(contentID, () -> {
+                    // After subtasks loaded, update UI to VIEW mode (skip subtasks reload)
+                    updateUIForMode(true);
+                    Toast.makeText(ContentManageActivity.this, "Đã lưu thành công!", Toast.LENGTH_SHORT).show();
+                });
             })
             .addOnFailureListener(e -> {
                 Toast.makeText(ContentManageActivity.this, "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -1792,8 +1834,13 @@ public class ContentManageActivity extends AppCompatActivity {
      * Update subtasks changes to Firebase and send notifications
      */
     private void updateSubtasksToFirebase(String contentTitle) {
+        android.util.Log.d("ContentManage", "updateSubtasksToFirebase called");
+        android.util.Log.d("ContentManage", "subtaskChanges count: " + subtaskChanges.size());
+        android.util.Log.d("ContentManage", "savedSubtasks count: " + savedSubtasks.size());
+        
         int changesCount = 0;
         
+        // 1. Process existing subtask changes (edit/delete)
         for (SubtaskChange change : subtaskChanges.values()) {
             if (!change.hasChanges()) {
                 continue;
@@ -1838,14 +1885,66 @@ public class ContentManageActivity extends AppCompatActivity {
             }
         }
         
-        if (changesCount > 0) {
-            Toast.makeText(this, "Đã lưu " + changesCount + " thay đổi subtask", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Cập nhật content thành công!", Toast.LENGTH_SHORT).show();
+        // 2. Save new subtasks added in EDIT mode
+        // Note: Check savedSubtasks list instead of currentMode (mode may already be switched)
+        if (!savedSubtasks.isEmpty()) {
+            android.util.Log.d("ContentManage", "Saving " + savedSubtasks.size() + " new subtasks");
+            for (SubtaskData subtaskData : savedSubtasks) {
+                changesCount++;
+                android.util.Log.d("ContentManage", "Processing subtask: " + subtaskData.title + ", assignee: " + subtaskData.assignee);
+                
+                // Find userId from assignee name
+                findUserIdByName(subtaskData.assignee, userId -> {
+                    android.util.Log.d("ContentManage", "findUserIdByName callback - userId: " + userId + " for assignee: " + subtaskData.assignee);
+                    if (userId == null || userId.isEmpty()) {
+                        android.util.Log.e("ContentManage", "KHÔNG TÌM THẤY userId cho assignee: " + subtaskData.assignee);
+                        return;
+                    }
+                    
+                    // Generate subtask ID
+                    String subtaskId = subtaskRef.push().getKey();
+                    if (subtaskId == null) {
+                        android.util.Log.e("ContentManage", "KHÔNG tạo được subtaskId");
+                        return;
+                    }
+                    
+                    android.util.Log.d("ContentManage", "Saving subtask to Firebase - ID: " + subtaskId);
+                    android.util.Log.d("ContentManage", "🔍 Constructor params - subtaskId: " + subtaskId);
+                    android.util.Log.d("ContentManage", "🔍 Constructor params - contentID: " + contentID);
+                    android.util.Log.d("ContentManage", "🔍 Constructor params - userId: " + userId);
+                    android.util.Log.d("ContentManage", "🔍 Constructor params - title: " + subtaskData.title);
+                    android.util.Log.d("ContentManage", "🔍 Constructor params - deadline: " + subtaskData.deadline);
+                    
+                    // Create SubTask object
+                    SubTask newSubtask = new SubTask(
+                        subtaskId,
+                        contentID,
+                        userId,
+                        subtaskData.title,
+                        false,
+                        subtaskData.deadline
+                    );
+                    
+                    android.util.Log.d("ContentManage", "🔍 After constructor - newSubtask.ContentId = " + newSubtask.getContentId());
+                    android.util.Log.d("ContentManage", "🔍 After constructor - newSubtask.Title = " + newSubtask.getTitle());
+                    
+                    // Save to Firebase
+                    subtaskRef.child(subtaskId).setValue(newSubtask)
+                        .addOnSuccessListener(aVoid -> {
+                            android.util.Log.d("ContentManage", "✅ Subtask saved successfully: " + subtaskData.title);
+                            // Send notification to assigned user
+                            sendSubtaskNotification(userId, contentTitle, subtaskData.title);
+                        })
+                        .addOnFailureListener(e -> {
+                            android.util.Log.e("ContentManage", "❌ Lỗi lưu subtask mới: " + e.getMessage());
+                        });
+                });
+            }
         }
         
         // Clear changes after save
         subtaskChanges.clear();
+        savedSubtasks.clear();
     }
 
     /**
@@ -1871,78 +1970,66 @@ public class ContentManageActivity extends AppCompatActivity {
      * Send notification when user is removed from subtask
      */
     private void sendSubtaskRemovalNotification(String userId, String contentTitle, String subtaskTitle) {
-        com.example.nt118_marketingapp.utils.IdGenerator.generateNotificationId(
-            new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                @Override
-                public void onIdGenerated(String notificationId) {
-                    Map<String, Object> notification = new HashMap<>();
-                    notification.put("NotiId", notificationId);
-                    notification.put("UserId", userId);
-                    notification.put("Type", "Subtask Removal");
-                    notification.put("Message", "Bạn đã được gỡ khỏi subtask: " + subtaskTitle + " trong content: " + contentTitle);
-                    notification.put("IsRead", false);
-                    notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
-                    
-                    notificationRef.child(notificationId).setValue(notification);
-                }
-
-                @Override
-                public void onError(String error) {
-                    android.util.Log.e("ContentManage", "Lỗi generate notification ID: " + error);
-                }
-            });
+        String notificationId = notificationRef.push().getKey();
+        
+        if (notificationId == null) {
+            android.util.Log.e("ContentManage", "Failed to generate notification ID");
+            return;
+        }
+        
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("NotiId", notificationId);
+        notification.put("UserId", userId);
+        notification.put("Type", "Subtask Removal");
+        notification.put("Message", "Bạn đã được gỡ khỏi subtask: " + subtaskTitle + " trong content: " + contentTitle);
+        notification.put("IsRead", false);
+        notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
+        
+        notificationRef.child(notificationId).setValue(notification);
     }
 
     /**
      * Send notification when user is assigned to subtask
      */
     private void sendSubtaskAssignmentNotification(String userId, String contentTitle, String subtaskTitle) {
-        com.example.nt118_marketingapp.utils.IdGenerator.generateNotificationId(
-            new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                @Override
-                public void onIdGenerated(String notificationId) {
-                    Map<String, Object> notification = new HashMap<>();
-                    notification.put("NotiId", notificationId);
-                    notification.put("UserId", userId);
-                    notification.put("Type", "Task Assignment");
-                    notification.put("Message", "Bạn được giao subtask: " + subtaskTitle + " trong content: " + contentTitle);
-                    notification.put("IsRead", false);
-                    notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
-                    
-                    notificationRef.child(notificationId).setValue(notification);
-                }
-
-                @Override
-                public void onError(String error) {
-                    android.util.Log.e("ContentManage", "Lỗi generate notification ID: " + error);
-                }
-            });
+        String notificationId = notificationRef.push().getKey();
+        
+        if (notificationId == null) {
+            android.util.Log.e("ContentManage", "Failed to generate notification ID");
+            return;
+        }
+        
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("NotiId", notificationId);
+        notification.put("UserId", userId);
+        notification.put("Type", "Task Assignment");
+        notification.put("Message", "Bạn được giao subtask: " + subtaskTitle + " trong content: " + contentTitle);
+        notification.put("IsRead", false);
+        notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
+        
+        notificationRef.child(notificationId).setValue(notification);
     }
 
     /**
      * Send notification when subtask is updated
      */
     private void sendSubtaskUpdateNotification(String userId, String contentTitle, String subtaskTitle, String changeDetails) {
-        com.example.nt118_marketingapp.utils.IdGenerator.generateNotificationId(
-            new com.example.nt118_marketingapp.utils.IdGenerator.IdCallback() {
-                @Override
-                public void onIdGenerated(String notificationId) {
-                    Map<String, Object> notification = new HashMap<>();
-                    notification.put("NotiId", notificationId);
-                    notification.put("UserId", userId);
-                    notification.put("Type", "Subtask Update");
-                    notification.put("Message", "Subtask '" + subtaskTitle + "' trong content '" + contentTitle + "' đã được cập nhật: " + changeDetails);
-                    notification.put("IsRead", false);
-                    notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
-                    
-                    notificationRef.child(notificationId).setValue(notification);
-                }
-
-                @Override
-                public void onError(String error) {
-                    android.util.Log.e("ContentManage", "Lỗi generate notification ID: " + error);
-                }
-            });
+        String notificationId = notificationRef.push().getKey();
+        
+        if (notificationId == null) {
+            android.util.Log.e("ContentManage", "Failed to generate notification ID");
+            return;
+        }
+        
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("NotiId", notificationId);
+        notification.put("UserId", userId);
+        notification.put("Type", "Subtask Update");
+        notification.put("Message", "Subtask '" + subtaskTitle + "' trong content '" + contentTitle + "' đã được cập nhật: " + changeDetails);
+        notification.put("IsRead", false);
+        notification.put("CreatedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new java.util.Date()));
+        
+        notificationRef.child(notificationId).setValue(notification);
     }
 
     /**

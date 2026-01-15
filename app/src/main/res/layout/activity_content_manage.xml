@@ -175,6 +175,7 @@
     
         <!-- Type (required) - VIEW/EDIT mode: spinner -->
         <LinearLayout
+            android:id="@+id/layoutSpinnerType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -344,7 +345,7 @@
                         android:layout_height="wrap_content"
                         android:text="Ngày"
                         android:textStyle="bold"
-                        android:textSize="11sp"
+                        android:textSize="14sp"
                         android:textColor="@color/textSecondary"/>
                     <EditText
                         android:id="@+id/editDate"
@@ -391,7 +392,7 @@
                         android:layout_height="wrap_content"
                         android:text="Giờ"
                         android:textStyle="bold"
-                        android:textSize="11sp"
+                        android:textSize="14sp"
                         android:textColor="@color/textSecondary"/>
                     <EditText
                         android:id="@+id/editTime"
